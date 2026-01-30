@@ -1,4 +1,4 @@
-import type { Contact, InventoryItem, Task, Transaction, Investment, FinancialData } from './types';
+import type { Contact, Task, Transaction, Investment, FinancialData } from './types';
 
 export const contacts: Contact[] = [
   { id: 'C001', name: 'John Doe', type: 'Customer', company: 'Green Valley Grocers', email: 'john.d@gvg.com', phone: '555-0101', transactionCount: 12 },
@@ -6,14 +6,6 @@ export const contacts: Contact[] = [
   { id: 'C002', name: 'Alice Williams', type: 'Customer', company: 'Organic Eats', email: 'alice.w@organiceats.com', phone: '555-0103', transactionCount: 8 },
   { id: 'S002', name: 'Bob Brown', type: 'Supplier', company: 'Heavy Machines Inc.', email: 'bob.b@heavymachines.com', phone: '555-0104', transactionCount: 5 },
   { id: 'C003', name: 'Charlie Green', type: 'Customer', company: 'The Corner Market', email: 'charlie.g@cornermarket.com', phone: '555-0105', transactionCount: 21 },
-];
-
-export const inventory: InventoryItem[] = [
-  { id: 'I001', name: 'Organic Tomato Seeds', category: 'Seeds', stock: 150, reorderLevel: 50, supplier: 'FarmSupply Co.' },
-  { id: 'I002', name: 'All-Purpose Fertilizer', category: 'Fertilizers', stock: 45, reorderLevel: 50, supplier: 'FarmSupply Co.' },
-  { id: 'I003', name: 'Tractor Model X', category: 'Equipment', stock: 2, reorderLevel: 1, supplier: 'Heavy Machines Inc.' },
-  { id: 'I004', name: 'Fresh Lettuce Heads', category: 'Produce', stock: 200, reorderLevel: 100, supplier: 'N/A' },
-  { id: 'I005', name: 'Corn Seeds', category: 'Seeds', stock: 300, reorderLevel: 100, supplier: 'FarmSupply Co.' },
 ];
 
 export const tasks: Task[] = [

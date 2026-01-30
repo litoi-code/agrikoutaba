@@ -8,15 +8,6 @@ export interface Contact {
   transactionCount: number;
 }
 
-export interface InventoryItem {
-  id: string;
-  name: string;
-  category: 'Seeds' | 'Fertilizers' | 'Equipment' | 'Produce';
-  stock: number;
-  reorderLevel: number;
-  supplier: string;
-}
-
 export interface Task {
   id: string;
   title: string;

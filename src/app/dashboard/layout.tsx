@@ -1,11 +1,9 @@
 import Link from "next/link";
 import {
   AreaChart,
-  BrainCircuit,
   ClipboardList,
   LayoutDashboard,
   Leaf,
-  Package,
   Landmark,
   UsersRound,
   Settings,
@@ -29,11 +27,9 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
   { href: "/dashboard/contacts", icon: <UsersRound />, label: "Contacts" },
-  { href: "/dashboard/inventory", icon: <Package />, label: "Inventory" },
   { href: "/dashboard/tasks", icon: <ClipboardList />, label: "Tasks" },
   { href: "/dashboard/finances", icon: <Landmark />, label: "Finances" },
   { href: "/dashboard/investments", icon: <AreaChart />, label: "Investments" },
-  { href: "/dashboard/forecasting", icon: <BrainCircuit />, label: "Forecasting" },
 ];
 
 export default function DashboardLayout({

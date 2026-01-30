@@ -3,18 +3,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { CheckCircle, Users, Package, ClipboardList, BrainCircuit, Landmark, AreaChart } from 'lucide-react';
+import { Users, ClipboardList, Landmark, AreaChart } from 'lucide-react';
 
 const features = [
   {
     icon: <Users className="h-8 w-8 text-primary" />,
     title: 'Customer & Supplier Management',
     description: 'Maintain profiles, contact details, and transaction history.',
-  },
-  {
-    icon: <Package className="h-8 w-8 text-primary" />,
-    title: 'Inventory Tracking',
-    description: 'Manage stock levels for seeds, fertilizers, and equipment.',
   },
   {
     icon: <ClipboardList className="h-8 w-8 text-primary" />,
@@ -25,11 +20,6 @@ const features = [
     icon: <Landmark className="h-8 w-8 text-primary" />,
     title: 'Financial Oversight',
     description: 'Record income, expenses, and manage investments with ease.',
-  },
-  {
-    icon: <BrainCircuit className="h-8 w-8 text-primary" />,
-    title: 'AI-Powered Forecasting',
-    description: 'Predict cash flow with our intelligent financial forecasting tool.',
   },
    {
     icon: <AreaChart className="h-8 w-8 text-primary" />,
@@ -74,7 +64,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
               All-in-One Farm Management
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
               {features.map((feature) => (
                 <Card key={feature.title} className="bg-card hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="flex flex-row items-center gap-4">
