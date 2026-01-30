@@ -60,12 +60,12 @@ export default function DashboardLayout({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton tooltip={item.label}>
+                <SidebarMenuButton asChild tooltip={item.label}>
+                  <Link href={item.href}>
                     {item.icon}
                     <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
