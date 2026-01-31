@@ -1,4 +1,4 @@
-import { Link } from "next-intl";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
   AreaChart,
