@@ -65,7 +65,6 @@ interface AddTaskDialogProps {
 
 export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("TasksPage.AddTaskDialog");
@@ -210,7 +209,7 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("dueDateLabel")}</FormLabel>
-                  <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                  <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -233,10 +232,7 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) => {
-                          field.onChange(date);
-                          setDatePickerOpen(false);
-                        }}
+                        onSelect={field.onChange}
                         initialFocus
                       />
                     </PopoverContent>

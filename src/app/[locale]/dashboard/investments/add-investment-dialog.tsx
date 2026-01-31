@@ -54,7 +54,6 @@ export function AddInvestmentDialog({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InvestmentsPage.AddInvestmentDialog");
@@ -161,7 +160,7 @@ export function AddInvestmentDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("dateLabel")}</FormLabel>
-                  <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                  <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -184,10 +183,7 @@ export function AddInvestmentDialog({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) => {
-                          field.onChange(date);
-                          setDatePickerOpen(false);
-                        }}
+                        onSelect={field.onChange}
                         initialFocus
                       />
                     </PopoverContent>
