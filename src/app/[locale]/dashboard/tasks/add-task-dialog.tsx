@@ -74,7 +74,7 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
       description: "",
       workerId: "",
       status: "To Do",
-      dueDate: undefined,
+      dueDate: new Date(),
     },
   });
 

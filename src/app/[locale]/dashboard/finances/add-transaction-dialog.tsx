@@ -90,7 +90,7 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       customerId: "",
-      date: undefined,
+      date: new Date(),
     },
   });
 
@@ -100,7 +100,7 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       supplierId: "",
-      date: undefined,
+      date: new Date(),
     },
   });
 
