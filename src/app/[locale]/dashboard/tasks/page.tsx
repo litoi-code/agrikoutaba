@@ -16,9 +16,7 @@ import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddTaskDialog } from './add-task-dialog';
 
-const TaskCard = ({ task, assignee, t }: { task: WithId<Task>, assignee?: WithId<Worker>, t: any }) => {
-  const assigneeName = assignee ? `${assignee.firstName} ${assignee.lastName}` : 'Unassigned';
-  const assigneeInitial = assignee ? (assignee.firstName?.charAt(0) ?? '') + (assignee.lastName?.charAt(0) ?? '') : 'U';
+const TaskCard = ({ task, assignees, t }: { task: WithId<Task>, assignees: WithId<Worker>[], t: any }) => {
   const [formattedDate, setFormattedDate] = useState('');
 
   useEffect(() => {
@@ -33,17 +31,23 @@ const TaskCard = ({ task, assignee, t }: { task: WithId<Task>, assignee?: WithId
         </div>
         <div className="text-sm text-muted-foreground mb-4">{formattedDate ? t('due', {date: formattedDate}) : <Skeleton className="h-4 w-24" />}</div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {assignee ? (
-              <>
-                <Avatar className="h-6 w-6">
-                  {assignee.avatarUrl && <AvatarImage src={assignee.avatarUrl} alt={assigneeName} />}
-                  <AvatarFallback>{assigneeInitial}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm">{assigneeName}</span>
-              </>
+          <div className="flex items-center">
+            {assignees && assignees.length > 0 ? (
+              <div className="flex -space-x-2 overflow-hidden">
+                {assignees.map((assignee) => {
+                  if (!assignee) return null;
+                  const assigneeName = `${assignee.firstName} ${assignee.lastName}`;
+                  const assigneeInitial = (assignee.firstName?.charAt(0) ?? '') + (assignee.lastName?.charAt(0) ?? '');
+                  return (
+                    <Avatar key={assignee.id} className="h-6 w-6 border-2 border-card">
+                      {assignee.avatarUrl && <AvatarImage src={assignee.avatarUrl} alt={assigneeName} />}
+                      <AvatarFallback>{assigneeInitial}</AvatarFallback>
+                    </Avatar>
+                  );
+                })}
+              </div>
             ) : (
-              <Skeleton className="h-6 w-24" />
+              <span className="text-sm text-muted-foreground">Unassigned</span>
             )}
           </div>
         </div>
@@ -61,9 +65,12 @@ const TaskColumn = ({ title, tasks, workersMap, isLoading, t }: { title: string;
           <Card key={i}><CardContent className="p-4 space-y-4"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-6 w-24" /></CardContent></Card>
         ))
       ) : (
-        tasks.map((task) => (
-          <TaskCard key={task.id} task={task} assignee={workersMap.get(task.workerId)} t={t} />
-        ))
+        tasks.map((task) => {
+          const assignees = task.workerIds.map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
+          return (
+            <TaskCard key={task.id} task={task} assignees={assignees} t={t} />
+          )
+        })
       )}
     </div>
   </div>

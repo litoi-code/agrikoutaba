@@ -37,6 +37,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
@@ -51,9 +57,9 @@ import type { Worker } from "@/lib/types";
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  workerId: z
-    .string({ required_error: "Please select a worker." })
-    .min(1, "Please select a worker."),
+  workerIds: z
+    .array(z.string())
+    .min(1, "At least one worker must be assigned."),
   status: z.enum(["To Do", "In Progress", "Completed"]),
   dueDate: z.date({ required_error: "Please select a due date." }),
 });
@@ -74,7 +80,7 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
     defaultValues: {
       title: "",
       description: "",
-      workerId: "",
+      workerIds: [],
       status: "To Do",
       dueDate: new Date(),
     },
@@ -140,37 +146,51 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="workerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("assigneeLabel")}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+            <FormField
+              control={form.control}
+              name="workerIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("assigneesLabel")}</FormLabel>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t("selectWorkerPlaceholder")}
-                          />
-                        </SelectTrigger>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          {field.value?.length > 0
+                            ? `${field.value.length} worker(s) selected`
+                            : t("selectWorkersPlaceholder")}
+                        </Button>
                       </FormControl>
-                      <SelectContent>
-                        {workers.map((w) => (
-                          <SelectItem
-                            key={w.id}
-                            value={w.id}
-                          >{`${w.firstName} ${w.lastName}`}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+                      {workers.map((worker) => (
+                        <DropdownMenuCheckboxItem
+                          key={worker.id}
+                          checked={field.value?.includes(worker.id)}
+                          onCheckedChange={(checked) => {
+                            const currentIds = field.value || [];
+                            if (checked) {
+                              field.onChange([...currentIds, worker.id]);
+                            } else {
+                              field.onChange(
+                                currentIds.filter((id) => id !== worker.id)
+                              );
+                            }
+                          }}
+                        >
+                          {`${worker.firstName} ${worker.lastName}`}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="status"
@@ -202,45 +222,45 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{t("dueDateLabel")}</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>{t("dueDateLabel")}</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <DialogFooter>
               <Button type="submit">{t("addButton")}</Button>
             </DialogFooter>

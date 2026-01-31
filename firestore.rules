@@ -54,27 +54,11 @@ service cloud.firestore {
     }
 
     /**
-     * Checks if the user is the worker assigned to the task being created.
-     * Validates that the `workerId` field in the new data matches the user's UID.
-     */
-    function isCreatingOwnTask() {
-      return request.resource.data.workerId == request.auth.uid;
-    }
-
-    /**
-     * Checks if the user is the worker assigned to an existing task.
+     * Checks if the user is one of the workers assigned to an existing task.
      * Used for update and delete operations.
      */
-    function isExistingAssignedWorker() {
-      return isExistingDocument() && resource.data.workerId == request.auth.uid;
-    }
-
-    /**
-     * Ensures the workerId field cannot be changed after creation.
-     * This prevents a worker from reassigning their task to someone else.
-     */
-    function isWorkerIdImmutable() {
-      return request.resource.data.workerId == resource.data.workerId;
+    function isAnAssignedWorker() {
+      return isExistingDocument() && request.auth.uid in resource.data.workerIds;
     }
 
     // ------------------------------------------------------------------------
@@ -157,8 +141,8 @@ service cloud.firestore {
     match /tasks/{taskId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isExistingAssignedWorker() && isWorkerIdImmutable();
-      allow delete: if isExistingAssignedWorker();
+      allow update: if isAnAssignedWorker();
+      allow delete: if isAnAssignedWorker();
     }
 
     /**

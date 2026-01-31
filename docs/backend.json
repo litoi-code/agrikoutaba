@@ -228,9 +228,12 @@
           "type": "string",
           "description": "Status of the task (e.g., To Do, In Progress, Completed)."
         },
-        "workerId": {
-          "type": "string",
-          "description": "Reference to Worker. (Relationship: Worker 1:N Task)"
+        "workerIds": {
+          "type": "array",
+          "description": "References to Workers. (Relationship: Worker M:N Task)",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -239,7 +242,7 @@
         "description",
         "dueDate",
         "status",
-        "workerId"
+        "workerIds"
       ]
     },
     "Worker": {
@@ -270,7 +273,7 @@
         },
         "taskIds": {
           "type": "array",
-          "description": "References to Tasks assigned. (Relationship: Worker 1:N Task)",
+          "description": "References to Tasks assigned. (Relationship: Worker M:N Task)",
           "items": {
             "type": "string"
           }

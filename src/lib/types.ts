@@ -47,7 +47,7 @@ export interface Task {
   description: string;
   dueDate: string; // Should be ISO date string
   status: 'To Do' | 'In Progress' | 'Completed';
-  workerId: string;
+  workerIds: string[];
   title: string;
 }
 

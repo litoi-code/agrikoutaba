@@ -211,8 +211,8 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   tasks?.slice(0, 5).map((task) => {
-                    const worker = workersMap.get(task.workerId);
-                    const workerName = worker ? `${worker.firstName} ${worker.lastName}` : 'Unassigned';
+                    const assignedWorkers = task.workerIds.map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
+                    const workerName = assignedWorkers.length > 0 ? assignedWorkers.map(w => `${w.firstName} ${w.lastName}`).join(', ') : 'Unassigned';
                     return (
                       <RecentTaskRow key={task.id} task={task} workerName={workerName} />
                     );
