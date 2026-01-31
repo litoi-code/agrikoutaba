@@ -1,53 +1,79 @@
+"use client";
+import { useMemo } from 'react';
+import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle } from "lucide-react";
-import { tasks } from "@/lib/data";
-import type { Task } from "@/lib/types";
+import type { Task, Worker } from "@/lib/types";
+import { Skeleton } from '@/components/ui/skeleton';
 
-const TaskCard = ({ task }: { task: Task }) => (
+const TaskCard = ({ task, assignee }: { task: WithId<Task>, assignee?: WithId<Worker> }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex justify-between items-start">
-        <h3 className="font-semibold mb-2">{task.title}</h3>
-        <Badge variant="outline">{task.type}</Badge>
+        <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
+        {/* <Badge variant="outline">{task.type}</Badge> */}
       </div>
       <p className="text-sm text-muted-foreground mb-4">Due: {task.dueDate}</p>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={task.assignee.avatarUrl} alt={task.assignee.name} />
-            <AvatarFallback>{task.assignee.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <span className="text-sm">{task.assignee.name}</span>
+          {assignee ? (
+            <>
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={assignee.avatarUrl} alt={assignee.name} />
+                <AvatarFallback>{assignee.name?.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <span className="text-sm">{assignee.name}</span>
+            </>
+          ) : (
+            <Skeleton className="h-6 w-24" />
+          )}
         </div>
       </div>
     </CardContent>
   </Card>
 );
 
-const TaskColumn = ({ title, tasks }: { title: string; tasks: Task[] }) => (
+const TaskColumn = ({ title, tasks, workersMap, isLoading }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, isLoading: boolean }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
-      {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
+      {isLoading ? (
+        Array.from({length: 3}).map((_, i) => (
+          <Card key={i}><CardContent className="p-4 space-y-4"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-6 w-24" /></CardContent></Card>
+        ))
+      ) : (
+        tasks.map((task) => (
+          <TaskCard key={task.id} task={task} assignee={workersMap.get(task.workerId)} />
+        ))
+      )}
     </div>
   </div>
 );
 
 export default function TasksPage() {
-  const todoTasks = tasks.filter(t => t.status === 'To Do');
-  const inProgressTasks = tasks.filter(t => t.status === 'In Progress');
-  const doneTasks = tasks.filter(t => t.status === 'Done');
+  const firestore = useFirestore();
+
+  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
+
+  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
+
+  const workersMap = useMemo(() => {
+    if (!workers) return new Map<string, WithId<Worker>>();
+    return new Map(workers.map(w => [w.id, w]));
+  }, [workers]);
+
+  const todoTasks = useMemo(() => tasks?.filter(t => t.status === 'To Do') ?? [], [tasks]);
+  const inProgressTasks = useMemo(() => tasks?.filter(t => t.status === 'In Progress') ?? [], [tasks]);
+  const doneTasks = useMemo(() => tasks?.filter(t => t.status === 'Completed') ?? [], [tasks]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -60,9 +86,9 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <TaskColumn title="To Do" tasks={todoTasks} />
-        <TaskColumn title="In Progress" tasks={inProgressTasks} />
-        <TaskColumn title="Done" tasks={doneTasks} />
+        <TaskColumn title="To Do" tasks={todoTasks} workersMap={workersMap} isLoading={tasksLoading || workersLoading} />
+        <TaskColumn title="In Progress" tasks={inProgressTasks} workersMap={workersMap} isLoading={tasksLoading || workersLoading} />
+        <TaskColumn title="Done" tasks={doneTasks} workersMap={workersMap} isLoading={tasksLoading || workersLoading} />
       </div>
     </div>
   );

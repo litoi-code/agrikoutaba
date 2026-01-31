@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { FirebaseClientProvider } from "@/firebase";
 
 const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
@@ -90,7 +91,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="flex-1 flex-col bg-background p-4 md:p-8">
-          {children}
+          <FirebaseClientProvider>{children}</FirebaseClientProvider>
         </main>
       </SidebarInset>
     </SidebarProvider>

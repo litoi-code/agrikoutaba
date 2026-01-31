@@ -1,9 +1,10 @@
+"use client";
+import { useMemo } from 'react';
+import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import {
   Table,
@@ -21,10 +22,19 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { contacts } from "@/lib/data";
-import type { Contact } from "@/lib/types";
+import type { Customer, Supplier } from "@/lib/types";
+import { Skeleton } from '@/components/ui/skeleton';
 
-const ContactsTable = ({ data }: { data: Contact[] }) => (
+interface DisplayContact {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  transactionCount: number;
+}
+
+const ContactsTable = ({ data, isLoading }: { data: DisplayContact[], isLoading: boolean }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -38,15 +48,27 @@ const ContactsTable = ({ data }: { data: Contact[] }) => (
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((contact) => (
-            <TableRow key={contact.id}>
-              <TableCell className="font-medium">{contact.name}</TableCell>
-              <TableCell className="hidden md:table-cell">{contact.company}</TableCell>
-              <TableCell className="hidden md:table-cell">{contact.email}</TableCell>
-              <TableCell className="hidden sm:table-cell">{contact.phone}</TableCell>
-              <TableCell className="text-right">{contact.transactionCount}</TableCell>
-            </TableRow>
-          ))}
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+                <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
+                <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-4 w-10 ml-auto" /></TableCell>
+              </TableRow>
+            ))
+          ) : (
+            data.map((contact) => (
+              <TableRow key={contact.id}>
+                <TableCell className="font-medium">{contact.name}</TableCell>
+                <TableCell className="hidden md:table-cell">{contact.company}</TableCell>
+                <TableCell className="hidden md:table-cell">{contact.email}</TableCell>
+                <TableCell className="hidden sm:table-cell">{contact.phone}</TableCell>
+                <TableCell className="text-right">{contact.transactionCount}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </CardContent>
@@ -54,8 +76,37 @@ const ContactsTable = ({ data }: { data: Contact[] }) => (
 );
 
 export default function ContactsPage() {
-  const customers = contacts.filter(c => c.type === 'Customer');
-  const suppliers = contacts.filter(c => c.type === 'Supplier');
+  const firestore = useFirestore();
+
+  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
+
+  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
+
+  const customerData: DisplayContact[] = useMemo(() => {
+    if (!customers) return [];
+    return customers.map(c => ({
+      id: c.id,
+      name: `${c.firstName} ${c.lastName}`,
+      company: '-',
+      email: c.email,
+      phone: c.contactNumber,
+      transactionCount: c.transactionIds?.length ?? 0
+    }));
+  }, [customers]);
+
+  const supplierData: DisplayContact[] = useMemo(() => {
+    if (!suppliers) return [];
+    return suppliers.map(s => ({
+      id: s.id,
+      name: s.contactName,
+      company: s.companyName,
+      email: s.email,
+      phone: s.contactNumber,
+      transactionCount: 0 // Suppliers don't have transactions in this model
+    }));
+  }, [suppliers]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -73,10 +124,10 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={customers} />
+          <ContactsTable data={customerData} isLoading={customersLoading} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={suppliers} />
+          <ContactsTable data={supplierData} isLoading={suppliersLoading} />
         </TabsContent>
       </Tabs>
     </div>

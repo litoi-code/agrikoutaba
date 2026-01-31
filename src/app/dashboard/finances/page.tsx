@@ -1,9 +1,12 @@
+"use client";
+import { useMemo } from 'react';
+import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import {
   Table,
@@ -20,12 +23,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
-import { transactions } from "@/lib/data";
-import type { Transaction } from "@/lib/types";
+import type { Income, Expense } from "@/lib/types";
+import { Skeleton } from '@/components/ui/skeleton';
 
-const TransactionsTable = ({ data }: { data: Transaction[] }) => (
+const TransactionsTable = ({ data, isLoading }: { data: (WithId<Income> | WithId<Expense>)[], isLoading: boolean }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -33,23 +35,29 @@ const TransactionsTable = ({ data }: { data: Transaction[] }) => (
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead className="hidden md:table-cell">Category</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.date}</TableCell>
-              <TableCell className="font-medium">{transaction.description}</TableCell>
-              <TableCell className="hidden md:table-cell">
-                <Badge variant="outline">{transaction.category}</Badge>
-              </TableCell>
-              <TableCell className="text-right font-mono">
-                ${transaction.amount.toFixed(2)}
-              </TableCell>
-            </TableRow>
-          ))}
+          {isLoading ? (
+            Array.from({length: 5}).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
+              </TableRow>
+            ))
+          ) : (
+            data.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                <TableCell className="font-medium">{transaction.description}</TableCell>
+                <TableCell className="text-right font-mono">
+                  ${transaction.amount.toFixed(2)}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </CardContent>
@@ -57,10 +65,16 @@ const TransactionsTable = ({ data }: { data: Transaction[] }) => (
 );
 
 export default function FinancesPage() {
-  const income = transactions.filter(t => t.type === 'Income');
-  const expenses = transactions.filter(t => t.type === 'Expense');
-  const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = expenses.reduce((sum, t) => sum + t.amount, 0);
+  const firestore = useFirestore();
+
+  const incomeQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
+
+  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
+  
+  const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);
+  const totalExpenses = useMemo(() => expenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [expenses]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -79,7 +93,7 @@ export default function FinancesPage() {
             <ArrowUpCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+            {incomeLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">${totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>}
           </CardContent>
         </Card>
         <Card>
@@ -88,7 +102,7 @@ export default function FinancesPage() {
             <ArrowDownCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalExpenses.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+            {expensesLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">${totalExpenses.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>}
           </CardContent>
         </Card>
       </div>
@@ -99,10 +113,10 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={income} />
+          <TransactionsTable data={income ?? []} isLoading={incomeLoading} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={expenses} />
+          <TransactionsTable data={expenses ?? []} isLoading={expensesLoading} />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,4 +1,7 @@
 "use client"
+import { useMemo } from 'react';
+import { collection } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -21,11 +24,9 @@ import {
   UsersRound,
   ClipboardCheck,
   DollarSign,
-  ArrowUp,
-  ArrowDown,
 } from "lucide-react";
-import { contacts, tasks, financialChartData } from "@/lib/data";
-import type { FinancialData } from "@/lib/types";
+import type { Customer, Supplier, Task, Worker, Income, Expense, FinancialData } from "@/lib/types";
+import { Skeleton } from '@/components/ui/skeleton';
 
 const chartConfig = {
   Income: {
@@ -39,11 +40,60 @@ const chartConfig = {
 };
 
 export default function DashboardPage() {
-  const pendingTasks = tasks.filter(task => task.status !== "Done").length;
-  const totalIncome = financialChartData.reduce((acc, item) => acc + item.Income, 0);
-  const totalExpenses = financialChartData.reduce((acc, item) => acc + item.Expenses, 0);
-  const netIncome = totalIncome - totalExpenses;
+  const firestore = useFirestore();
+
+  // Fetching data
+  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
+
+  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
+
+  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
+  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
+
+  const incomeQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
+
+  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
+
+  // Memoized calculations
+  const totalContacts = useMemo(() => (customers?.length ?? 0) + (suppliers?.length ?? 0), [customers, suppliers]);
+  const pendingTasks = useMemo(() => tasks?.filter(task => task.status !== "Completed").length ?? 0, [tasks]);
+  
+  const netIncome = useMemo(() => {
+    const totalIncome = income?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
+    const totalExpenses = expenses?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
+    return totalIncome - totalExpenses;
+  }, [income, expenses]);
+
+  const financialChartData = useMemo<FinancialData[]>(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const data: FinancialData[] = months.map(m => ({ month: m, Income: 0, Expenses: 0 }));
+
+    income?.forEach(i => {
+      const monthIndex = new Date(i.date).getMonth();
+      data[monthIndex].Income += i.amount;
+    });
+    expenses?.forEach(e => {
+      const monthIndex = new Date(e.date).getMonth();
+      data[monthIndex].Expenses += e.amount;
+    });
+
+    return data.slice(0, 7); // Show first 7 months for now
+  }, [income, expenses]);
+
+  const workersMap = useMemo(() => {
+    if (!workers) return new Map<string, WithId<Worker>>();
+    return new Map(workers.map(w => [w.id, w]));
+  }, [workers]);
+
+  const isLoading = customersLoading || suppliersLoading || tasksLoading || incomeLoading || expensesLoading || workersLoading;
+
   return (
     <div className="flex flex-col gap-8">
       <h1 className="text-3xl font-headline font-bold">Dashboard</h1>
@@ -55,7 +105,7 @@ export default function DashboardPage() {
             <UsersRound className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{contacts.length}</div>
+            {customersLoading || suppliersLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{totalContacts}</div>}
             <p className="text-xs text-muted-foreground">Customers & Suppliers</p>
           </CardContent>
         </Card>
@@ -65,7 +115,7 @@ export default function DashboardPage() {
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingTasks}</div>
+            {tasksLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{pendingTasks}</div>}
             <p className="text-xs text-muted-foreground">Tasks in progress or to-do</p>
           </CardContent>
         </Card>
@@ -75,7 +125,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${netIncome.toLocaleString()}</div>
+            {incomeLoading || expensesLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">${netIncome.toLocaleString()}</div>}
             <p className="text-xs text-muted-foreground">This year so far</p>
           </CardContent>
         </Card>
@@ -88,6 +138,7 @@ export default function DashboardPage() {
             <CardDescription>Income vs. Expenses for the current year.</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                  <BarChart data={financialChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
@@ -100,6 +151,7 @@ export default function DashboardPage() {
                   </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
+            )}
           </CardContent>
         </Card>
         
@@ -118,18 +170,29 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tasks.slice(0, 5).map((task) => (
-                  <TableRow key={task.id}>
-                    <TableCell className="font-medium">{task.title}</TableCell>
-                    <TableCell>
-                      <Badge variant={task.status === "Done" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
-                        {task.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{task.assignee.name}</TableCell>
-                    <TableCell>{task.dueDate}</TableCell>
-                  </TableRow>
-                ))}
+                {tasksLoading || workersLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  tasks?.slice(0, 5).map((task) => (
+                    <TableRow key={task.id}>
+                      <TableCell className="font-medium">{task.title || task.description}</TableCell>
+                      <TableCell>
+                        <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
+                          {task.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{workersMap.get(task.workerId)?.name ?? task.workerId}</TableCell>
+                      <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
