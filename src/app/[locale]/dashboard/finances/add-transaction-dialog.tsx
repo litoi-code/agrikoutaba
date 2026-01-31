@@ -58,14 +58,18 @@ const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  customerId: z.string({ required_error: "Please select a customer." }).min(1, "Please select a customer."),
+  customerId: z
+    .string({ required_error: "Please select a customer." })
+    .min(1, "Please select a customer."),
 });
 
 const expenseSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  supplierId: z.string({ required_error: "Please select a supplier." }).min(1, "Please select a supplier."),
+  supplierId: z
+    .string({ required_error: "Please select a supplier." })
+    .min(1, "Please select a supplier."),
 });
 
 interface AddTransactionDialogProps {
@@ -80,6 +84,8 @@ export function AddTransactionDialog({
   suppliers,
 }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
+  const [incomeDatePickerOpen, setIncomeDatePickerOpen] = useState(false);
+  const [expenseDatePickerOpen, setExpenseDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("FinancesPage.AddTransactionDialog");
@@ -214,7 +220,10 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover
+                        open={incomeDatePickerOpen}
+                        onOpenChange={setIncomeDatePickerOpen}
+                      >
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -237,7 +246,10 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setIncomeDatePickerOpen(false);
+                            }}
                             initialFocus
                           />
                         </PopoverContent>
@@ -265,7 +277,10 @@ export function AddTransactionDialog({
                     <FormItem>
                       <FormLabel>{t("descriptionLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Purchase of seeds" {...field} />
+                        <Input
+                          placeholder="e.g. Purchase of seeds"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -319,7 +334,10 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover
+                        open={expenseDatePickerOpen}
+                        onOpenChange={setExpenseDatePickerOpen}
+                      >
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -342,7 +360,10 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setExpenseDatePickerOpen(false);
+                            }}
                             initialFocus
                           />
                         </PopoverContent>
