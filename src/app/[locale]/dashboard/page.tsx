@@ -1,8 +1,10 @@
+
 "use client"
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
+import { format } from 'date-fns';
 import {
   Card,
   CardContent,
@@ -199,7 +201,7 @@ export default function DashboardPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>{workerName}</TableCell>
-                        <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                        <TableCell>{format(new Date(task.dueDate), 'PPP')}</TableCell>
                       </TableRow>
                     );
                   })

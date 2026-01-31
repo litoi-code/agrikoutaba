@@ -1,8 +1,10 @@
+
 "use client";
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
+import { format } from 'date-fns';
 import {
   Card,
   CardContent,
@@ -89,7 +91,7 @@ export default function InvestmentsPage() {
                   <TableRow key={inv.id}>
                     <TableCell className="font-medium">{inv.investorName}</TableCell>
                     <TableCell>{inv.description}</TableCell>
-                    <TableCell>{new Date(inv.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{format(new Date(inv.date), 'PPP')}</TableCell>
                     <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
