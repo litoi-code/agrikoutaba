@@ -1,0 +1,522 @@
+{
+  "entities": {
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer of the AgriCentral business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the customer entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the customer."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the customer."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "Contact number of the customer."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the customer.",
+          "format": "email"
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the customer."
+        },
+        "transactionIds": {
+          "type": "array",
+          "description": "References to Transactions. (Relationship: Customer 1:N Transaction)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "contactNumber",
+        "email",
+        "address"
+      ]
+    },
+    "Supplier": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Supplier",
+      "type": "object",
+      "description": "Represents a supplier to the AgriCentral business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the supplier entity."
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Company name of the supplier."
+        },
+        "contactName": {
+          "type": "string",
+          "description": "Contact name at the supplier company."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "Contact number for the supplier."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address for the supplier.",
+          "format": "email"
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the supplier."
+        },
+        "itemIds": {
+          "type": "array",
+          "description": "References to Items supplied. (Relationship: Supplier 1:N Item)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "companyName",
+        "contactName",
+        "contactNumber",
+        "email",
+        "address"
+      ]
+    },
+    "Item": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Item",
+      "type": "object",
+      "description": "Represents an item in the inventory, such as seeds, fertilizers, or equipment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the item entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the item."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the item."
+        },
+        "unitPrice": {
+          "type": "number",
+          "description": "Unit price of the item."
+        },
+        "stockLevel": {
+          "type": "number",
+          "description": "Current stock level of the item."
+        },
+        "reorderLevel": {
+          "type": "number",
+          "description": "Reorder level for the item."
+        },
+        "supplierId": {
+          "type": "string",
+          "description": "Reference to Supplier. (Relationship: Supplier 1:N Item)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "unitPrice",
+        "stockLevel",
+        "reorderLevel",
+        "supplierId"
+      ]
+    },
+    "Income": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Income",
+      "type": "object",
+      "description": "Represents a record of income for the business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the income record."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the income.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the income."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the income."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer. (Relationship: Customer 1:N Income)"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "description",
+        "amount",
+        "customerId"
+      ]
+    },
+    "Expense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expense",
+      "type": "object",
+      "description": "Represents a record of expenses for the business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the expense record."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the expense.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the expense."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the expense."
+        },
+        "supplierId": {
+          "type": "string",
+          "description": "Reference to Supplier. (Relationship: Supplier 1:N Expense)"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "description",
+        "amount",
+        "supplierId"
+      ]
+    },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a task assigned to a worker.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the task entity."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the task."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "Due date of the task.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the task (e.g., To Do, In Progress, Completed)."
+        },
+        "workerId": {
+          "type": "string",
+          "description": "Reference to Worker. (Relationship: Worker 1:N Task)"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "dueDate",
+        "status",
+        "workerId"
+      ]
+    },
+    "Worker": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Worker",
+      "type": "object",
+      "description": "Represents a worker in the AgriCentral business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the worker entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the worker."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the worker."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the worker (e.g., Field Worker, Supervisor)."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "Contact number of the worker."
+        },
+        "taskIds": {
+          "type": "array",
+          "description": "References to Tasks assigned. (Relationship: Worker 1:N Task)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "role",
+        "contactNumber"
+      ]
+    },
+    "Investment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Investment",
+      "type": "object",
+      "description": "Represents an investment record for the business.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the investment record."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the investment.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the investment."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the investment."
+        },
+        "equityDetails": {
+          "type": "string",
+          "description": "Details of the equity associated with the investment."
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "description",
+        "amount",
+        "equityDetails"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a transaction record.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction record."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the transaction.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the transaction."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the transaction."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer. (Relationship: Customer 1:N Transaction)"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "description",
+        "amount",
+        "customerId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/customers/{customerId}",
+        "definition": {
+          "entityName": "Customer",
+          "schema": {
+            "$ref": "#/backend/entities/Customer"
+          },
+          "description": "Stores customer profiles. Includes customerId as a parameter for individual customer access.",
+          "params": [
+            {
+              "name": "customerId",
+              "description": "The unique identifier for the customer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/suppliers/{supplierId}",
+        "definition": {
+          "entityName": "Supplier",
+          "schema": {
+            "$ref": "#/backend/entities/Supplier"
+          },
+          "description": "Stores supplier profiles. Includes supplierId as a parameter for individual supplier access.",
+          "params": [
+            {
+              "name": "supplierId",
+              "description": "The unique identifier for the supplier."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/items/{itemId}",
+        "definition": {
+          "entityName": "Item",
+          "schema": {
+            "$ref": "#/backend/entities/Item"
+          },
+          "description": "Stores inventory items. Includes itemId as a parameter for individual item access.",
+          "params": [
+            {
+              "name": "itemId",
+              "description": "The unique identifier for the item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/incomes/{incomeId}",
+        "definition": {
+          "entityName": "Income",
+          "schema": {
+            "$ref": "#/backend/entities/Income"
+          },
+          "description": "Stores income records. Includes incomeId as a parameter for individual income record access.",
+          "params": [
+            {
+              "name": "incomeId",
+              "description": "The unique identifier for the income record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/expenses/{expenseId}",
+        "definition": {
+          "entityName": "Expense",
+          "schema": {
+            "$ref": "#/backend/entities/Expense"
+          },
+          "description": "Stores expense records. Includes expenseId as a parameter for individual expense record access.",
+          "params": [
+            {
+              "name": "expenseId",
+              "description": "The unique identifier for the expense record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": {
+            "$ref": "#/backend/entities/Task"
+          },
+          "description": "Stores task assignments. Includes taskId as a parameter for individual task access.",
+          "params": [
+            {
+              "name": "taskId",
+              "description": "The unique identifier for the task."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/workers/{workerId}",
+        "definition": {
+          "entityName": "Worker",
+          "schema": {
+            "$ref": "#/backend/entities/Worker"
+          },
+          "description": "Stores worker profiles. Includes workerId as a parameter for individual worker access.",
+          "params": [
+            {
+              "name": "workerId",
+              "description": "The unique identifier for the worker."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/investments/{investmentId}",
+        "definition": {
+          "entityName": "Investment",
+          "schema": {
+            "$ref": "#/backend/entities/Investment"
+          },
+          "description": "Stores investment records. Includes investmentId as a parameter for individual investment record access.",
+          "params": [
+            {
+              "name": "investmentId",
+              "description": "The unique identifier for the investment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction records. Includes transactionId as a parameter for individual transaction access.",
+          "params": [
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for the transaction."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to manage entities for the AgriCentral application. It focuses on clarity, security, and scalability. Authorization Independence is achieved through path-based ownership for user-specific data and membership maps for collaborative data, eliminating the need for `get()` calls in security rules. Structural Segregation ensures that each collection has a homogeneous security posture.  For example, Customers, Suppliers, Workers, and Items are stored in top-level collections. Relationships between entities are managed through document references, as seen in the `customerId` field in the `incomes` and `transactions` collections, and `supplierId` in the `items` collection. This direct reference approach simplifies queries and maintains data integrity. To facilitate real-time data fetching from APIs, consider a server-side function triggered by Firestore writes to update an external cache or trigger downstream API calls based on the changes. This provides real-time updates and can be scaled with the application needs."
+  }
+}

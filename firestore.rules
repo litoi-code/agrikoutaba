@@ -1,0 +1,203 @@
+/**
+ * @file firestore.rules
+ * @description Security rules for the AgriCentral business management application.
+ *
+ * Core Philosophy:
+ * This ruleset establishes a security model for an internal business application. It assumes that
+ * all authenticated users are trusted employees of the AgriCentral business. Therefore, most data
+ * is readable and writable by any signed-in user to facilitate collaboration and management.
+ * A stricter ownership model is applied only where the data schema explicitly supports it (e.g., Tasks).
+ *
+ * Data Structure:
+ * The data is organized into flat, top-level collections, each representing a core business entity
+ * like Customers, Suppliers, and Items. This flat hierarchy simplifies rules and queries.
+ *
+ * Key Security Decisions:
+ * - Default Trust: Authenticated users are considered internal employees and are granted broad
+ *   read/write access to most business data collections (Customers, Suppliers, Items, etc.) to
+ *   enable rapid prototyping and internal collaboration.
+ * - Strict Task Ownership: The 'Tasks' collection is an exception. It contains a 'workerId' field,
+ *   which is used to enforce strict ownership. Only the assigned worker can update or delete their
+ *   own tasks.
+ * - No Public Access: All collections require user authentication for any type of access. There is
+ *   no publicly readable or writable data.
+ *
+ * Denormalization for Authorization:
+ * The ruleset leverages the denormalized `workerId` field on each `Task` document. This allows for
+ * fast and efficient security checks without needing to perform extra reads (`get()`) on other
+ * documents to determine ownership, making the rules more performant and scalable.
+ *
+ * Structural Segregation:
+ * Each primary entity (Customer, Supplier, etc.) is stored in its own top-level collection. This
+ * segregation provides a clear, uniform security posture for all documents of a given type.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the document exists before the operation.
+     * Crucial for safe update and delete operations.
+     */
+    function isExistingDocument() {
+      return resource != null;
+    }
+
+    /**
+     * Checks if the user is the worker assigned to the task being created.
+     * Validates that the `workerId` field in the new data matches the user's UID.
+     */
+    function isCreatingOwnTask() {
+      return request.resource.data.workerId == request.auth.uid;
+    }
+
+    /**
+     * Checks if the user is the worker assigned to an existing task.
+     * Used for update and delete operations.
+     */
+    function isExistingAssignedWorker() {
+      return isExistingDocument() && resource.data.workerId == request.auth.uid;
+    }
+
+    /**
+     * Ensures the workerId field cannot be changed after creation.
+     * This prevents a worker from reassigning their task to someone else.
+     */
+    function isWorkerIdImmutable() {
+      return request.resource.data.workerId == resource.data.workerId;
+    }
+
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages customer profiles. Assumes all authenticated users (employees) can manage customer data.
+     * @path /customers/{customerId}
+     * @allow A signed-in employee (create) a new customer profile.
+     * @deny An anonymous user (get) a customer's details.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /customers/{customerId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages supplier profiles. Assumes all authenticated users (employees) can manage supplier data.
+     * @path /suppliers/{supplierId}
+     * @allow A signed-in employee (update) an existing supplier's address.
+     * @deny A signed-in employee (update) a supplier that does not exist.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /suppliers/{supplierId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages inventory items. Assumes all authenticated users (employees) can manage inventory.
+     * @path /items/{itemId}
+     * @allow A signed-in employee (create) a new inventory item.
+     * @deny An anonymous user (list) all items.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /items/{itemId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages income records. Assumes all authenticated users (employees) can manage financial data.
+     * @path /incomes/{incomeId}
+     * @allow A signed-in employee (get) an income record.
+     * @deny An anonymous user (create) a new income record.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /incomes/{incomeId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages expense records. Assumes all authenticated users (employees) can manage financial data.
+     * @path /expenses/{expenseId}
+     * @allow A signed-in employee (delete) an expense record.
+     * @deny A signed-in employee (delete) an expense record that doesn't exist.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /expenses/{expenseId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages worker tasks. Reads are allowed by any employee, but writes are restricted to the assigned worker.
+     * @path /tasks/{taskId}
+     * @allow A worker (update) the status of their own assigned task.
+     * @deny A worker (update) a task assigned to another worker.
+     * @principle Enforces document ownership for writes using the 'workerId' field.
+     */
+    match /tasks/{taskId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isCreatingOwnTask();
+      allow update: if isExistingAssignedWorker() && isWorkerIdImmutable();
+      allow delete: if isExistingAssignedWorker();
+    }
+
+    /**
+     * @description Manages worker profiles. Assumes all authenticated users (employees) can view and manage worker data.
+     * @path /workers/{workerId}
+     * @allow A signed-in employee (create) a profile for a new worker.
+     * @deny An anonymous user (get) a worker's profile.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /workers/{workerId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages business investment records. Assumes all authenticated users (employees) can manage financial data.
+     * @path /investments/{investmentId}
+     * @allow A signed-in employee (list) all investment records.
+     * @deny An anonymous user (get) any investment record.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /investments/{investmentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+
+    /**
+     * @description Manages transaction records. Assumes all authenticated users (employees) can manage financial data.
+     * @path /transactions/{transactionId}
+     * @allow A signed-in employee (create) a new transaction.
+     * @deny An anonymous user (list) all transactions.
+     * @principle Grants access to trusted internal users for managing shared business data.
+     */
+    match /transactions/{transactionId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && isExistingDocument();
+    }
+  }
+}
