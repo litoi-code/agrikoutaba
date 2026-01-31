@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
@@ -9,6 +10,7 @@ import {
   UsersRound,
   Settings,
   Users,
+  Boxes,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -40,6 +42,7 @@ export default async function DashboardLayout({
 
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard />, label: t("dashboard") },
+    { href: "/dashboard/inventory", icon: <Boxes />, label: t("inventory") },
     { href: "/dashboard/contacts", icon: <UsersRound />, label: t("contacts") },
     { href: "/dashboard/tasks", icon: <ClipboardList />, label: t("tasks") },
     { href: "/dashboard/workers", icon: <Users />, label: t("workers") },

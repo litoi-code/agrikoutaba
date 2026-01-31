@@ -6,6 +6,7 @@
   },
   "Sidebar": {
     "dashboard": "Dashboard",
+    "inventory": "Inventory",
     "contacts": "Contacts",
     "tasks": "Tasks",
     "workers": "Workers",
@@ -20,6 +21,8 @@
     "subtitle": "Streamline your operations, track everything from inventory to investments, and make data-driven decisions for your farm in Cameroon.",
     "getStarted": "Get Started",
     "allInOne": "All-in-One Farm Management",
+    "featureInventoryTitle": "Inventory Management",
+    "featureInventoryDescription": "Track stock levels of seeds, fertilizers, and equipment.",
     "featureContactsTitle": "Customer & Supplier Management",
     "featureContactsDescription": "Maintain profiles, contact details, and transaction history.",
     "featureTasksTitle": "Task Management",
@@ -174,6 +177,32 @@
       "addButton": "Add Investment",
       "toastTitle": "Investment Added",
       "toastDescription": "Recorded investment from {investorName}."
+    }
+  },
+  "InventoryPage": {
+    "title": "Inventory Management",
+    "addNew": "Add New Item",
+    "nameColumn": "Item Name",
+    "stockColumn": "Stock Level",
+    "statusColumn": "Status",
+    "priceColumn": "Unit Price",
+    "reorderColumn": "Reorder Level",
+    "supplierColumn": "Supplier",
+    "statusInStock": "In Stock",
+    "statusLowStock": "Low Stock",
+    "AddInventoryItemDialog": {
+      "title": "Add New Inventory Item",
+      "description": "Add a new item to your inventory records.",
+      "nameLabel": "Item Name",
+      "descriptionLabel": "Description",
+      "priceLabel": "Unit Price",
+      "stockLabel": "Stock Level",
+      "reorderLabel": "Reorder Level",
+      "supplierLabel": "Supplier",
+      "selectSupplierPlaceholder": "Select a supplier",
+      "addButton": "Add Item",
+      "toastTitle": "Item Added",
+      "toastDescription": "\"{name}\" has been added to inventory."
     }
   }
 }

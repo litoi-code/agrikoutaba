@@ -1,15 +1,21 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Users, ClipboardList, Landmark, AreaChart } from 'lucide-react';
+import { Users, ClipboardList, Landmark, AreaChart, Boxes } from 'lucide-react';
 
 export default function Home() {
   const t = useTranslations('HomePage');
 
   const features = [
+    {
+      icon: <Boxes className="h-8 w-8 text-primary" />,
+      title: t('featureInventoryTitle'),
+      description: t('featureInventoryDescription'),
+    },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: t('featureContactsTitle'),

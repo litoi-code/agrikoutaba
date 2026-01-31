@@ -6,6 +6,7 @@
   },
   "Sidebar": {
     "dashboard": "Tableau de bord",
+    "inventory": "Inventaire",
     "contacts": "Contacts",
     "tasks": "Tâches",
     "workers": "Ouvriers",
@@ -20,6 +21,8 @@
     "subtitle": "Optimisez vos opérations, suivez tout, de l'inventaire aux investissements, et prenez des décisions basées sur les données pour votre ferme au Cameroun.",
     "getStarted": "Commencer",
     "allInOne": "Gestion Agricole Tout-en-Un",
+    "featureInventoryTitle": "Gestion de l'Inventaire",
+    "featureInventoryDescription": "Suivez les niveaux de stock des semences, des engrais et de l'équipement.",
     "featureContactsTitle": "Gestion des Clients et Fournisseurs",
     "featureContactsDescription": "Maintenez les profils, les coordonnées et l'historique des transactions.",
     "featureTasksTitle": "Gestion des Tâches",
@@ -174,6 +177,32 @@
       "addButton": "Ajouter l'Investissement",
       "toastTitle": "Investissement Ajouté",
       "toastDescription": "Investissement de {investorName} enregistré."
+    }
+  },
+  "InventoryPage": {
+    "title": "Gestion de l'Inventaire",
+    "addNew": "Ajouter un Article",
+    "nameColumn": "Nom de l'article",
+    "stockColumn": "Niveau de stock",
+    "statusColumn": "Statut",
+    "priceColumn": "Prix Unitaire",
+    "reorderColumn": "Niveau de Réapprovisionnement",
+    "supplierColumn": "Fournisseur",
+    "statusInStock": "En Stock",
+    "statusLowStock": "Stock Faible",
+    "AddInventoryItemDialog": {
+      "title": "Ajouter un Nouvel Article d'Inventaire",
+      "description": "Ajoutez un nouvel article à vos registres d'inventaire.",
+      "nameLabel": "Nom de l'article",
+      "descriptionLabel": "Description",
+      "priceLabel": "Prix Unitaire",
+      "stockLabel": "Niveau de Stock",
+      "reorderLabel": "Niveau de Réapprovisionnement",
+      "supplierLabel": "Fournisseur",
+      "selectSupplierPlaceholder": "Sélectionnez un fournisseur",
+      "addButton": "Ajouter l'Article",
+      "toastTitle": "Article Ajouté",
+      "toastDescription": "\"{name}\" a été ajouté à l'inventaire."
     }
   }
 }
