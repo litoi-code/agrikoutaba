@@ -16,9 +16,8 @@
  * - Default Trust: Authenticated users are considered internal employees and are granted broad
  *   read/write access to most business data collections (Customers, Suppliers, Items, etc.) to
  *   enable rapid prototyping and internal collaboration.
- * - Strict Task Ownership: The 'Tasks' collection is an exception. It contains a 'workerId' field,
- *   which is used to enforce strict ownership. Only the assigned worker can update or delete their
- *   own tasks.
+ * - Strict Task Ownership: The 'Tasks' collection is an exception. Only the assigned worker can 
+ *   update or delete their own tasks. Any authenticated user can create tasks for others.
  * - No Public Access: All collections require user authentication for any type of access. There is
  *   no publicly readable or writable data.
  *
@@ -148,15 +147,16 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages worker tasks. Reads are allowed by any employee, but writes are restricted to the assigned worker.
+     * @description Manages worker tasks. Reads are allowed by any employee. Creation is allowed by any employee. Writes are restricted to the assigned worker.
      * @path /tasks/{taskId}
+     * @allow A manager (create) a task for any worker.
      * @allow A worker (update) the status of their own assigned task.
      * @deny A worker (update) a task assigned to another worker.
-     * @principle Enforces document ownership for writes using the 'workerId' field.
+     * @principle Enforces document ownership for writes using the 'workerId' field. Allows broader create permissions.
      */
     match /tasks/{taskId} {
       allow get, list: if isSignedIn();
-      allow create: if isSignedIn() && isCreatingOwnTask();
+      allow create: if isSignedIn();
       allow update: if isExistingAssignedWorker() && isWorkerIdImmutable();
       allow delete: if isExistingAssignedWorker();
     }
