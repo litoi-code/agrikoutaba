@@ -3,7 +3,6 @@ export interface Customer {
   firstName: string;
   lastName: string;
   contactNumber: string;
-  email: string;
   address: string;
   transactionIds?: string[];
 }
@@ -13,7 +12,6 @@ export interface Supplier {
   companyName: string;
   contactName: string;
   contactNumber: string;
-  email: string;
   address: string;
   itemIds?: string[];
 }

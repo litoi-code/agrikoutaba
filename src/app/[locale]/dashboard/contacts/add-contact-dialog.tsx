@@ -39,7 +39,6 @@ import { useToast } from "@/hooks/use-toast";
 const customerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
   contactNumber: z.string().min(1, "Contact number is required"),
   address: z.string().min(1, "Address is required"),
 });
@@ -47,7 +46,6 @@ const customerSchema = z.object({
 const supplierSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   contactName: z.string().min(1, "Contact name is required"),
-  email: z.string().email("Invalid email address"),
   contactNumber: z.string().min(1, "Contact number is required"),
   address: z.string().min(1, "Address is required"),
 });
@@ -63,7 +61,6 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     defaultValues: {
       firstName: "",
       lastName: "",
-      email: "",
       contactNumber: "",
       address: "",
     },
@@ -74,7 +71,6 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     defaultValues: {
       companyName: "",
       contactName: "",
-      email: "",
       contactNumber: "",
       address: "",
     },
@@ -156,19 +152,6 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                 />
                 <FormField
                   control={customerForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("emailLabel")}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="john.doe@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={customerForm.control}
                   name="contactNumber"
                   render={({ field }) => (
                     <FormItem>
@@ -229,22 +212,6 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                       <FormLabel>{t("contactNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="Jane Smith" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={supplierForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("emailLabel")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="jane.smith@globalseeds.com"
-                          {...field}
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

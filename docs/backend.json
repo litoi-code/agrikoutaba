@@ -22,11 +22,6 @@
           "type": "string",
           "description": "Contact number of the customer."
         },
-        "email": {
-          "type": "string",
-          "description": "Email address of the customer.",
-          "format": "email"
-        },
         "address": {
           "type": "string",
           "description": "Address of the customer."
@@ -44,7 +39,6 @@
         "firstName",
         "lastName",
         "contactNumber",
-        "email",
         "address"
       ]
     },
@@ -70,11 +64,6 @@
           "type": "string",
           "description": "Contact number for the supplier."
         },
-        "email": {
-          "type": "string",
-          "description": "Email address for the supplier.",
-          "format": "email"
-        },
         "address": {
           "type": "string",
           "description": "Address of the supplier."
@@ -92,7 +81,6 @@
         "companyName",
         "contactName",
         "contactNumber",
-        "email",
         "address"
       ]
     },

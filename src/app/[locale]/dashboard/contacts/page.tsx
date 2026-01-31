@@ -31,7 +31,6 @@ interface DisplayContact {
   id: string;
   name: string;
   company: string;
-  email: string;
   phone: string;
   transactionCount: number;
 }
@@ -44,7 +43,6 @@ const ContactsTable = ({ data, isLoading, t }: { data: DisplayContact[], isLoadi
           <TableRow>
             <TableHead>{t('nameColumn')}</TableHead>
             <TableHead className="hidden md:table-cell">{t('companyColumn')}</TableHead>
-            <TableHead className="hidden md:table-cell">{t('emailColumn')}</TableHead>
             <TableHead className="hidden sm:table-cell">{t('phoneColumn')}</TableHead>
             <TableHead className="text-right">{t('transactionsColumn')}</TableHead>
           </TableRow>
@@ -55,7 +53,6 @@ const ContactsTable = ({ data, isLoading, t }: { data: DisplayContact[], isLoadi
               <TableRow key={i}>
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
-                <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-40" /></TableCell>
                 <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-4 w-10 ml-auto" /></TableCell>
               </TableRow>
@@ -65,7 +62,6 @@ const ContactsTable = ({ data, isLoading, t }: { data: DisplayContact[], isLoadi
               <TableRow key={contact.id}>
                 <TableCell className="font-medium">{contact.name}</TableCell>
                 <TableCell className="hidden md:table-cell">{contact.company}</TableCell>
-                <TableCell className="hidden md:table-cell">{contact.email}</TableCell>
                 <TableCell className="hidden sm:table-cell">{contact.phone}</TableCell>
                 <TableCell className="text-right">{contact.transactionCount}</TableCell>
               </TableRow>
@@ -94,7 +90,6 @@ export default function ContactsPage() {
       id: c.id,
       name: `${c.firstName} ${c.lastName}`,
       company: '-',
-      email: c.email,
       phone: c.contactNumber,
       transactionCount: c.transactionIds?.length ?? 0
     }));
@@ -106,7 +101,6 @@ export default function ContactsPage() {
       id: s.id,
       name: s.contactName,
       company: s.companyName,
-      email: s.email,
       phone: s.contactNumber,
       transactionCount: 0 // Suppliers don't have transactions in this model
     }));
