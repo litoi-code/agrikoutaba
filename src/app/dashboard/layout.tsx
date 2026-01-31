@@ -7,6 +7,7 @@ import {
   Landmark,
   UsersRound,
   Settings,
+  Users,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -29,6 +30,7 @@ const navItems = [
   { href: "/dashboard", icon: <LayoutDashboard />, label: "Dashboard" },
   { href: "/dashboard/contacts", icon: <UsersRound />, label: "Contacts" },
   { href: "/dashboard/tasks", icon: <ClipboardList />, label: "Tasks" },
+  { href: "/dashboard/workers", icon: <Users />, label: "Workers" },
   { href: "/dashboard/finances", icon: <Landmark />, label: "Finances" },
   { href: "/dashboard/investments", icon: <AreaChart />, label: "Investments" },
 ];

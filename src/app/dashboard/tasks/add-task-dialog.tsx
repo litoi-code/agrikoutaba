@@ -131,7 +131,7 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
                       </FormControl>
                       <SelectContent>
                         {workers.map((w) => (
-                          <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                          <SelectItem key={w.id} value={w.id}>{`${w.firstName} ${w.lastName}`}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

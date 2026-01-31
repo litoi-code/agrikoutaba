@@ -306,6 +306,10 @@
           "type": "string",
           "description": "Unique identifier for the investment record."
         },
+        "investorName": {
+          "type": "string",
+          "description": "Name of the individual or entity making the investment."
+        },
         "date": {
           "type": "string",
           "description": "Date of the investment.",
@@ -326,6 +330,7 @@
       },
       "required": [
         "id",
+        "investorName",
         "date",
         "description",
         "amount",

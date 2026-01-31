@@ -13,31 +13,36 @@ import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddTaskDialog } from './add-task-dialog';
 
-const TaskCard = ({ task, assignee }: { task: WithId<Task>, assignee?: WithId<Worker> }) => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex justify-between items-start">
-        <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
-      </div>
-      <p className="text-sm text-muted-foreground mb-4">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {assignee ? (
-            <>
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={assignee.avatarUrl} alt={assignee.name} />
-                <AvatarFallback>{assignee.name?.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <span className="text-sm">{assignee.name}</span>
-            </>
-          ) : (
-            <Skeleton className="h-6 w-24" />
-          )}
+const TaskCard = ({ task, assignee }: { task: WithId<Task>, assignee?: WithId<Worker> }) => {
+  const assigneeName = assignee ? `${assignee.firstName} ${assignee.lastName}` : 'Unassigned';
+  const assigneeInitial = assignee ? (assignee.firstName?.charAt(0) ?? '') + (assignee.lastName?.charAt(0) ?? '') : 'U';
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start">
+          <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
         </div>
-      </div>
-    </CardContent>
-  </Card>
-);
+        <p className="text-sm text-muted-foreground mb-4">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {assignee ? (
+              <>
+                <Avatar className="h-6 w-6">
+                  {assignee.avatarUrl && <AvatarImage src={assignee.avatarUrl} alt={assigneeName} />}
+                  <AvatarFallback>{assigneeInitial}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm">{assigneeName}</span>
+              </>
+            ) : (
+              <Skeleton className="h-6 w-24" />
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const TaskColumn = ({ title, tasks, workersMap, isLoading }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, isLoading: boolean }) => (
   <div className="flex flex-col gap-4">

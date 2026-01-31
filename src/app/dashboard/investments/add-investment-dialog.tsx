@@ -31,6 +31,7 @@ import { DatePicker } from "@/components/ui/datepicker";
 import { useToast } from "@/hooks/use-toast";
 
 const investmentSchema = z.object({
+  investorName: z.string().min(1, "Investor name is required"),
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
@@ -52,7 +53,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
     addDocumentNonBlocking(investmentsRef, { ...values, date: values.date.toISOString() });
     toast({
       title: "Investment Added",
-      description: `Recorded investment in ${values.description}.`,
+      description: `Recorded investment from ${values.investorName}.`,
     });
     form.reset();
     setOpen(false);
@@ -70,6 +71,19 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="investorName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Investor Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Venture Capital Inc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="description"

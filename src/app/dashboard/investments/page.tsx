@@ -63,7 +63,8 @@ export default function InvestmentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Investment</TableHead>
+                <TableHead>Investor</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Equity Details</TableHead>
@@ -74,6 +75,7 @@ export default function InvestmentsPage() {
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-48" /></TableCell>
@@ -82,7 +84,8 @@ export default function InvestmentsPage() {
               ) : (
                 investments?.map((inv) => (
                   <TableRow key={inv.id}>
-                    <TableCell className="font-medium">{inv.description}</TableCell>
+                    <TableCell className="font-medium">{inv.investorName}</TableCell>
+                    <TableCell>{inv.description}</TableCell>
                     <TableCell>{new Date(inv.date).toLocaleDateString()}</TableCell>
                     <TableCell>${inv.amount.toLocaleString()}</TableCell>
                     <TableCell>

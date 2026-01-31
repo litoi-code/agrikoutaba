@@ -181,18 +181,22 @@ export default function DashboardPage() {
                     </TableRow>
                   ))
                 ) : (
-                  tasks?.slice(0, 5).map((task) => (
-                    <TableRow key={task.id}>
-                      <TableCell className="font-medium">{task.title || task.description}</TableCell>
-                      <TableCell>
-                        <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
-                          {task.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{workersMap.get(task.workerId)?.name ?? task.workerId}</TableCell>
-                      <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
-                    </TableRow>
-                  ))
+                  tasks?.slice(0, 5).map((task) => {
+                    const worker = workersMap.get(task.workerId);
+                    const workerName = worker ? `${worker.firstName} ${worker.lastName}` : 'Unassigned';
+                    return (
+                      <TableRow key={task.id}>
+                        <TableCell className="font-medium">{task.title || task.description}</TableCell>
+                        <TableCell>
+                          <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
+                            {task.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{workerName}</TableCell>
+                        <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

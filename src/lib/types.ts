@@ -57,15 +57,15 @@ export interface Worker {
   id: string;
   firstName: string;
   lastName:string;
-  avatarUrl: string;
+  avatarUrl?: string;
   role: string;
   contactNumber: string;
   taskIds?: string[];
-  name: string;
 }
 
 export interface Investment {
   id: string;
+  investorName: string;
   date: string; // Should be ISO date string
   description: string;
   amount: number;
