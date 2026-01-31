@@ -70,9 +70,6 @@ export interface Investment {
   description: string;
   amount: number;
   equityDetails: string;
-  name: string;
-  currentValue: number;
-  status: 'Active' | 'Closed';
 }
 
 

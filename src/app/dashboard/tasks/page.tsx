@@ -8,19 +8,18 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { PlusCircle } from "lucide-react";
 import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
+import { AddTaskDialog } from './add-task-dialog';
 
 const TaskCard = ({ task, assignee }: { task: WithId<Task>, assignee?: WithId<Worker> }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex justify-between items-start">
         <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
-        {/* <Badge variant="outline">{task.type}</Badge> */}
       </div>
-      <p className="text-sm text-muted-foreground mb-4">Due: {task.dueDate}</p>
+      <p className="text-sm text-muted-foreground mb-4">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {assignee ? (
@@ -80,10 +79,12 @@ export default function TasksPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">Tasks</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Task
-        </Button>
+        <AddTaskDialog workers={workers ?? []}>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Task
+          </Button>
+        </AddTaskDialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
-import type { Income, Expense } from "@/lib/types";
+import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
+import { AddTransactionDialog } from './add-transaction-dialog';
 
 const TransactionsTable = ({ data, isLoading }: { data: (WithId<Income> | WithId<Expense>)[], isLoading: boolean }) => (
   <Card>
@@ -73,6 +74,12 @@ export default function FinancesPage() {
 
   const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
+
+  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
+  const { data: customers } = useCollection<Customer>(customersQuery);
+
+  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
+  const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
   
   const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);
   const totalExpenses = useMemo(() => expenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [expenses]);
@@ -81,10 +88,12 @@ export default function FinancesPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">Finances</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Transaction
-        </Button>
+        <AddTransactionDialog customers={customers ?? []} suppliers={suppliers ?? []}>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Transaction
+          </Button>
+        </AddTransactionDialog>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2">

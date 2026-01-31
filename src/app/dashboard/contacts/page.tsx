@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import type { Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
+import { AddContactDialog } from './add-contact-dialog';
 
 interface DisplayContact {
   id: string;
@@ -113,10 +114,12 @@ export default function ContactsPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">Contacts</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Contact
-        </Button>
+        <AddContactDialog>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Contact
+          </Button>
+        </AddContactDialog>
       </div>
       
       <Tabs defaultValue="customers">

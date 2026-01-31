@@ -223,6 +223,10 @@
           "type": "string",
           "description": "Unique identifier for the task entity."
         },
+        "title": {
+          "type": "string",
+          "description": "Title of the task."
+        },
         "description": {
           "type": "string",
           "description": "Description of the task."
@@ -243,6 +247,7 @@
       },
       "required": [
         "id",
+        "title",
         "description",
         "dueDate",
         "status",
