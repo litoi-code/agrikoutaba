@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
@@ -20,7 +19,10 @@ const TaskCard = ({ task, assignees, t }: { task: WithId<Task>, assignees: WithI
   const [formattedDate, setFormattedDate] = useState('');
 
   useEffect(() => {
-    setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+    // Defensively check if dueDate exists before formatting
+    if (task.dueDate) {
+      setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+    }
   }, [task.dueDate]);
 
   return (
@@ -66,7 +68,7 @@ const TaskColumn = ({ title, tasks, workersMap, isLoading, t }: { title: string;
         ))
       ) : (
         tasks.map((task) => {
-          const assignees = task.workerIds.map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
+          const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
             <TaskCard key={task.id} task={task} assignees={assignees} t={t} />
           )

@@ -1,4 +1,3 @@
-
 "use client"
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
@@ -45,7 +44,10 @@ const chartConfig = {
 const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: string }) => {
   const [formattedDate, setFormattedDate] = useState('');
   useEffect(() => {
-    setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+    // Defensively check if dueDate exists before formatting
+    if (task.dueDate) {
+      setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+    }
   }, [task.dueDate]);
 
   return (
@@ -211,7 +213,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   tasks?.slice(0, 5).map((task) => {
-                    const assignedWorkers = task.workerIds.map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
+                    const assignedWorkers = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
                     const workerName = assignedWorkers.length > 0 ? assignedWorkers.map(w => `${w.firstName} ${w.lastName}`).join(', ') : 'Unassigned';
                     return (
                       <RecentTaskRow key={task.id} task={task} workerName={workerName} />
