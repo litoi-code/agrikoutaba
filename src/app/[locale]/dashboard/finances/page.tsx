@@ -1,6 +1,6 @@
 
 "use client";
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -31,6 +31,24 @@ import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddTransactionDialog } from './add-transaction-dialog';
 
+const TransactionRow = ({ transaction, tGlobal }: { transaction: WithId<Income> | WithId<Expense>, tGlobal: any }) => {
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    setFormattedDate(format(new Date(transaction.date), 'PPP'));
+  }, [transaction.date]);
+
+  return (
+    <TableRow>
+      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+      <TableCell className="font-medium">{transaction.description}</TableCell>
+      <TableCell className="text-right font-mono">
+        {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
+      </TableCell>
+    </TableRow>
+  );
+};
+
 const TransactionsTable = ({ data, isLoading, t, tGlobal }: { data: (WithId<Income> | WithId<Expense>)[], isLoading: boolean, t: any, tGlobal: any }) => (
   <Card>
     <CardContent className="p-0">
@@ -53,13 +71,7 @@ const TransactionsTable = ({ data, isLoading, t, tGlobal }: { data: (WithId<Inco
             ))
           ) : (
             data.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>{format(new Date(transaction.date), 'PPP')}</TableCell>
-                <TableCell className="font-medium">{transaction.description}</TableCell>
-                <TableCell className="text-right font-mono">
-                  {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
-                </TableCell>
-              </TableRow>
+              <TransactionRow key={transaction.id} transaction={transaction} tGlobal={tGlobal} />
             ))
           )}
         </TableBody>

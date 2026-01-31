@@ -1,6 +1,6 @@
 
 "use client";
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -24,6 +24,29 @@ import { PlusCircle, Wallet, FileText } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddInvestmentDialog } from './add-investment-dialog';
+
+const InvestmentRow = ({ inv, tGlobal }: { inv: WithId<Investment>, tGlobal: any }) => {
+  const [formattedDate, setFormattedDate] = useState('');
+  useEffect(() => {
+    setFormattedDate(format(new Date(inv.date), 'PPP'));
+  }, [inv.date]);
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{inv.investorName}</TableCell>
+      <TableCell>{inv.description}</TableCell>
+      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+      <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <span>{inv.equityDetails}</span>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 
 export default function InvestmentsPage() {
   const firestore = useFirestore();
@@ -88,18 +111,7 @@ export default function InvestmentsPage() {
                 ))
               ) : (
                 investments?.map((inv) => (
-                  <TableRow key={inv.id}>
-                    <TableCell className="font-medium">{inv.investorName}</TableCell>
-                    <TableCell>{inv.description}</TableCell>
-                    <TableCell>{format(new Date(inv.date), 'PPP')}</TableCell>
-                    <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span>{inv.equityDetails}</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} />
                 ))
               )}
             </TableBody>

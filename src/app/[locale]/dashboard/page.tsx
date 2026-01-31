@@ -1,6 +1,6 @@
 
 "use client"
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -41,6 +41,27 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 };
+
+const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: string }) => {
+  const [formattedDate, setFormattedDate] = useState('');
+  useEffect(() => {
+    setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+  }, [task.dueDate]);
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{task.title || task.description}</TableCell>
+      <TableCell>
+        <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
+          {task.status}
+        </Badge>
+      </TableCell>
+      <TableCell>{workerName}</TableCell>
+      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+    </TableRow>
+  );
+};
+
 
 export default function DashboardPage() {
   const firestore = useFirestore();
@@ -193,16 +214,7 @@ export default function DashboardPage() {
                     const worker = workersMap.get(task.workerId);
                     const workerName = worker ? `${worker.firstName} ${worker.lastName}` : 'Unassigned';
                     return (
-                      <TableRow key={task.id}>
-                        <TableCell className="font-medium">{task.title || task.description}</TableCell>
-                        <TableCell>
-                          <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
-                            {task.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{workerName}</TableCell>
-                        <TableCell>{format(new Date(task.dueDate), 'PPP')}</TableCell>
-                      </TableRow>
+                      <RecentTaskRow key={task.id} task={task} workerName={workerName} />
                     );
                   })
                 )}

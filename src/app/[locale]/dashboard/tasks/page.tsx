@@ -1,6 +1,6 @@
 
 "use client";
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -19,6 +19,11 @@ import { AddTaskDialog } from './add-task-dialog';
 const TaskCard = ({ task, assignee, t }: { task: WithId<Task>, assignee?: WithId<Worker>, t: any }) => {
   const assigneeName = assignee ? `${assignee.firstName} ${assignee.lastName}` : 'Unassigned';
   const assigneeInitial = assignee ? (assignee.firstName?.charAt(0) ?? '') + (assignee.lastName?.charAt(0) ?? '') : 'U';
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+  }, [task.dueDate]);
 
   return (
     <Card>
@@ -26,7 +31,7 @@ const TaskCard = ({ task, assignee, t }: { task: WithId<Task>, assignee?: WithId
         <div className="flex justify-between items-start">
           <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">{t('due', {date: format(new Date(task.dueDate), 'PPP')})}</p>
+        <p className="text-sm text-muted-foreground mb-4">{formattedDate ? t('due', {date: formattedDate}) : <Skeleton className="h-4 w-24" />}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {assignee ? (
