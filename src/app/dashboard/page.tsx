@@ -1,7 +1,7 @@
 "use client"
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -41,24 +41,25 @@ const chartConfig = {
 
 export default function DashboardPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
   // Fetching data
-  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
-  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
-  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
-  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
-  const incomeQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
 
-  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
 
   // Memoized calculations

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -24,8 +24,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InvestmentsPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
-  const investmentsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'investments') : null, [firestore]);
+  const investmentsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'investments') : null, [firestore, user]);
   const { data: investments, isLoading: investmentsLoading } = useCollection<Investment>(investmentsQuery);
 
   const totalInvested = useMemo(() => investments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [investments]);

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -66,11 +66,12 @@ const TransactionsTable = ({ data, isLoading }: { data: (WithId<Income> | WithId
 
 export default function FinancesPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
-  const incomeQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
 
-  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
   
   const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);

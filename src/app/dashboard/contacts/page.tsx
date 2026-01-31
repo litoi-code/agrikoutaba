@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -77,11 +77,12 @@ const ContactsTable = ({ data, isLoading }: { data: DisplayContact[], isLoading:
 
 export default function ContactsPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
-  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
-  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
   const customerData: DisplayContact[] = useMemo(() => {

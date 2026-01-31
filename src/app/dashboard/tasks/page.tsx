@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import {
   Card,
   CardContent,
@@ -59,11 +59,12 @@ const TaskColumn = ({ title, tasks, workersMap, isLoading }: { title: string; ta
 
 export default function TasksPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
-  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
 
-  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
   const workersMap = useMemo(() => {
