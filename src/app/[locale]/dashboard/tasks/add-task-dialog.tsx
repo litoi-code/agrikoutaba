@@ -70,6 +70,8 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
+      title: "",
+      description: "",
       status: "To Do",
     },
   });

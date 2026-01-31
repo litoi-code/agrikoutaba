@@ -60,6 +60,12 @@ export function AddInvestmentDialog({
 
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
+    defaultValues: {
+      investorName: "",
+      description: "",
+      amount: "" as any,
+      equityDetails: "",
+    },
   });
 
   const onSubmit = (values: z.infer<typeof investmentSchema>) => {

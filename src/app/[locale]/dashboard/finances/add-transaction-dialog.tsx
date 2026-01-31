@@ -86,10 +86,18 @@ export function AddTransactionDialog({
 
   const incomeForm = useForm<z.infer<typeof incomeSchema>>({
     resolver: zodResolver(incomeSchema),
+    defaultValues: {
+      description: "",
+      amount: "" as any,
+    },
   });
 
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
+    defaultValues: {
+      description: "",
+      amount: "" as any,
+    },
   });
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
