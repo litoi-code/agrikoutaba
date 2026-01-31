@@ -2,8 +2,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { usePathname } from "next-intl/navigation";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   DropdownMenu,
@@ -22,8 +21,14 @@ export function LanguageSwitcher() {
   const locale = useLocale();
 
   function onSelectChange(nextLocale: string) {
+    // pathname from next/navigation includes the locale.
+    // We need to strip it off before adding the new locale.
+    const nextPathname = pathname.startsWith(`/${locale}`)
+      ? pathname.substring(locale.length + 1)
+      : pathname;
+
     startTransition(() => {
-      router.replace(`/${nextLocale}${pathname}`);
+      router.replace(`/${nextLocale}${nextPathname || "/"}`);
     });
   }
 
