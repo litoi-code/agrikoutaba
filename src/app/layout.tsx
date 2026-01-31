@@ -1,32 +1,12 @@
-import type {Metadata} from 'next';
-import { Toaster } from "@/components/ui/toaster";
-import './globals.css';
-
-// This is the root layout. It's intentionally minimal.
-// The main layout with internationalization is in src/app/[locale]/layout.tsx.
-// The middleware will redirect users to a localized path.
-
-export const metadata: Metadata = {
-  title: 'AgriKoutaba',
-  description: 'A centralized platform for managing all aspects of a farming business in Cameroon.',
-};
+// This file is required by Next.js and is the root layout.
+// However, with next-intl, we delegate the actual HTML structure
+// to the localized layout in `src/app/[locale]/layout.tsx`.
+// This component simply passes its children through.
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
-          {children}
-          <Toaster />
-      </body>
-    </html>
-  );
+}) {
+  return children;
 }

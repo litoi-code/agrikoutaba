@@ -1,5 +1,7 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
+import { Toaster } from "@/components/ui/toaster";
+import '../globals.css';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}): Promise<{title: string, description: string}> {
   const t = await getTranslations({locale, namespace: 'HomePage'});
@@ -10,7 +12,7 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
   }
 }
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
   params: {locale}
 }: Readonly<{
@@ -20,8 +22,18 @@ export default async function RootLayout({
   const messages = await getMessages({locale});
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-body antialiased">
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+        <Toaster />
+      </body>
+    </html>
   );
 }
