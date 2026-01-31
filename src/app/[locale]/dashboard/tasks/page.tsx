@@ -31,7 +31,7 @@ const TaskCard = ({ task, assignee, t }: { task: WithId<Task>, assignee?: WithId
         <div className="flex justify-between items-start">
           <h3 className="font-semibold mb-2">{task.title || task.description}</h3>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">{formattedDate ? t('due', {date: formattedDate}) : <Skeleton className="h-4 w-24" />}</p>
+        <div className="text-sm text-muted-foreground mb-4">{formattedDate ? t('due', {date: formattedDate}) : <Skeleton className="h-4 w-24" />}</div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {assignee ? (
