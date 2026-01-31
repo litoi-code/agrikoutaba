@@ -51,7 +51,7 @@ import type { Worker } from "@/lib/types";
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  workerId: z.string({ required_error: "Please select a worker." }),
+  workerId: z.string({ required_error: "Please select a worker." }).min(1, "Please select a worker."),
   status: z.enum(["To Do", "In Progress", "Completed"]),
   dueDate: z.date({ required_error: "Please select a due date." }),
 });
@@ -72,7 +72,9 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
     defaultValues: {
       title: "",
       description: "",
+      workerId: "",
       status: "To Do",
+      dueDate: undefined,
     },
   });
 

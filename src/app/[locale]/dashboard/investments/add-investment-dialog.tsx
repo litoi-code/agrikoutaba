@@ -65,6 +65,7 @@ export function AddInvestmentDialog({
       description: "",
       amount: "" as any,
       equityDetails: "",
+      date: undefined,
     },
   });
 

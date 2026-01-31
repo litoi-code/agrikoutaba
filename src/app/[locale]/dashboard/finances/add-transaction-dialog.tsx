@@ -58,14 +58,14 @@ const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  customerId: z.string({ required_error: "Please select a customer." }),
+  customerId: z.string({ required_error: "Please select a customer." }).min(1, "Please select a customer."),
 });
 
 const expenseSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  supplierId: z.string({ required_error: "Please select a supplier." }),
+  supplierId: z.string({ required_error: "Please select a supplier." }).min(1, "Please select a supplier."),
 });
 
 interface AddTransactionDialogProps {
@@ -89,6 +89,8 @@ export function AddTransactionDialog({
     defaultValues: {
       description: "",
       amount: "" as any,
+      customerId: "",
+      date: undefined,
     },
   });
 
@@ -97,6 +99,8 @@ export function AddTransactionDialog({
     defaultValues: {
       description: "",
       amount: "" as any,
+      supplierId: "",
+      date: undefined,
     },
   });
 
