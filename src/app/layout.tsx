@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AgriCentral',
-  description: 'A centralized platform for managing all aspects of a farming business.',
+  title: 'AgriKoutaba',
+  description: 'A centralized platform for managing all aspects of a farming business in Cameroon.',
 };
 
 export default function RootLayout({

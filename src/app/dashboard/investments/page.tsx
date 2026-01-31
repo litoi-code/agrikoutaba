@@ -34,7 +34,7 @@ export default function InvestmentsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-headline font-bold">Investments & Equity</h1>
+        <h1 className="text-3xl font-headline font-bold">Investor Management</h1>
         <AddInvestmentDialog>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
@@ -50,7 +50,7 @@ export default function InvestmentsPage() {
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {investmentsLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">${totalInvested.toLocaleString()}</div>}
+            {investmentsLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalInvested.toLocaleString()} Fcfa</div>}
           </CardContent>
         </Card>
       </div>
@@ -87,7 +87,7 @@ export default function InvestmentsPage() {
                     <TableCell className="font-medium">{inv.investorName}</TableCell>
                     <TableCell>{inv.description}</TableCell>
                     <TableCell>{new Date(inv.date).toLocaleDateString()}</TableCell>
-                    <TableCell>${inv.amount.toLocaleString()}</TableCell>
+                    <TableCell>{inv.amount.toLocaleString()} Fcfa</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />

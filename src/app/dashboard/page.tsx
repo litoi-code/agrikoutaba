@@ -126,7 +126,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {incomeLoading || expensesLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">${netIncome.toLocaleString()}</div>}
+            {incomeLoading || expensesLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{netIncome.toLocaleString()} Fcfa</div>}
             <p className="text-xs text-muted-foreground">This year so far</p>
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
                  <BarChart data={financialChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
                     <CartesianGrid vertical={false} />
                     <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                    <YAxis tickFormatter={(value) => `$${value/1000}k`} />
+                    <YAxis tickFormatter={(value) => `${value/1000}k Fcfa`} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar dataKey="Income" fill="var(--color-Income)" radius={4} />
                     <Bar dataKey="Expenses" fill="var(--color-Expenses)" radius={4} />

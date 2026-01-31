@@ -84,7 +84,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
     addDocumentNonBlocking(incomesRef, { ...values, date: values.date.toISOString() });
     toast({
       title: "Income Added",
-      description: `Recorded income of $${values.amount}.`,
+      description: `Recorded income of ${values.amount} Fcfa.`,
     });
     incomeForm.reset();
     setOpen(false);
@@ -96,7 +96,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
     addDocumentNonBlocking(expensesRef, { ...values, date: values.date.toISOString() });
     toast({
       title: "Expense Added",
-      description: `Recorded expense of $${values.amount}.`,
+      description: `Recorded expense of ${values.amount} Fcfa.`,
     });
     expenseForm.reset();
     setOpen(false);
@@ -140,7 +140,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="100.00" {...field} />
+                        <Input type="number" placeholder="10000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -208,7 +208,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="50.00" {...field} />
+                        <Input type="number" placeholder="5000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

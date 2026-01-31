@@ -54,7 +54,7 @@ const TransactionsTable = ({ data, isLoading }: { data: (WithId<Income> | WithId
                 <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
                 <TableCell className="font-medium">{transaction.description}</TableCell>
                 <TableCell className="text-right font-mono">
-                  ${transaction.amount.toFixed(2)}
+                  {transaction.amount.toLocaleString('en-US')} Fcfa
                 </TableCell>
               </TableRow>
             ))
@@ -103,7 +103,7 @@ export default function FinancesPage() {
             <ArrowUpCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            {incomeLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">${totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>}
+            {incomeLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalIncome.toLocaleString('en-US')} Fcfa</div>}
           </CardContent>
         </Card>
         <Card>
@@ -112,7 +112,7 @@ export default function FinancesPage() {
             <ArrowDownCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            {expensesLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">${totalExpenses.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>}
+            {expensesLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalExpenses.toLocaleString('en-US')} Fcfa</div>}
           </CardContent>
         </Card>
       </div>

@@ -104,7 +104,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="50000.00" {...field} />
+                    <Input type="number" placeholder="1000000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +118,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
                   <FormLabel>Equity Details</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g. 10% equity for $50,000"
+                      placeholder="e.g. 10% equity for 1,000,000 Fcfa"
                       {...field}
                     />
                   </FormControl>

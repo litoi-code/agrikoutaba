@@ -48,10 +48,10 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative h-full flex flex-col items-center justify-center text-center text-white p-4">
             <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-md">
-              AgriCentral: The Future of Farm Management
+              AgriKoutaba: The Future of Farm Management
             </h1>
             <p className="text-lg md:text-2xl max-w-3xl mb-8 drop-shadow-sm">
-              Streamline your operations, track everything from inventory to investments, and make data-driven decisions.
+              Streamline your operations, track everything from inventory to investments, and make data-driven decisions for your farm in Cameroon.
             </p>
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
               <Link href="/dashboard">Get Started</Link>
@@ -82,8 +82,8 @@ export default function Home() {
 
         <section className="py-16 md:py-24 bg-secondary">
            <div className="container mx-auto px-4 text-center">
-              <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">Ready to grow your business?</h2>
-              <p className="text-lg text-muted-foreground mb-8">Join AgriCentral and take control of your farm's future.</p>
+              <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">Ready to grow your business in Cameroon?</h2>
+              <p className="text-lg text-muted-foreground mb-8">Join AgriKoutaba and take control of your farm's future.</p>
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
                 <Link href="/dashboard">Go to Dashboard</Link>
               </Button>
@@ -93,7 +93,7 @@ export default function Home() {
 
       <footer className="bg-card border-t">
         <div className="container mx-auto px-4 py-6 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} AgriCentral. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AgriKoutaba. All rights reserved.</p>
         </div>
       </footer>
     </div>

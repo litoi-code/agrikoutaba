@@ -51,7 +51,7 @@ export default function DashboardLayout({
               <Leaf className="h-6 w-6" />
             </Button>
             <h2 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
-              AgriCentral
+              AgriKoutaba
             </h2>
           </div>
         </SidebarHeader>
@@ -77,7 +77,7 @@ export default function DashboardLayout({
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
               <span className="text-sm font-semibold">Farm Owner</span>
-              <span className="text-xs text-muted-foreground">owner@agricentral.com</span>
+              <span className="text-xs text-muted-foreground">owner@agrikoutaba.com</span>
             </div>
             <Button variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden">
               <Settings className="h-5 w-5"/>
