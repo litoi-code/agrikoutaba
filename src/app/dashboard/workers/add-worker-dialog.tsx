@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { collection } from "firebase/firestore";
 import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const t = useTranslations("WorkersPage.AddWorkerDialog");
 
   const form = useForm<z.infer<typeof workerSchema>>({
     resolver: zodResolver(workerSchema),
@@ -55,8 +57,11 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
     const workersRef = collection(firestore, "workers");
     addDocumentNonBlocking(workersRef, values);
     toast({
-      title: "Worker Added",
-      description: `${values.firstName} ${values.lastName} has been added to your team.`,
+      title: t("toastTitle"),
+      description: t("toastDescription", {
+        firstName: values.firstName,
+        lastName: values.lastName,
+      }),
     });
     form.reset();
     setOpen(false);
@@ -67,20 +72,21 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Worker</DialogTitle>
-          <DialogDescription>
-            Add a new worker to your team and assign tasks.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>{t("firstNameLabel")}</FormLabel>
                     <FormControl>
                       <Input placeholder="John" {...field} />
                     </FormControl>
@@ -93,7 +99,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>{t("lastNameLabel")}</FormLabel>
                     <FormControl>
                       <Input placeholder="Doe" {...field} />
                     </FormControl>
@@ -107,7 +113,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>{t("roleLabel")}</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Field Manager" {...field} />
                   </FormControl>
@@ -120,7 +126,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
               name="contactNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{t("phoneLabel")}</FormLabel>
                   <FormControl>
                     <Input placeholder="(123) 456-7890" {...field} />
                   </FormControl>
@@ -129,7 +135,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Add Worker</Button>
+              <Button type="submit">{t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { collection } from "firebase/firestore";
 import { useFirestore, addDocumentNonBlocking, type WithId } from "@/firebase";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -65,10 +66,15 @@ interface AddTransactionDialogProps {
   suppliers: WithId<Supplier>[];
 }
 
-export function AddTransactionDialog({ children, customers, suppliers }: AddTransactionDialogProps) {
+export function AddTransactionDialog({
+  children,
+  customers,
+  suppliers,
+}: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const t = useTranslations("FinancesPage.AddTransactionDialog");
 
   const incomeForm = useForm<z.infer<typeof incomeSchema>>({
     resolver: zodResolver(incomeSchema),
@@ -81,10 +87,13 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
     if (!firestore) return;
     const incomesRef = collection(firestore, "incomes");
-    addDocumentNonBlocking(incomesRef, { ...values, date: values.date.toISOString() });
+    addDocumentNonBlocking(incomesRef, {
+      ...values,
+      date: values.date.toISOString(),
+    });
     toast({
-      title: "Income Added",
-      description: `Recorded income of ${values.amount} Fcfa.`,
+      title: t("toastIncomeTitle"),
+      description: t("toastIncomeDescription", { amount: values.amount }),
     });
     incomeForm.reset();
     setOpen(false);
@@ -93,10 +102,13 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
   const onExpenseSubmit = (values: z.infer<typeof expenseSchema>) => {
     if (!firestore) return;
     const expensesRef = collection(firestore, "expenses");
-    addDocumentNonBlocking(expensesRef, { ...values, date: values.date.toISOString() });
+    addDocumentNonBlocking(expensesRef, {
+      ...values,
+      date: values.date.toISOString(),
+    });
     toast({
-      title: "Expense Added",
-      description: `Recorded expense of ${values.amount} Fcfa.`,
+      title: t("toastExpenseTitle"),
+      description: t("toastExpenseDescription", { amount: values.amount }),
     });
     expenseForm.reset();
     setOpen(false);
@@ -107,25 +119,26 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Transaction</DialogTitle>
-          <DialogDescription>
-            Record a new income or expense.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="income" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="income">Income</TabsTrigger>
-            <TabsTrigger value="expense">Expense</TabsTrigger>
+            <TabsTrigger value="income">{t("incomeTab")}</TabsTrigger>
+            <TabsTrigger value="expense">{t("expenseTab")}</TabsTrigger>
           </TabsList>
           <TabsContent value="income">
             <Form {...incomeForm}>
-              <form onSubmit={incomeForm.handleSubmit(onIncomeSubmit)} className="space-y-4 py-4">
+              <form
+                onSubmit={incomeForm.handleSubmit(onIncomeSubmit)}
+                className="space-y-4 py-4"
+              >
                 <FormField
                   control={incomeForm.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t("descriptionLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Sale of produce" {...field} />
                       </FormControl>
@@ -138,7 +151,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount</FormLabel>
+                      <FormLabel>{t("amountLabel")}</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="10000" {...field} />
                       </FormControl>
@@ -151,16 +164,23 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="customerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel>{t("customerLabel")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a customer" />
+                            <SelectValue
+                              placeholder={t("selectCustomerPlaceholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {customers.map(c => (
-                            <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
+                          {customers.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.firstName} {c.lastName}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -173,27 +193,30 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date</FormLabel>
+                      <FormLabel>{t("dateLabel")}</FormLabel>
                       <DatePicker date={field.value} setDate={field.onChange} />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Add Income</Button>
+                  <Button type="submit">{t("addIncomeButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>
           </TabsContent>
           <TabsContent value="expense">
-          <Form {...expenseForm}>
-              <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4 py-4">
+            <Form {...expenseForm}>
+              <form
+                onSubmit={expenseForm.handleSubmit(onExpenseSubmit)}
+                className="space-y-4 py-4"
+              >
                 <FormField
                   control={expenseForm.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t("descriptionLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Purchase of seeds" {...field} />
                       </FormControl>
@@ -206,7 +229,7 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount</FormLabel>
+                      <FormLabel>{t("amountLabel")}</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="5000" {...field} />
                       </FormControl>
@@ -219,16 +242,23 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="supplierId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Supplier</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormLabel>{t("supplierLabel")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a supplier" />
+                            <SelectValue
+                              placeholder={t("selectSupplierPlaceholder")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {suppliers.map(s => (
-                            <SelectItem key={s.id} value={s.id}>{s.companyName}</SelectItem>
+                          {suppliers.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.companyName}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -241,14 +271,14 @@ export function AddTransactionDialog({ children, customers, suppliers }: AddTran
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date</FormLabel>
+                      <FormLabel>{t("dateLabel")}</FormLabel>
                       <DatePicker date={field.value} setDate={field.onChange} />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Add Expense</Button>
+                  <Button type="submit">{t("addExpenseButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>

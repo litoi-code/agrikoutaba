@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { collection } from "firebase/firestore";
 import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +55,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const t = useTranslations("ContactsPage.AddContactDialog");
 
   const customerForm = useForm<z.infer<typeof customerSchema>>({
     resolver: zodResolver(customerSchema),
@@ -82,8 +84,11 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     const customersRef = collection(firestore, "customers");
     addDocumentNonBlocking(customersRef, values);
     toast({
-      title: "Customer Added",
-      description: `${values.firstName} ${values.lastName} has been added to contacts.`,
+      title: t("toastCustomerTitle"),
+      description: t("toastCustomerDescription", {
+        firstName: values.firstName,
+        lastName: values.lastName,
+      }),
     });
     customerForm.reset();
     setOpen(false);
@@ -94,8 +99,10 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     const suppliersRef = collection(firestore, "suppliers");
     addDocumentNonBlocking(suppliersRef, values);
     toast({
-      title: "Supplier Added",
-      description: `${values.companyName} has been added to contacts.`,
+      title: t("toastSupplierTitle"),
+      description: t("toastSupplierDescription", {
+        companyName: values.companyName,
+      }),
     });
     supplierForm.reset();
     setOpen(false);
@@ -106,25 +113,26 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Contact</DialogTitle>
-          <DialogDescription>
-            Add a new customer or supplier to your records.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="customer" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="customer">Customer</TabsTrigger>
-            <TabsTrigger value="supplier">Supplier</TabsTrigger>
+            <TabsTrigger value="customer">{t("customerTab")}</TabsTrigger>
+            <TabsTrigger value="supplier">{t("supplierTab")}</TabsTrigger>
           </TabsList>
           <TabsContent value="customer">
             <Form {...customerForm}>
-              <form onSubmit={customerForm.handleSubmit(onCustomerSubmit)} className="space-y-4 py-4">
+              <form
+                onSubmit={customerForm.handleSubmit(onCustomerSubmit)}
+                className="space-y-4 py-4"
+              >
                 <FormField
                   control={customerForm.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel>{t("firstNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="John" {...field} />
                       </FormControl>
@@ -137,7 +145,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                      <FormLabel>{t("lastNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="Doe" {...field} />
                       </FormControl>
@@ -150,7 +158,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("emailLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="john.doe@example.com" {...field} />
                       </FormControl>
@@ -163,7 +171,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="contactNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>{t("phoneLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="(123) 456-7890" {...field} />
                       </FormControl>
@@ -176,29 +184,35 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel>{t("addressLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St, Anytown, USA" {...field} />
+                        <Input
+                          placeholder="123 Main St, Anytown, USA"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Add Customer</Button>
+                  <Button type="submit">{t("addCustomerButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>
           </TabsContent>
           <TabsContent value="supplier">
             <Form {...supplierForm}>
-              <form onSubmit={supplierForm.handleSubmit(onSupplierSubmit)} className="space-y-4 py-4">
+              <form
+                onSubmit={supplierForm.handleSubmit(onSupplierSubmit)}
+                className="space-y-4 py-4"
+              >
                 <FormField
                   control={supplierForm.control}
                   name="companyName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Name</FormLabel>
+                      <FormLabel>{t("companyNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="Global Seeds Inc." {...field} />
                       </FormControl>
@@ -211,7 +225,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="contactName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Contact Name</FormLabel>
+                      <FormLabel>{t("contactNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="Jane Smith" {...field} />
                       </FormControl>
@@ -224,9 +238,12 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t("emailLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="jane.smith@globalseeds.com" {...field} />
+                        <Input
+                          placeholder="jane.smith@globalseeds.com"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,7 +254,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="contactNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>{t("phoneLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="(987) 654-3210" {...field} />
                       </FormControl>
@@ -250,16 +267,19 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel>{t("addressLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="456 Supplier Ave, Industriville" {...field} />
+                        <Input
+                          placeholder="456 Supplier Ave, Industriville"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">Add Supplier</Button>
+                  <Button type="submit">{t("addSupplierButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>

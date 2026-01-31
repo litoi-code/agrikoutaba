@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { collection } from "firebase/firestore";
 import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,10 +39,15 @@ const investmentSchema = z.object({
   equityDetails: z.string().min(1, "Equity details are required"),
 });
 
-export function AddInvestmentDialog({ children }: { children: React.ReactNode }) {
+export function AddInvestmentDialog({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const t = useTranslations("InvestmentsPage.AddInvestmentDialog");
 
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
@@ -50,10 +56,15 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
   const onSubmit = (values: z.infer<typeof investmentSchema>) => {
     if (!firestore) return;
     const investmentsRef = collection(firestore, "investments");
-    addDocumentNonBlocking(investmentsRef, { ...values, date: values.date.toISOString() });
+    addDocumentNonBlocking(investmentsRef, {
+      ...values,
+      date: values.date.toISOString(),
+    });
     toast({
-      title: "Investment Added",
-      description: `Recorded investment from ${values.investorName}.`,
+      title: t("toastTitle"),
+      description: t("toastDescription", {
+        investorName: values.investorName,
+      }),
     });
     form.reset();
     setOpen(false);
@@ -64,19 +75,20 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Investment</DialogTitle>
-          <DialogDescription>
-            Record a new investment in your business.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
             <FormField
               control={form.control}
               name="investorName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Investor Name</FormLabel>
+                  <FormLabel>{t("investorNameLabel")}</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Venture Capital Inc." {...field} />
                   </FormControl>
@@ -89,7 +101,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t("descriptionLabel")}</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Series A Funding" {...field} />
                   </FormControl>
@@ -102,7 +114,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>{t("amountLabel")}</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="1000000" {...field} />
                   </FormControl>
@@ -115,7 +127,7 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
               name="equityDetails"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Equity Details</FormLabel>
+                  <FormLabel>{t("equityDetailsLabel")}</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="e.g. 10% equity for 1,000,000 Fcfa"
@@ -131,14 +143,14 @@ export function AddInvestmentDialog({ children }: { children: React.ReactNode })
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Date of Investment</FormLabel>
+                  <FormLabel>{t("dateLabel")}</FormLabel>
                   <DatePicker date={field.value} setDate={field.onChange} />
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="submit">Add Investment</Button>
+              <Button type="submit">{t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>
