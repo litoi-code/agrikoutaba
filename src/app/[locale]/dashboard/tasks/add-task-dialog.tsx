@@ -89,39 +89,34 @@ export function TaskFormDialog({
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
-    defaultValues: isEditMode
-      ? {
-          ...task,
-          dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
-          workerIds: task.workerIds || [],
-        }
-      : {
-          title: "",
-          description: "",
-          workerIds: [],
-          status: "To Do",
-          dueDate: new Date(),
-        },
+    defaultValues: {
+      title: "",
+      description: "",
+      workerIds: [],
+      status: "To Do",
+      dueDate: new Date(),
+    },
   });
   
   useEffect(() => {
-    if (isEditMode && task) {
-        form.reset({
-            ...task,
-            dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
-            workerIds: task.workerIds || [],
-        });
+    if (open) {
+        if (isEditMode && task) {
+            form.reset({
+                ...task,
+                dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
+                workerIds: task.workerIds || [],
+            });
+        } else {
+            form.reset({
+                title: "",
+                description: "",
+                workerIds: [],
+                status: "To Do",
+                dueDate: new Date(),
+            });
+        }
     }
-    if (!isEditMode) {
-        form.reset({
-            title: "",
-            description: "",
-            workerIds: [],
-            status: "To Do",
-            dueDate: new Date(),
-        });
-    }
-  }, [task, isEditMode, form]);
+  }, [open, task, isEditMode, form]);
 
   const onSubmit = (values: z.infer<typeof taskSchema>) => {
     if (!firestore) return;
@@ -151,7 +146,7 @@ export function TaskFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

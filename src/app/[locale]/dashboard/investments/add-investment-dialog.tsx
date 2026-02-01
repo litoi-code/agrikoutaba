@@ -74,6 +74,7 @@ export function AddInvestmentDialog({
       description: "",
       amount: "" as any,
       equityDetails: "",
+      date: new Date(),
     },
   });
 
@@ -127,7 +128,7 @@ export function AddInvestmentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

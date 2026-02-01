@@ -105,6 +105,7 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       customerId: "",
+      date: new Date(),
     },
   });
 
@@ -114,6 +115,7 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       supplierId: "",
+      date: new Date(),
     },
   });
 
@@ -177,7 +179,7 @@ export function AddTransactionDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
