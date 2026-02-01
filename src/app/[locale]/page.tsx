@@ -85,7 +85,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary/70 via-primary/30 to-transparent" />
           
           {/* Content */}
-          <div className="relative h-full flex items-center">
+          <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-4">
                 <div className="max-w-2xl text-center md:text-left">
                     <h1 className="text-5xl lg:text-7xl font-headline font-bold mb-6 text-primary-foreground">
