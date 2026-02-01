@@ -88,7 +88,7 @@ export default async function DashboardLayout({
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
               <span className="text-sm font-semibold">{t("farmOwner")}</span>
               <span className="text-xs text-muted-foreground">
-                owner@agrikoutaba.com
+                owner@agrifuture.com
               </span>
             </div>
             <div className="ml-auto flex items-center group-data-[collapsible=icon]:hidden">

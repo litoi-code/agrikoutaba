@@ -1,7 +1,7 @@
 
 {
   "Global": {
-    "appName": "AgriKoutaba",
+    "appName": "AgriFuture",
     "currency": "Fcfa"
   },
   "Sidebar": {
@@ -17,7 +17,7 @@
     "changeLanguage": "Change language"
   },
   "HomePage": {
-    "title": "AgriKoutaba: The Future of Farm Management",
+    "title": "AgriFuture: The Future of Farm Management",
     "subtitle": "Streamline your operations, track everything from inventory to investments, and make data-driven decisions for your farm in Cameroon.",
     "getStarted": "Get Started",
     "allInOne": "All-in-One Farm Management",
@@ -32,9 +32,9 @@
     "featureInvestmentsTitle": "Investment Tracking",
     "featureInvestmentsDescription": "Monitor investments, profits, and equity details seamlessly.",
     "ctaTitle": "Ready to grow your business in Cameroon?",
-    "ctaSubtitle": "Join AgriKoutaba and take control of your farm's future.",
+    "ctaSubtitle": "Join AgriFuture and take control of your farm's future.",
     "goToDashboard": "Go to Dashboard",
-    "footer": "© {year} AgriKoutaba. All rights reserved."
+    "footer": "© {year} AgriFuture. All rights reserved."
   },
   "DashboardPage": {
     "title": "Dashboard",
