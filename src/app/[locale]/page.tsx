@@ -7,21 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Users, ClipboardList, Landmark, AreaChart, Boxes, CheckCircle } from 'lucide-react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import React from 'react';
 
 export default function Home() {
   const t = useTranslations('HomePage');
-  const plugin = React.useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
-  );
 
   const features = [
     {
@@ -57,45 +45,47 @@ export default function Home() {
     t('whyAgriFuturePoint3'),
   ];
 
-  const heroImages = PlaceHolderImages.filter(p => p.id.startsWith("hero-image"));
+  const cocoaImage = PlaceHolderImages.find(p => p.id === "hero-image-cocoa");
+  const bananaImage = PlaceHolderImages.find(p => p.id === "hero-image-bananas");
   const localFarmerImage = PlaceHolderImages.find(p => p.id === "local-farmer");
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[70vh] md:h-[90vh]">
-          <Carousel 
-            plugins={[plugin.current]} 
-            className="w-full h-full"
-            onMouseEnter={plugin.current.stop}
-            onMouseLeave={plugin.current.reset}
-          >
-            <CarouselContent className="-ml-0">
-              {heroImages.map((image, index) => (
-                <CarouselItem key={image.id} className="pl-0">
-                  <div className="relative h-full w-full">
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.description}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={image.imageHint}
-                      priority={index === 0}
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/30 hover:bg-black/50 border-none" />
-            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/30 hover:bg-black/50 border-none" />
-          </Carousel>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white p-4 sm:p-8 pb-16 md:pb-24">
-            <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 text-shadow-lg">
+        <section className="relative w-full h-[70vh] md:h-[90vh] overflow-hidden">
+          <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-5">
+            <div className="relative md:col-span-3 h-full w-full">
+              {cocoaImage && (
+                <Image
+                  src={cocoaImage.imageUrl}
+                  alt={cocoaImage.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={cocoaImage.imageHint}
+                  priority
+                />
+              )}
+            </div>
+            <div className="hidden md:block md:col-span-2 relative h-full w-full">
+              {bananaImage && (
+                <Image
+                  src={bananaImage.imageUrl}
+                  alt={bananaImage.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={bananaImage.imageHint}
+                  priority
+                />
+              )}
+            </div>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center md:items-start justify-center text-center md:text-left text-white p-8 md:p-16">
+            <h1 className="text-4xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg max-w-lg">
               {t('title')}
             </h1>
-            <p className="text-lg md:text-xl max-w-3xl mb-8 text-shadow">
+            <p className="text-lg md:text-xl max-w-md mb-8 text-shadow">
               {t('subtitle')}
             </p>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105">
