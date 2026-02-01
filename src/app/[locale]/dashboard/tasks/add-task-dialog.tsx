@@ -151,7 +151,7 @@ export function TaskFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} modal={false}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -323,3 +323,5 @@ export function TaskFormDialog({
     </Dialog>
   );
 }
+
+    
