@@ -11,6 +11,11 @@ export function Header() {
   const t = useTranslations('HomePage');
   const tGlobal = useTranslations('Global');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,7 +39,7 @@ export function Header() {
             <span className={cn(isScrolled ? 'text-foreground' : 'text-primary-foreground')}>{tGlobal('appName')}</span>
           </Link>
           <nav className="flex items-center gap-4">
-            <LanguageSwitcher />
+            {hasMounted && <LanguageSwitcher />}
             <Button asChild variant={isScrolled ? 'default' : 'secondary'} className="font-bold hidden sm:flex">
               <Link href="/dashboard">{t('goToDashboard')}</Link>
             </Button>
