@@ -71,17 +71,19 @@ export default function Home() {
             onMouseEnter={plugin.current.stop}
             onMouseLeave={plugin.current.reset}
           >
-            <CarouselContent>
+            <CarouselContent className="-ml-0">
               {heroImages.map((image, index) => (
-                <CarouselItem key={image.id}>
-                  <Image
-                    src={image.imageUrl}
-                    alt={image.description}
-                    fill
-                    className="object-cover"
-                    data-ai-hint={image.imageHint}
-                    priority={index === 0}
-                  />
+                <CarouselItem key={image.id} className="pl-0">
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={image.imageUrl}
+                      alt={image.description}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={image.imageHint}
+                      priority={index === 0}
+                    />
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -89,7 +91,7 @@ export default function Home() {
             <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/30 hover:bg-black/50 border-none" />
           </Carousel>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="relative h-full flex flex-col items-center justify-end text-center text-white p-4 sm:p-8 pb-16 md:pb-24">
+          <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white p-4 sm:p-8 pb-16 md:pb-24">
             <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 text-shadow-lg">
               {t('title')}
             </h1>
