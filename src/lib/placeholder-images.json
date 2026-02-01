@@ -2,9 +2,15 @@
   "placeholderImages": [
     {
       "id": "hero-image",
-      "description": "A lush green field with a tractor in the distance under a sunny sky.",
-      "imageUrl": "https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYXJtJTIwZmllbGR8ZW58MHx8fHwxNzY5NzMzMTE4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "farm field"
+      "description": "A lush green cocoa plantation in Cameroon under a bright sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1608796030623-00a60a7e0d69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYW1lcm9vbiUyMGZhcm18ZW58MHx8fHwxNzE3NTk5NjM1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cameroon farm"
+    },
+    {
+      "id": "local-farmer",
+      "description": "A smiling Cameroonian farmer holding produce.",
+      "imageUrl": "https://images.unsplash.com/photo-1581181820697-b6f753542a1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhZnJpY2FuJTIwZmFybWVyfGVufDB8fHx8fDE3MTc2MDAxMjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cameroonian farmer"
     },
     {
       "id": "avatar-1",
