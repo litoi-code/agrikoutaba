@@ -53,14 +53,6 @@ service cloud.firestore {
       return resource != null;
     }
 
-    /**
-     * Checks if the user is one of the workers assigned to an existing task.
-     * Used for update and delete operations.
-     */
-    function isAnAssignedWorker() {
-      return isExistingDocument() && request.auth.uid in resource.data.workerIds;
-    }
-
     // ------------------------------------------------------------------------
     // Collection Rules
     // ------------------------------------------------------------------------
@@ -131,18 +123,16 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages worker tasks. Reads are allowed by any employee. Creation is allowed by any employee. Writes are restricted to the assigned worker.
+     * @description Manages worker tasks. Any authenticated user (employee) can create, view, and manage all tasks.
      * @path /tasks/{taskId}
      * @allow A manager (create) a task for any worker.
-     * @allow A worker (update) the status of their own assigned task.
-     * @deny A worker (update) a task assigned to another worker.
-     * @principle Enforces document ownership for writes using the 'workerId' field. Allows broader create permissions.
+     * @allow A manager (update) any task in the system.
+     * @principle Aligns with the app's internal-trust model where any employee can manage shared business data.
      */
     match /tasks/{taskId} {
       allow get, list: if isSignedIn();
       allow create: if isSignedIn();
-      allow update: if isAnAssignedWorker();
-      allow delete: if isAnAssignedWorker();
+      allow update, delete: if isSignedIn() && isExistingDocument();
     }
 
     /**
