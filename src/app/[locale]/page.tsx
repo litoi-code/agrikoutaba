@@ -75,7 +75,6 @@ export default function Home() {
                   fill
                   className="object-cover"
                   data-ai-hint={bananaImage.imageHint}
-                  priority
                 />
               )}
             </div>
