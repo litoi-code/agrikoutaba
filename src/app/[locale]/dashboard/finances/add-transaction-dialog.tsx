@@ -1,12 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking, type WithId } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
@@ -31,7 +36,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -52,7 +56,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import type { Customer, Supplier } from "@/lib/types";
+import type { Customer, Supplier, Income, Expense } from "@/lib/types";
 
 const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -76,17 +80,24 @@ interface AddTransactionDialogProps {
   children: React.ReactNode;
   customers: WithId<Customer>[];
   suppliers: WithId<Supplier>[];
+  income?: WithId<Income>;
+  expense?: WithId<Expense>;
+  defaultTab?: 'income' | 'expense';
 }
 
 export function AddTransactionDialog({
   children,
   customers,
   suppliers,
+  income,
+  expense,
+  defaultTab = 'income'
 }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("FinancesPage.AddTransactionDialog");
+  const isEditMode = !!(income || expense);
 
   const incomeForm = useForm<z.infer<typeof incomeSchema>>({
     resolver: zodResolver(incomeSchema),
@@ -94,7 +105,6 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       customerId: "",
-      date: new Date(),
     },
   });
 
@@ -104,37 +114,65 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       supplierId: "",
-      date: new Date(),
     },
   });
 
+  useEffect(() => {
+    if (open) {
+        if (income) {
+            incomeForm.reset({ ...income, date: new Date(income.date) });
+        } else {
+            incomeForm.reset({ description: "", amount: "" as any, customerId: "", date: new Date() });
+        }
+        if (expense) {
+            expenseForm.reset({ ...expense, date: new Date(expense.date) });
+        } else {
+            expenseForm.reset({ description: "", amount: "" as any, supplierId: "", date: new Date() });
+        }
+    }
+  }, [open, income, expense, incomeForm, expenseForm]);
+
+
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
     if (!firestore) return;
-    const incomesRef = collection(firestore, "incomes");
-    addDocumentNonBlocking(incomesRef, {
-      ...values,
-      date: values.date.toISOString(),
-    });
-    toast({
-      title: t("toastIncomeTitle"),
-      description: t("toastIncomeDescription", { amount: values.amount }),
-    });
-    incomeForm.reset();
+    const data = { ...values, date: values.date.toISOString() };
+    if (income) {
+        const incomeRef = doc(firestore, "incomes", income.id);
+        updateDocumentNonBlocking(incomeRef, data);
+        toast({
+            title: t("toastIncomeUpdateTitle"),
+            description: t("toastIncomeDescription", { amount: values.amount }),
+        });
+    } else {
+        const incomesRef = collection(firestore, "incomes");
+        addDocumentNonBlocking(incomesRef, data);
+        toast({
+            title: t("toastIncomeTitle"),
+            description: t("toastIncomeDescription", { amount: values.amount }),
+        });
+    }
     setOpen(false);
   };
 
   const onExpenseSubmit = (values: z.infer<typeof expenseSchema>) => {
     if (!firestore) return;
-    const expensesRef = collection(firestore, "expenses");
-    addDocumentNonBlocking(expensesRef, {
-      ...values,
-      date: values.date.toISOString(),
-    });
-    toast({
-      title: t("toastExpenseTitle"),
-      description: t("toastExpenseDescription", { amount: values.amount }),
-    });
-    expenseForm.reset();
+    const data = { ...values, date: values.date.toISOString() };
+
+    if (expense) {
+        const expenseRef = doc(firestore, "expenses", expense.id);
+        updateDocumentNonBlocking(expenseRef, data);
+        toast({
+            title: t("toastExpenseUpdateTitle"),
+            description: t("toastExpenseDescription", { amount: values.amount }),
+        });
+    } else {
+        const expensesRef = collection(firestore, "expenses");
+        addDocumentNonBlocking(expensesRef, data);
+        toast({
+            title: t("toastExpenseTitle"),
+            description: t("toastExpenseDescription", { amount: values.amount }),
+        });
+    }
     setOpen(false);
   };
 
@@ -143,13 +181,13 @@ export function AddTransactionDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>{isEditMode ? t("editDescription") : t("description")}</DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="income" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="income">{t("incomeTab")}</TabsTrigger>
-            <TabsTrigger value="expense">{t("expenseTab")}</TabsTrigger>
+            <TabsTrigger value="income" disabled={isEditMode && !!expense}>{t("incomeTab")}</TabsTrigger>
+            <TabsTrigger value="expense" disabled={isEditMode && !!income}>{t("expenseTab")}</TabsTrigger>
           </TabsList>
           <TabsContent value="income">
             <Form {...incomeForm}>
@@ -191,7 +229,7 @@ export function AddTransactionDialog({
                       <FormLabel>{t("customerLabel")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -251,7 +289,7 @@ export function AddTransactionDialog({
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">{t("addIncomeButton")}</Button>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addIncomeButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -299,7 +337,7 @@ export function AddTransactionDialog({
                       <FormLabel>{t("supplierLabel")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -359,7 +397,7 @@ export function AddTransactionDialog({
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">{t("addExpenseButton")}</Button>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addExpenseButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>

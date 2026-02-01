@@ -68,9 +68,14 @@
     "companyColumn": "Company",
     "phoneColumn": "Phone",
     "transactionsColumn": "Transactions",
+    "actionsColumn": "Actions",
+    "editAction": "Edit",
+    "deleteAction": "Delete",
     "AddContactDialog": {
       "title": "Add New Contact",
       "description": "Add a new customer or supplier to your records.",
+      "editTitle": "Edit Contact",
+      "editDescription": "Update the details for this contact.",
       "customerTab": "Customer",
       "supplierTab": "Supplier",
       "firstNameLabel": "First Name",
@@ -81,10 +86,19 @@
       "companyNameLabel": "Company Name",
       "contactNameLabel": "Contact Name",
       "addSupplierButton": "Add Supplier",
+      "saveButton": "Save Changes",
       "toastCustomerTitle": "Customer Added",
-      "toastCustomerDescription": "{firstName} {lastName} has been added to contacts.",
+      "toastCustomerUpdateTitle": "Customer Updated",
+      "toastCustomerDeleteTitle": "Customer Deleted",
+      "toastCustomerDescription": "{firstName} {lastName} has been processed.",
       "toastSupplierTitle": "Supplier Added",
-      "toastSupplierDescription": "{companyName} has been added to contacts."
+      "toastSupplierUpdateTitle": "Supplier Updated",
+      "toastSupplierDeleteTitle": "Supplier Deleted",
+      "toastSupplierDescription": "{companyName} has been processed.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this contact.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
     }
   },
   "TasksPage": {
@@ -132,16 +146,28 @@
     "roleColumn": "Role",
     "phoneColumn": "Phone",
     "tasksColumn": "Tasks",
+    "actionsColumn": "Actions",
+    "editAction": "Edit",
+    "deleteAction": "Delete",
     "AddWorkerDialog": {
       "title": "Add New Worker",
       "description": "Add a new worker to your team and assign tasks.",
+      "editTitle": "Edit Worker",
+      "editDescription": "Update the details for this worker.",
       "firstNameLabel": "First Name",
       "lastNameLabel": "Last Name",
       "roleLabel": "Role",
       "phoneLabel": "Phone",
       "addButton": "Add Worker",
+      "saveButton": "Save Changes",
       "toastTitle": "Worker Added",
-      "toastDescription": "{firstName} {lastName} has been added to your team."
+      "toastUpdateTitle": "Worker Updated",
+      "toastDeleteTitle": "Worker Deleted",
+      "toastDescription": "{firstName} {lastName} has been processed.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this worker.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
     }
   },
   "FinancesPage": {
@@ -154,9 +180,14 @@
     "dateColumn": "Date",
     "descriptionColumn": "Description",
     "amountColumn": "Amount",
+    "actionsColumn": "Actions",
+    "editAction": "Edit",
+    "deleteAction": "Delete",
     "AddTransactionDialog": {
       "title": "Add Transaction",
       "description": "Record a new income or expense.",
+      "editTitle": "Edit Transaction",
+      "editDescription": "Update the details for this transaction.",
       "incomeTab": "Income",
       "expenseTab": "Expense",
       "descriptionLabel": "Description",
@@ -168,10 +199,19 @@
       "supplierLabel": "Supplier",
       "selectSupplierPlaceholder": "Select a supplier",
       "addExpenseButton": "Add Expense",
+      "saveButton": "Save Changes",
       "toastIncomeTitle": "Income Added",
+      "toastIncomeUpdateTitle": "Income Updated",
+      "toastIncomeDeleteTitle": "Income Deleted",
       "toastIncomeDescription": "Recorded income of {amount} FCFA.",
       "toastExpenseTitle": "Expense Added",
-      "toastExpenseDescription": "Recorded expense of {amount} FCFA."
+      "toastExpenseUpdateTitle": "Expense Updated",
+      "toastExpenseDeleteTitle": "Expense Deleted",
+      "toastExpenseDescription": "Recorded expense of {amount} FCFA.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this transaction.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
     }
   },
   "InvestmentsPage": {
@@ -184,17 +224,29 @@
     "dateColumn": "Date",
     "amountColumn": "Amount",
     "equityDetailsColumn": "Equity Details",
+    "actionsColumn": "Actions",
+    "editAction": "Edit",
+    "deleteAction": "Delete",
     "AddInvestmentDialog": {
       "title": "Add Investment",
       "description": "Record a new investment in your business.",
+      "editTitle": "Edit Investment",
+      "editDescription": "Update the details for this investment record.",
       "investorNameLabel": "Investor Name",
       "descriptionLabel": "Description",
       "amountLabel": "Amount",
       "equityDetailsLabel": "Equity Details",
       "dateLabel": "Date of Investment",
       "addButton": "Add Investment",
+      "saveButton": "Save Changes",
       "toastTitle": "Investment Added",
-      "toastDescription": "Recorded investment from {investorName}."
+      "toastUpdateTitle": "Investment Updated",
+      "toastDeleteTitle": "Investment Deleted",
+      "toastDescription": "Recorded investment from {investorName}.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this investment record.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
     }
   },
   "InventoryPage": {
@@ -206,11 +258,16 @@
     "priceColumn": "Unit Price",
     "reorderColumn": "Reorder Level",
     "supplierColumn": "Supplier",
+    "actionsColumn": "Actions",
+    "editAction": "Edit",
+    "deleteAction": "Delete",
     "statusInStock": "In Stock",
     "statusLowStock": "Low Stock",
     "AddInventoryItemDialog": {
       "title": "Add New Inventory Item",
       "description": "Add a new item to your inventory records.",
+      "editTitle": "Edit Inventory Item",
+      "editDescription": "Update the details for this item.",
       "nameLabel": "Item Name",
       "descriptionLabel": "Description",
       "priceLabel": "Unit Price",
@@ -219,8 +276,15 @@
       "supplierLabel": "Supplier",
       "selectSupplierPlaceholder": "Select a supplier",
       "addButton": "Add Item",
+      "saveButton": "Save Changes",
       "toastTitle": "Item Added",
-      "toastDescription": "\"{name}\" has been added to inventory."
+      "toastUpdateTitle": "Item Updated",
+      "toastDeleteTitle": "Item Deleted",
+      "toastDescription": "\"{name}\" has been processed.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this item.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel"
     }
   }
 }

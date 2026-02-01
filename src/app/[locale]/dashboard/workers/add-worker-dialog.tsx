@@ -1,12 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +34,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import type { Worker } from "@/lib/types";
 
 const workerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -37,11 +43,17 @@ const workerSchema = z.object({
   contactNumber: z.string().min(1, "Contact number is required"),
 });
 
-export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
+interface AddWorkerDialogProps {
+  children: React.ReactNode;
+  worker?: WithId<Worker>;
+}
+
+export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("WorkersPage.AddWorkerDialog");
+  const isEditMode = !!worker;
 
   const form = useForm<z.infer<typeof workerSchema>>({
     resolver: zodResolver(workerSchema),
@@ -53,18 +65,46 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (worker) {
+        form.reset(worker);
+      } else {
+        form.reset({
+          firstName: "",
+          lastName: "",
+          role: "",
+          contactNumber: "",
+        });
+      }
+    }
+  }, [open, worker, form]);
+
   const onSubmit = (values: z.infer<typeof workerSchema>) => {
     if (!firestore) return;
-    const workersRef = collection(firestore, "workers");
-    addDocumentNonBlocking(workersRef, values);
-    toast({
-      title: t("toastTitle"),
-      description: t("toastDescription", {
-        firstName: values.firstName,
-        lastName: values.lastName,
-      }),
-    });
-    form.reset();
+
+    if (isEditMode && worker) {
+      const workerRef = doc(firestore, "workers", worker.id);
+      updateDocumentNonBlocking(workerRef, values);
+      toast({
+        title: t("toastUpdateTitle"),
+        description: t("toastDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    } else {
+      const workersRef = collection(firestore, "workers");
+      addDocumentNonBlocking(workersRef, { ...values, taskIds: [] });
+      toast({
+        title: t("toastTitle"),
+        description: t("toastDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    }
+
     setOpen(false);
   };
 
@@ -73,8 +113,10 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>
+            {isEditMode ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -136,7 +178,7 @@ export function AddWorkerDialog({ children }: { children: React.ReactNode }) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">{t("addButton")}</Button>
+              <Button type="submit">{isEditMode ? t("saveButton") : t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>

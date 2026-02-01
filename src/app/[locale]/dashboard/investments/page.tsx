@@ -1,8 +1,8 @@
 
 "use client";
 import { useMemo, useState, useEffect } from 'react';
-import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import {
@@ -19,31 +19,101 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Wallet, FileText } from "lucide-react";
+import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddInvestmentDialog } from './add-investment-dialog';
+import { useToast } from '@/hooks/use-toast';
 
-const InvestmentRow = ({ inv, tGlobal }: { inv: WithId<Investment>, tGlobal: any }) => {
+const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any }) => {
   const [formattedDate, setFormattedDate] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const firestore = useFirestore();
+
   useEffect(() => {
     setFormattedDate(format(new Date(inv.date), 'PPP'));
   }, [inv.date]);
 
+  const handleDelete = () => {
+    if (!firestore) return;
+    const docRef = doc(firestore, 'investments', inv.id);
+    deleteDocumentNonBlocking(docRef);
+
+    toast({
+        title: tDialog("toastDeleteTitle"),
+        description: tDialog("toastDescription", { investorName: inv.investorName }),
+    });
+    setIsDeleteDialogOpen(false);
+  };
+
   return (
-    <TableRow>
-      <TableCell className="font-medium">{inv.investorName}</TableCell>
-      <TableCell>{inv.description}</TableCell>
-      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
-      <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <span>{inv.equityDetails}</span>
-        </div>
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow>
+        <TableCell className="font-medium">{inv.investorName}</TableCell>
+        <TableCell>{inv.description}</TableCell>
+        <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+        <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span>{inv.equityDetails}</span>
+          </div>
+        </TableCell>
+        <TableCell className="text-right">
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <AddInvestmentDialog investment={inv}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>{t('editAction')}</span>
+                    </DropdownMenuItem>
+                </AddInvestmentDialog>
+                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                    <Trash className="mr-2 h-4 w-4" />
+                    <span>{t('deleteAction')}</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+            </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tDialog('deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tDialog('deleteDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tDialog('deleteButton')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
@@ -52,6 +122,7 @@ export default function InvestmentsPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const t = useTranslations('InvestmentsPage');
+  const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
 
   const investmentsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'investments') : null, [firestore, user]);
@@ -96,6 +167,7 @@ export default function InvestmentsPage() {
                 <TableHead>{t('dateColumn')}</TableHead>
                 <TableHead>{t('amountColumn')}</TableHead>
                 <TableHead>{t('equityDetailsColumn')}</TableHead>
+                <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,11 +179,12 @@ export default function InvestmentsPage() {
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : (
                 investments?.map((inv) => (
-                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} />
+                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} />
                 ))
               )}
             </TableBody>

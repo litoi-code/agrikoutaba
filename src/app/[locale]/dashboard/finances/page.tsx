@@ -1,8 +1,8 @@
 
 "use client";
 import { useMemo, useState, useEffect } from 'react';
-import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import {
@@ -20,36 +20,115 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddTransactionDialog } from './add-transaction-dialog';
+import { useToast } from '@/hooks/use-toast';
 
-const TransactionRow = ({ transaction, tGlobal }: { transaction: WithId<Income> | WithId<Expense>, tGlobal: any }) => {
+const TransactionRow = ({ transaction, type, customers, suppliers, tGlobal, t, tDialog }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', customers: WithId<Customer>[], suppliers: WithId<Supplier>[], tGlobal: any, t: any, tDialog: any }) => {
   const [formattedDate, setFormattedDate] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const firestore = useFirestore();
 
   useEffect(() => {
     setFormattedDate(format(new Date(transaction.date), 'PPP'));
   }, [transaction.date]);
 
+  const handleDelete = () => {
+    if (!firestore) return;
+    const collectionName = type === 'income' ? 'incomes' : 'expenses';
+    const docRef = doc(firestore, collectionName, transaction.id);
+    deleteDocumentNonBlocking(docRef);
+
+    toast({
+        title: tDialog(`toast${type === 'income' ? 'Income' : 'Expense'}DeleteTitle`),
+        description: tDialog(`toast${type === 'income' ? 'Income' : 'Expense'}Description`, {
+            amount: transaction.amount,
+        }),
+    });
+    setIsDeleteDialogOpen(false);
+  };
+
+
   return (
-    <TableRow>
-      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
-      <TableCell className="font-medium">{transaction.description}</TableCell>
-      <TableCell className="text-right font-mono">
-        {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow>
+        <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+        <TableCell className="font-medium">{transaction.description}</TableCell>
+        <TableCell className="text-right font-mono">
+          {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
+        </TableCell>
+        <TableCell className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <AddTransactionDialog 
+                customers={customers} 
+                suppliers={suppliers} 
+                income={type === 'income' ? (transaction as WithId<Income>) : undefined}
+                expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
+                defaultTab={type}
+              >
+                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>{t('editAction')}</span>
+                </DropdownMenuItem>
+              </AddTransactionDialog>
+              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                 <Trash className="mr-2 h-4 w-4" />
+                 <span>{t('deleteAction')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tDialog('deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tDialog('deleteDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tDialog('deleteButton')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
-const TransactionsTable = ({ data, isLoading, t, tGlobal }: { data: (WithId<Income> | WithId<Expense>)[], isLoading: boolean, t: any, tGlobal: any }) => (
+const TransactionsTable = ({ data, type, customers, suppliers, isLoading, t, tDialog, tGlobal }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', customers: WithId<Customer>[], suppliers: WithId<Supplier>[], isLoading: boolean, t: any, tDialog: any, tGlobal: any }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -58,6 +137,7 @@ const TransactionsTable = ({ data, isLoading, t, tGlobal }: { data: (WithId<Inco
             <TableHead>{t('dateColumn')}</TableHead>
             <TableHead>{t('descriptionColumn')}</TableHead>
             <TableHead className="text-right">{t('amountColumn')}</TableHead>
+            <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -67,11 +147,12 @@ const TransactionsTable = ({ data, isLoading, t, tGlobal }: { data: (WithId<Inco
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
               </TableRow>
             ))
           ) : (
             data.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} tGlobal={tGlobal} />
+              <TransactionRow key={transaction.id} transaction={transaction} type={type} customers={customers} suppliers={suppliers} tGlobal={tGlobal} t={t} tDialog={tDialog} />
             ))
           )}
         </TableBody>
@@ -84,6 +165,7 @@ export default function FinancesPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const t = useTranslations('FinancesPage');
+  const tDialog = useTranslations('FinancesPage.AddTransactionDialog');
   const tGlobal = useTranslations('Global');
 
   const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
@@ -101,11 +183,14 @@ export default function FinancesPage() {
   const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);
   const totalExpenses = useMemo(() => expenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [expenses]);
 
+  const allCustomers = customers ?? [];
+  const allSuppliers = suppliers ?? [];
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddTransactionDialog customers={customers ?? []} suppliers={suppliers ?? []}>
+        <AddTransactionDialog customers={allCustomers} suppliers={allSuppliers}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('addNew')}
@@ -140,10 +225,10 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={income ?? []} isLoading={incomeLoading} t={t} tGlobal={tGlobal} />
+          <TransactionsTable data={income ?? []} type="income" customers={allCustomers} suppliers={allSuppliers} isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={expenses ?? []} isLoading={expensesLoading} t={t} tGlobal={tGlobal} />
+          <TransactionsTable data={expenses ?? []} type="expense" customers={allCustomers} suppliers={allSuppliers} isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,8 +1,8 @@
 
 "use client";
-import { useMemo } from 'react';
-import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
+import { useMemo, useState } from 'react';
+import { collection, doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import {
   Card,
@@ -18,18 +18,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddItemDialog } from './add-item-dialog';
 import type { Item, Supplier } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function InventoryPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const t = useTranslations('InventoryPage');
+  const tDialog = useTranslations('InventoryPage.AddInventoryItemDialog');
   const tGlobal = useTranslations('Global');
+  const { toast } = useToast();
+
+  const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
 
   const itemsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'items') : null, [firestore, user]);
   const { data: items, isLoading: itemsLoading } = useCollection<Item>(itemsQuery);
@@ -44,11 +65,26 @@ export default function InventoryPage() {
 
   const isLoading = itemsLoading || suppliersLoading;
 
+  const handleDelete = () => {
+    if (!firestore || !deleteTarget) return;
+    const docRef = doc(firestore, 'items', deleteTarget.id);
+    deleteDocumentNonBlocking(docRef);
+
+    toast({
+        title: tDialog("toastDeleteTitle"),
+        description: tDialog("toastDescription", { name: deleteTarget.name }),
+    });
+    setDeleteTarget(null);
+  };
+
+  const allSuppliers = suppliers ?? [];
+
   return (
+    <>
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddItemDialog suppliers={suppliers ?? []}>
+        <AddItemDialog suppliers={allSuppliers}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('addNew')}
@@ -69,6 +105,7 @@ export default function InventoryPage() {
                 <TableHead className="text-right">{t('stockColumn')}</TableHead>
                 <TableHead className="text-right">{t('statusColumn')}</TableHead>
                 <TableHead className="text-right">{t('priceColumn')}</TableHead>
+                <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -80,6 +117,7 @@ export default function InventoryPage() {
                     <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -96,6 +134,27 @@ export default function InventoryPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right font-mono">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <AddItemDialog suppliers={allSuppliers} item={item}>
+                             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>{t('editAction')}</span>
+                            </DropdownMenuItem>
+                          </AddItemDialog>
+                          <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
+                             <Trash className="mr-2 h-4 w-4" />
+                             <span>{t('deleteAction')}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -104,5 +163,20 @@ export default function InventoryPage() {
         </CardContent>
       </Card>
     </div>
+    <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tDialog('deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tDialog('deleteDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tDialog('deleteButton')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

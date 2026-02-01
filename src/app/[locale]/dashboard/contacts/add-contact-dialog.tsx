@@ -1,12 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +40,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import type { Customer, Supplier } from "@/lib/types";
 
 const customerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -50,11 +56,24 @@ const supplierSchema = z.object({
   address: z.string().min(1, "Address is required"),
 });
 
-export function AddContactDialog({ children }: { children: React.ReactNode }) {
+interface AddContactDialogProps {
+  children: React.ReactNode;
+  customer?: WithId<Customer>;
+  supplier?: WithId<Supplier>;
+  defaultTab?: 'customer' | 'supplier';
+}
+
+export function AddContactDialog({
+  children,
+  customer,
+  supplier,
+  defaultTab = 'customer',
+}: AddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("ContactsPage.AddContactDialog");
+  const isEditMode = !!(customer || supplier);
 
   const customerForm = useForm<z.infer<typeof customerSchema>>({
     resolver: zodResolver(customerSchema),
@@ -76,32 +95,69 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (customer) {
+        customerForm.reset(customer);
+      } else {
+        customerForm.reset({ firstName: "", lastName: "", contactNumber: "", address: "" });
+      }
+
+      if (supplier) {
+        supplierForm.reset(supplier);
+      } else {
+        supplierForm.reset({ companyName: "", contactName: "", contactNumber: "", address: "" });
+      }
+    }
+  }, [open, customer, supplier, customerForm, supplierForm]);
+
   const onCustomerSubmit = (values: z.infer<typeof customerSchema>) => {
     if (!firestore) return;
-    const customersRef = collection(firestore, "customers");
-    addDocumentNonBlocking(customersRef, values);
-    toast({
-      title: t("toastCustomerTitle"),
-      description: t("toastCustomerDescription", {
-        firstName: values.firstName,
-        lastName: values.lastName,
-      }),
-    });
-    customerForm.reset();
+    if (customer) {
+      const customerRef = doc(firestore, "customers", customer.id);
+      updateDocumentNonBlocking(customerRef, values);
+      toast({
+        title: t("toastCustomerUpdateTitle"),
+        description: t("toastCustomerDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    } else {
+      const customersRef = collection(firestore, "customers");
+      addDocumentNonBlocking(customersRef, values);
+      toast({
+        title: t("toastCustomerTitle"),
+        description: t("toastCustomerDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    }
     setOpen(false);
   };
 
   const onSupplierSubmit = (values: z.infer<typeof supplierSchema>) => {
     if (!firestore) return;
-    const suppliersRef = collection(firestore, "suppliers");
-    addDocumentNonBlocking(suppliersRef, values);
-    toast({
-      title: t("toastSupplierTitle"),
-      description: t("toastSupplierDescription", {
-        companyName: values.companyName,
-      }),
-    });
-    supplierForm.reset();
+    if (supplier) {
+      const supplierRef = doc(firestore, "suppliers", supplier.id);
+      updateDocumentNonBlocking(supplierRef, values);
+       toast({
+        title: t("toastSupplierUpdateTitle"),
+        description: t("toastSupplierDescription", {
+          companyName: values.companyName,
+        }),
+      });
+    } else {
+      const suppliersRef = collection(firestore, "suppliers");
+      addDocumentNonBlocking(suppliersRef, values);
+      toast({
+        title: t("toastSupplierTitle"),
+        description: t("toastSupplierDescription", {
+          companyName: values.companyName,
+        }),
+      });
+    }
     setOpen(false);
   };
 
@@ -110,13 +166,15 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>
+            {isEditMode ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="customer" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="customer">{t("customerTab")}</TabsTrigger>
-            <TabsTrigger value="supplier">{t("supplierTab")}</TabsTrigger>
+            <TabsTrigger value="customer" disabled={isEditMode && !!supplier}>{t("customerTab")}</TabsTrigger>
+            <TabsTrigger value="supplier" disabled={isEditMode && !!customer}>{t("supplierTab")}</TabsTrigger>
           </TabsList>
           <TabsContent value="customer">
             <Form {...customerForm}>
@@ -180,7 +238,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">{t("addCustomerButton")}</Button>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addCustomerButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -247,7 +305,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit">{t("addSupplierButton")}</Button>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addSupplierButton")}</Button>
                 </DialogFooter>
               </form>
             </Form>

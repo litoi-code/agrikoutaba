@@ -1,12 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -39,6 +44,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import type { Investment } from "@/lib/types";
 
 const investmentSchema = z.object({
   investorName: z.string().min(1, "Investor name is required"),
@@ -50,13 +56,16 @@ const investmentSchema = z.object({
 
 export function AddInvestmentDialog({
   children,
+  investment,
 }: {
   children: React.ReactNode;
+  investment?: WithId<Investment>;
 }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InvestmentsPage.AddInvestmentDialog");
+  const isEditMode = !!investment;
 
   const form = useForm<z.infer<typeof investmentSchema>>({
     resolver: zodResolver(investmentSchema),
@@ -65,24 +74,55 @@ export function AddInvestmentDialog({
       description: "",
       amount: "" as any,
       equityDetails: "",
-      date: new Date(),
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (investment) {
+        form.reset({
+          ...investment,
+          date: new Date(investment.date),
+        });
+      } else {
+        form.reset({
+          investorName: "",
+          description: "",
+          amount: "" as any,
+          equityDetails: "",
+          date: new Date(),
+        });
+      }
+    }
+  }, [open, investment, form]);
+
   const onSubmit = (values: z.infer<typeof investmentSchema>) => {
     if (!firestore) return;
-    const investmentsRef = collection(firestore, "investments");
-    addDocumentNonBlocking(investmentsRef, {
+    const data = {
       ...values,
       date: values.date.toISOString(),
-    });
-    toast({
-      title: t("toastTitle"),
-      description: t("toastDescription", {
-        investorName: values.investorName,
-      }),
-    });
-    form.reset();
+    };
+
+    if (isEditMode && investment) {
+      const investmentRef = doc(firestore, "investments", investment.id);
+      updateDocumentNonBlocking(investmentRef, data);
+      toast({
+        title: t("toastUpdateTitle"),
+        description: t("toastDescription", {
+          investorName: values.investorName,
+        }),
+      });
+    } else {
+      const investmentsRef = collection(firestore, "investments");
+      addDocumentNonBlocking(investmentsRef, data);
+      toast({
+        title: t("toastTitle"),
+        description: t("toastDescription", {
+          investorName: values.investorName,
+        }),
+      });
+    }
+
     setOpen(false);
   };
 
@@ -91,8 +131,10 @@ export function AddInvestmentDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>
+            {isEditMode ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -193,7 +235,7 @@ export function AddInvestmentDialog({
               )}
             />
             <DialogFooter>
-              <Button type="submit">{t("addButton")}</Button>
+              <Button type="submit">{isEditMode ? t("saveButton") : t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>

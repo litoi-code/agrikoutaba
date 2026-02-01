@@ -68,9 +68,14 @@
     "companyColumn": "Entreprise",
     "phoneColumn": "Téléphone",
     "transactionsColumn": "Transactions",
+    "actionsColumn": "Actions",
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
     "AddContactDialog": {
       "title": "Ajouter un Nouveau Contact",
       "description": "Ajoutez un nouveau client ou fournisseur à vos dossiers.",
+      "editTitle": "Modifier le Contact",
+      "editDescription": "Mettez à jour les détails de ce contact.",
       "customerTab": "Client",
       "supplierTab": "Fournisseur",
       "firstNameLabel": "Prénom",
@@ -81,10 +86,19 @@
       "companyNameLabel": "Nom de l'entreprise",
       "contactNameLabel": "Nom du contact",
       "addSupplierButton": "Ajouter le Fournisseur",
+      "saveButton": "Enregistrer",
       "toastCustomerTitle": "Client Ajouté",
-      "toastCustomerDescription": "{firstName} {lastName} a été ajouté aux contacts.",
+      "toastCustomerUpdateTitle": "Client Mis à Jour",
+      "toastCustomerDeleteTitle": "Client Supprimé",
+      "toastCustomerDescription": "{firstName} {lastName} a été traité.",
       "toastSupplierTitle": "Fournisseur Ajouté",
-      "toastSupplierDescription": "{companyName} a été ajouté aux contacts."
+      "toastSupplierUpdateTitle": "Fournisseur Mis à Jour",
+      "toastSupplierDeleteTitle": "Fournisseur Supprimé",
+      "toastSupplierDescription": "{companyName} a été traité.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement ce contact.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler"
     }
   },
   "TasksPage": {
@@ -132,16 +146,28 @@
     "roleColumn": "Rôle",
     "phoneColumn": "Téléphone",
     "tasksColumn": "Tâches",
+    "actionsColumn": "Actions",
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
     "AddWorkerDialog": {
       "title": "Ajouter un Nouvel Ouvrier",
       "description": "Ajoutez un nouvel ouvrier à votre équipe et assignez des tâches.",
+      "editTitle": "Modifier l'Ouvrier",
+      "editDescription": "Mettez à jour les détails de cet ouvrier.",
       "firstNameLabel": "Prénom",
       "lastNameLabel": "Nom de famille",
       "roleLabel": "Rôle",
       "phoneLabel": "Téléphone",
       "addButton": "Ajouter l'Ouvrier",
+      "saveButton": "Enregistrer",
       "toastTitle": "Ouvrier Ajouté",
-      "toastDescription": "{firstName} {lastName} a été ajouté à votre équipe."
+      "toastUpdateTitle": "Ouvrier Mis à Jour",
+      "toastDeleteTitle": "Ouvrier Supprimé",
+      "toastDescription": "{firstName} {lastName} a été traité.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement cet ouvrier.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler"
     }
   },
   "FinancesPage": {
@@ -154,9 +180,14 @@
     "dateColumn": "Date",
     "descriptionColumn": "Description",
     "amountColumn": "Montant",
+    "actionsColumn": "Actions",
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
     "AddTransactionDialog": {
       "title": "Ajouter une Transaction",
       "description": "Enregistrez un nouveau revenu ou une nouvelle dépense.",
+      "editTitle": "Modifier la Transaction",
+      "editDescription": "Mettez à jour les détails de cette transaction.",
       "incomeTab": "Revenu",
       "expenseTab": "Dépense",
       "descriptionLabel": "Description",
@@ -168,10 +199,19 @@
       "supplierLabel": "Fournisseur",
       "selectSupplierPlaceholder": "Sélectionnez un fournisseur",
       "addExpenseButton": "Ajouter la Dépense",
+      "saveButton": "Enregistrer",
       "toastIncomeTitle": "Revenu Ajouté",
+      "toastIncomeUpdateTitle": "Revenu Mis à Jour",
+      "toastIncomeDeleteTitle": "Revenu Supprimé",
       "toastIncomeDescription": "Revenu de {amount} FCFA enregistré.",
       "toastExpenseTitle": "Dépense Ajoutée",
-      "toastExpenseDescription": "Dépense de {amount} FCFA enregistrée."
+      "toastExpenseUpdateTitle": "Dépense Mise à Jour",
+      "toastExpenseDeleteTitle": "Dépense Supprimée",
+      "toastExpenseDescription": "Dépense de {amount} FCFA enregistrée.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement cette transaction.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler"
     }
   },
   "InvestmentsPage": {
@@ -184,17 +224,29 @@
     "dateColumn": "Date",
     "amountColumn": "Montant",
     "equityDetailsColumn": "Détails des Capitaux Propres",
+    "actionsColumn": "Actions",
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
     "AddInvestmentDialog": {
       "title": "Ajouter un Investissement",
       "description": "Enregistrez un nouvel investissement dans votre entreprise.",
+      "editTitle": "Modifier l'Investissement",
+      "editDescription": "Mettez à jour les détails de cet enregistrement d'investissement.",
       "investorNameLabel": "Nom de l'investisseur",
       "descriptionLabel": "Description",
       "amountLabel": "Montant",
       "equityDetailsLabel": "Détails des capitaux propres",
       "dateLabel": "Date de l'investissement",
       "addButton": "Ajouter l'Investissement",
+      "saveButton": "Enregistrer",
       "toastTitle": "Investissement Ajouté",
-      "toastDescription": "Investissement de {investorName} enregistré."
+      "toastUpdateTitle": "Investissement Mis à Jour",
+      "toastDeleteTitle": "Investissement Supprimé",
+      "toastDescription": "Investissement de {investorName} enregistré.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement cet enregistrement d'investissement.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler"
     }
   },
   "InventoryPage": {
@@ -206,11 +258,16 @@
     "priceColumn": "Prix Unitaire",
     "reorderColumn": "Niveau de Réapprovisionnement",
     "supplierColumn": "Fournisseur",
+    "actionsColumn": "Actions",
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
     "statusInStock": "En Stock",
     "statusLowStock": "Stock Faible",
     "AddInventoryItemDialog": {
       "title": "Ajouter un Nouvel Article d'Inventaire",
       "description": "Ajoutez un nouvel article à vos registres d'inventaire.",
+      "editTitle": "Modifier l'Article d'Inventaire",
+      "editDescription": "Mettez à jour les détails de cet article.",
       "nameLabel": "Nom de l'article",
       "descriptionLabel": "Description",
       "priceLabel": "Prix Unitaire",
@@ -219,8 +276,15 @@
       "supplierLabel": "Fournisseur",
       "selectSupplierPlaceholder": "Sélectionnez un fournisseur",
       "addButton": "Ajouter l'Article",
+      "saveButton": "Enregistrer",
       "toastTitle": "Article Ajouté",
-      "toastDescription": "\"{name}\" a été ajouté à l'inventaire."
+      "toastUpdateTitle": "Article Mis à Jour",
+      "toastDeleteTitle": "Article Supprimé",
+      "toastDescription": "\"{name}\" a été traité.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement cet article.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler"
     }
   }
 }

@@ -1,12 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking, type WithId } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +42,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import type { Supplier } from "@/lib/types";
+import type { Supplier, Item } from "@/lib/types";
 
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
@@ -53,13 +58,19 @@ const itemSchema = z.object({
 interface AddItemDialogProps {
   children: React.ReactNode;
   suppliers: WithId<Supplier>[];
+  item?: WithId<Item>;
 }
 
-export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
+export function AddItemDialog({
+  children,
+  suppliers,
+  item,
+}: AddItemDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InventoryPage.AddInventoryItemDialog");
+  const isEditMode = !!item;
 
   const form = useForm<z.infer<typeof itemSchema>>({
     resolver: zodResolver(itemSchema),
@@ -73,15 +84,42 @@ export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (item) {
+        form.reset(item);
+      } else {
+        form.reset({
+          name: "",
+          description: "",
+          unitPrice: "" as any,
+          stockLevel: "" as any,
+          reorderLevel: "" as any,
+          supplierId: "",
+        });
+      }
+    }
+  }, [open, item, form]);
+
   const onSubmit = (values: z.infer<typeof itemSchema>) => {
     if (!firestore) return;
-    const itemsRef = collection(firestore, "items");
-    addDocumentNonBlocking(itemsRef, values);
-    toast({
-      title: t("toastTitle"),
-      description: t("toastDescription", { name: values.name }),
-    });
-    form.reset();
+
+    if (isEditMode && item) {
+      const itemRef = doc(firestore, "items", item.id);
+      updateDocumentNonBlocking(itemRef, values);
+      toast({
+        title: t("toastUpdateTitle"),
+        description: t("toastDescription", { name: values.name }),
+      });
+    } else {
+      const itemsRef = collection(firestore, "items");
+      addDocumentNonBlocking(itemsRef, values);
+      toast({
+        title: t("toastTitle"),
+        description: t("toastDescription", { name: values.name }),
+      });
+    }
+
     setOpen(false);
   };
 
@@ -90,8 +128,10 @@ export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>
+            {isEditMode ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -128,7 +168,7 @@ export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
               )}
             />
             <div className="grid grid-cols-2 gap-4">
-               <FormField
+              <FormField
                 control={form.control}
                 name="unitPrice"
                 render={({ field }) => (
@@ -176,7 +216,7 @@ export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
                   <FormLabel>{t("supplierLabel")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -198,7 +238,7 @@ export function AddItemDialog({ children, suppliers }: AddItemDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">{t("addButton")}</Button>
+              <Button type="submit">{isEditMode ? t('saveButton') : t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>
