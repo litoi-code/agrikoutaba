@@ -94,9 +94,13 @@
     "columnInProgress": "En Cours",
     "columnDone": "Terminé",
     "due": "Échéance : {date}",
-    "AddTaskDialog": {
+    "editAction": "Modifier",
+    "deleteAction": "Supprimer",
+    "TaskFormDialog": {
       "title": "Ajouter une Nouvelle Tâche",
       "description": "Assignez une nouvelle tâche à un ouvrier.",
+      "editTitle": "Modifier la Tâche",
+      "editDescription": "Mettez à jour les détails de cette tâche.",
       "titleLabel": "Titre",
       "descriptionLabel": "Description",
       "assigneesLabel": "Assigné(s) à",
@@ -108,8 +112,17 @@
       "statusInProgress": "En Cours",
       "statusCompleted": "Terminé",
       "addButton": "Ajouter la Tâche",
+      "saveButton": "Enregistrer",
       "toastTitle": "Tâche Ajoutée",
-      "toastDescription": "La tâche \"{title}\" a été assignée."
+      "toastDescription": "La tâche \"{title}\" a été assignée.",
+      "toastUpdateTitle": "Tâche Mise à Jour",
+      "toastUpdateDescription": "La tâche \"{title}\" a été mise à jour.",
+      "deleteTitle": "Êtes-vous sûr ?",
+      "deleteDescription": "Cette action est irréversible et supprimera définitivement cette tâche.",
+      "deleteButton": "Supprimer",
+      "cancelButton": "Annuler",
+      "toastDeleteTitle": "Tâche Supprimée",
+      "toastDeleteDescription": "La tâche \"{title}\" a été supprimée."
     }
   },
   "WorkersPage": {

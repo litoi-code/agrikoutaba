@@ -94,9 +94,13 @@
     "columnInProgress": "In Progress",
     "columnDone": "Done",
     "due": "Due: {date}",
-    "AddTaskDialog": {
+    "editAction": "Edit",
+    "deleteAction": "Delete",
+    "TaskFormDialog": {
       "title": "Add New Task",
       "description": "Assign a new task to a worker.",
+      "editTitle": "Edit Task",
+      "editDescription": "Update the details for this task.",
       "titleLabel": "Title",
       "descriptionLabel": "Description",
       "assigneesLabel": "Assignees",
@@ -108,8 +112,17 @@
       "statusInProgress": "In Progress",
       "statusCompleted": "Completed",
       "addButton": "Add Task",
+      "saveButton": "Save Changes",
       "toastTitle": "Task Added",
-      "toastDescription": "Task \"{title}\" has been assigned."
+      "toastDescription": "Task \"{title}\" has been assigned.",
+      "toastUpdateTitle": "Task Updated",
+      "toastUpdateDescription": "Task \"{title}\" has been updated.",
+      "deleteTitle": "Are you sure?",
+      "deleteDescription": "This action cannot be undone and will permanently delete this task.",
+      "deleteButton": "Delete",
+      "cancelButton": "Cancel",
+      "toastDeleteTitle": "Task Deleted",
+      "toastDeleteDescription": "Task \"{title}\" has been deleted."
     }
   },
   "WorkersPage": {

@@ -1,15 +1,21 @@
 
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection } from "firebase/firestore";
-import { useFirestore, addDocumentNonBlocking, type WithId } from "@/firebase";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Edit, Trash } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,7 +58,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import type { Worker } from "@/lib/types";
+import type { Worker, Task } from "@/lib/types";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -64,39 +70,82 @@ const taskSchema = z.object({
   dueDate: z.date({ required_error: "Please select a due date." }),
 });
 
-interface AddTaskDialogProps {
+interface TaskFormDialogProps {
   children: React.ReactNode;
   workers: WithId<Worker>[];
+  task?: WithId<Task>;
 }
 
-export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
+export function TaskFormDialog({
+  children,
+  workers,
+  task,
+}: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const t = useTranslations("TasksPage.AddTaskDialog");
+  const t = useTranslations("TasksPage.TaskFormDialog");
+  const isEditMode = !!task;
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      workerIds: [],
-      status: "To Do",
-      dueDate: new Date(),
-    },
+    defaultValues: isEditMode
+      ? {
+          ...task,
+          dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
+          workerIds: task.workerIds || [],
+        }
+      : {
+          title: "",
+          description: "",
+          workerIds: [],
+          status: "To Do",
+          dueDate: new Date(),
+        },
   });
+  
+  useEffect(() => {
+    if (isEditMode && task) {
+        form.reset({
+            ...task,
+            dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
+            workerIds: task.workerIds || [],
+        });
+    }
+    if (!isEditMode) {
+        form.reset({
+            title: "",
+            description: "",
+            workerIds: [],
+            status: "To Do",
+            dueDate: new Date(),
+        });
+    }
+  }, [task, isEditMode, form]);
 
   const onSubmit = (values: z.infer<typeof taskSchema>) => {
     if (!firestore) return;
-    const tasksRef = collection(firestore, "tasks");
-    addDocumentNonBlocking(tasksRef, {
+    const taskData = {
       ...values,
       dueDate: values.dueDate.toISOString(),
-    });
-    toast({
-      title: t("toastTitle"),
-      description: t("toastDescription", { title: values.title }),
-    });
+    };
+
+    if (isEditMode && task) {
+      const taskRef = doc(firestore, "tasks", task.id);
+      updateDocumentNonBlocking(taskRef, taskData);
+      toast({
+        title: t("toastUpdateTitle"),
+        description: t("toastUpdateDescription", { title: values.title }),
+      });
+    } else {
+      const tasksRef = collection(firestore, "tasks");
+      addDocumentNonBlocking(tasksRef, taskData);
+      toast({
+        title: t("toastTitle"),
+        description: t("toastDescription", { title: values.title }),
+      });
+    }
+
     form.reset();
     setOpen(false);
   };
@@ -106,8 +155,10 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>
+            {isEditMode ? t("editDescription") : t("description")}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -262,7 +313,9 @@ export function AddTaskDialog({ children, workers }: AddTaskDialogProps) {
               />
             </div>
             <DialogFooter>
-              <Button type="submit">{t("addButton")}</Button>
+              <Button type="submit">
+                {isEditMode ? t("saveButton") : t("addButton")}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
