@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -5,9 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Users, ClipboardList, Landmark, AreaChart, Boxes, CheckCircle } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import React from 'react';
 
 export default function Home() {
   const t = useTranslations('HomePage');
+  const plugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
 
   const features = [
     {
@@ -43,7 +57,7 @@ export default function Home() {
     t('whyAgriFuturePoint3'),
   ];
 
-  const heroImage = PlaceHolderImages.find(p => p.id === "hero-image");
+  const heroImages = PlaceHolderImages.filter(p => p.id.startsWith("hero-image"));
   const localFarmerImage = PlaceHolderImages.find(p => p.id === "local-farmer");
 
   return (
@@ -51,16 +65,29 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[70vh] md:h-[90vh]">
-          {heroImage && (
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="object-cover"
-              data-ai-hint={heroImage.imageHint}
-              priority
-            />
-          )}
+          <Carousel 
+            plugins={[plugin.current]} 
+            className="w-full h-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent>
+              {heroImages.map((image, index) => (
+                <CarouselItem key={image.id}>
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.description}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={image.imageHint}
+                    priority={index === 0}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/30 hover:bg-black/50 border-none" />
+            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/30 hover:bg-black/50 border-none" />
+          </Carousel>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="relative h-full flex flex-col items-center justify-end text-center text-white p-4 sm:p-8 pb-16 md:pb-24">
             <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 text-shadow-lg">
