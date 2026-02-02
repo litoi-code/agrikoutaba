@@ -129,9 +129,16 @@ export function AddInvestmentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} modal>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent 
+        className="sm:max-w-[425px]"
+        onPointerDownOutside={(e) => {
+          if ((e.target as HTMLElement).closest('.rdp')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
           <DialogDescription>
