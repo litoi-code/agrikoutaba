@@ -59,8 +59,7 @@ function AuthWall({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-
-export default function DashboardLayout({
+function DashboardLayoutInner({
   children,
 }: {
   children: React.ReactNode;
@@ -88,77 +87,90 @@ export default function DashboardLayout({
   ];
   
   const handleLogout = async () => {
-    await signOut(auth);
+    if (auth) {
+        await signOut(auth);
+    }
     router.push(`/${locale}/login`);
   };
 
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
   return (
-    <FirebaseClientProvider>
-     <AuthWall>
-      <SidebarProvider>
-        <Sidebar>
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/10">
-                <Leaf className="h-6 w-6" />
-              </Button>
-              <h2 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
-                {tGlobal("appName")}
-              </h2>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild tooltip={item.label}>
-                    <Link href={item.href}>
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <div className="flex items-center gap-3 p-2">
-              <Avatar className="h-9 w-9">
-                {currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
-                <AvatarFallback>{userInitial}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-semibold">{currentWorker ? `${currentWorker.firstName} ${currentWorker.lastName}` : 'Loading...'}</span>
-                <span className="text-xs text-muted-foreground">
-                  {currentWorker?.email}
-                </span>
-              </div>
-              <div className="ml-auto flex items-center group-data-[collapsible=icon]:hidden">
-                 {hasMounted && <LanguageSwitcher />}
-                 <Button variant="ghost" size="icon" title={t('logout')} onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
+      <AuthWall>
+        <SidebarProvider>
+          <Sidebar>
+            <SidebarHeader className="p-4">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/10">
+                  <Leaf className="h-6 w-6" />
                 </Button>
+                <h2 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
+                  {tGlobal("appName")}
+                </h2>
               </div>
-            </div>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>
-          <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
-            <SidebarTrigger className="md:hidden" />
-            <div className="flex-1">
-              {/* Can add breadcrumbs or page title here */}
-            </div>
-          </header>
-          <main className="flex-1 flex-col bg-background p-4 md:p-8">
-            {children}
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-     </AuthWall>
-    </FirebaseClientProvider>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarMenu>
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton asChild tooltip={item.label}>
+                      <Link href={item.href}>
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+              <div className="flex items-center gap-3 p-2">
+                <Avatar className="h-9 w-9">
+                  {currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
+                  <AvatarFallback>{userInitial}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                  <span className="text-sm font-semibold">{currentWorker ? `${currentWorker.firstName} ${currentWorker.lastName}` : 'Loading...'}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {currentWorker?.email}
+                  </span>
+                </div>
+                <div className="ml-auto flex items-center group-data-[collapsible=icon]:hidden">
+                   {hasMounted && <LanguageSwitcher />}
+                   <Button variant="ghost" size="icon" title={t('logout')} onClick={handleLogout}>
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </SidebarFooter>
+          </Sidebar>
+          <SidebarInset>
+            <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
+              <SidebarTrigger className="md:hidden" />
+              <div className="flex-1">
+                {/* Can add breadcrumbs or page title here */}
+              </div>
+            </header>
+            <main className="flex-1 flex-col bg-background p-4 md:p-8">
+              {children}
+            </main>
+          </SidebarInset>
+        </SidebarProvider>
+      </AuthWall>
   );
 }
 
-    
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <FirebaseClientProvider>
+      <DashboardLayoutInner>
+        {children}
+      </DashboardLayoutInner>
+    </FirebaseClientProvider>
+  );
+}
