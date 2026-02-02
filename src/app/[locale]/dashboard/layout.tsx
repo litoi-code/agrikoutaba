@@ -1,6 +1,8 @@
+'use client';
 
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
 import {
   AreaChart,
   ClipboardList,
@@ -30,15 +32,18 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { FirebaseClientProvider } from "@/firebase";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
-  params: { locale },
 }: {
   children: React.ReactNode;
-  params: { locale: string };
 }) {
-  const t = await getTranslations({ locale, namespace: "Sidebar" });
-  const tGlobal = await getTranslations({ locale, namespace: "Global" });
+  const t = useTranslations("Sidebar");
+  const tGlobal = useTranslations("Global");
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard />, label: t("dashboard") },
@@ -92,7 +97,7 @@ export default async function DashboardLayout({
               </span>
             </div>
             <div className="ml-auto flex items-center group-data-[collapsible=icon]:hidden">
-               <LanguageSwitcher />
+               {hasMounted && <LanguageSwitcher />}
                <Button variant="ghost" size="icon" title={t('settings')}>
                 <Settings className="h-5 w-5" />
               </Button>
