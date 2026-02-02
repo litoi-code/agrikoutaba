@@ -36,7 +36,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddItemDialog } from './add-item-dialog';
 import type { Item, Supplier } from '@/lib/types';
@@ -51,6 +52,7 @@ export default function InventoryPage() {
   const { toast } = useToast();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const itemsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'items') : null, [firestore, user]);
   const { data: items, isLoading: itemsLoading } = useCollection<Item>(itemsQuery);
@@ -62,6 +64,13 @@ export default function InventoryPage() {
     if (!suppliers) return new Map<string, string>();
     return new Map(suppliers.map(s => [s.id, s.companyName]));
   }, [suppliers]);
+
+  const filteredItems = useMemo(() => {
+    if (!items) return [];
+    return items.filter(item =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [items, searchTerm]);
 
   const isLoading = itemsLoading || suppliersLoading;
 
@@ -84,12 +93,23 @@ export default function InventoryPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddItemDialog suppliers={allSuppliers}>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addNew')}
-          </Button>
-        </AddItemDialog>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <AddItemDialog suppliers={allSuppliers}>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('addNew')}
+            </Button>
+          </AddItemDialog>
+        </div>
       </div>
       
       <Card>
@@ -121,7 +141,7 @@ export default function InventoryPage() {
                   </TableRow>
                 ))
               ) : (
-                items?.map((item) => (
+                filteredItems?.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">{suppliersMap.get(item.supplierId) ?? 'Unknown'}</TableCell>

@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -38,7 +39,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddContactDialog } from './add-contact-dialog';
@@ -177,23 +179,50 @@ export default function ContactsPage() {
   const { user } = useUser();
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
   const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
+
+  const filteredCustomers = useMemo(() => {
+    if (!customers) return [];
+    return customers.filter(c =>
+      `${c.firstName} ${c.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [customers, searchTerm]);
+
+  const filteredSuppliers = useMemo(() => {
+    if (!suppliers) return [];
+    return suppliers.filter(s =>
+      s.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.contactName && s.contactName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [suppliers, searchTerm]);
   
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddContactDialog>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addNew')}
-          </Button>
-        </AddContactDialog>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <AddContactDialog>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('addNew')}
+            </Button>
+          </AddContactDialog>
+        </div>
       </div>
       
       <Tabs defaultValue="customers">
@@ -202,10 +231,10 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={customers ?? []} isLoading={customersLoading} type="customer" t={t} tDialog={tDialog} />
+          <ContactsTable data={filteredCustomers ?? []} isLoading={customersLoading} type="customer" t={t} tDialog={tDialog} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={suppliers ?? []} isLoading={suppliersLoading} type="supplier" t={t} tDialog={tDialog} />
+          <ContactsTable data={filteredSuppliers ?? []} isLoading={suppliersLoading} type="supplier" t={t} tDialog={tDialog} />
         </TabsContent>
       </Tabs>
     </div>

@@ -42,7 +42,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionFormDialog } from './add-transaction-dialog';
@@ -167,6 +168,7 @@ export default function FinancesPage() {
   const t = useTranslations('FinancesPage');
   const tDialog = useTranslations('FinancesPage.AddTransactionDialog');
   const tGlobal = useTranslations('Global');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
@@ -180,6 +182,22 @@ export default function FinancesPage() {
   const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
   const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
 
+  const filteredIncome = useMemo(() => {
+    if (!income) return [];
+    return income.filter(i =>
+        i.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        i.customerName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [income, searchTerm]);
+
+  const filteredExpenses = useMemo(() => {
+      if (!expenses) return [];
+      return expenses.filter(e =>
+          e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          e.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [expenses, searchTerm]);
+
   const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);
   const totalExpenses = useMemo(() => expenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [expenses]);
 
@@ -187,12 +205,23 @@ export default function FinancesPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addNew')}
-          </Button>
-        </TransactionFormDialog>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('addNew')}
+            </Button>
+          </TransactionFormDialog>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2">
@@ -222,10 +251,10 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={income ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
+          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={expenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
+          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
         </TabsContent>
       </Tabs>
     </div>

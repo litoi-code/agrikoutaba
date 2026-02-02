@@ -62,6 +62,7 @@
   "ContactsPage": {
     "title": "Contacts",
     "addNew": "Add New Contact",
+    "searchPlaceholder": "Search contacts...",
     "customersTab": "Customers",
     "suppliersTab": "Suppliers",
     "nameColumn": "Name",
@@ -104,6 +105,7 @@
   "TasksPage": {
     "title": "Tasks",
     "addNew": "Add New Task",
+    "searchPlaceholder": "Search tasks by title...",
     "columnToDo": "To Do",
     "columnInProgress": "In Progress",
     "columnDone": "Done",
@@ -142,6 +144,7 @@
   "WorkersPage": {
     "title": "Workers",
     "addNew": "Add New Worker",
+    "searchPlaceholder": "Search workers by name...",
     "nameColumn": "Name",
     "roleColumn": "Role",
     "phoneColumn": "Phone",
@@ -173,6 +176,7 @@
   "FinancesPage": {
     "title": "Finances",
     "addNew": "Add Transaction",
+    "searchPlaceholder": "Search by description...",
     "totalIncome": "Total Income",
     "totalExpenses": "Total Expenses",
     "incomeTab": "Income",
@@ -217,6 +221,7 @@
   "InvestmentsPage": {
     "title": "Investor Management",
     "addNew": "Add Investment",
+    "searchPlaceholder": "Search by investor...",
     "totalInvested": "Total Invested",
     "investmentRecords": "Investment Records",
     "investorColumn": "Investor",
@@ -252,6 +257,7 @@
   "InventoryPage": {
     "title": "Inventory Management",
     "addNew": "Add New Item",
+    "searchPlaceholder": "Search items by name...",
     "nameColumn": "Item Name",
     "stockColumn": "Stock Level",
     "statusColumn": "Status",

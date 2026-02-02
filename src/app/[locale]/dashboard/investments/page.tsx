@@ -36,7 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
@@ -124,9 +125,18 @@ export default function InvestmentsPage() {
   const t = useTranslations('InvestmentsPage');
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const investmentsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'investments') : null, [firestore, user]);
   const { data: investments, isLoading: investmentsLoading } = useCollection<Investment>(investmentsQuery);
+
+  const filteredInvestments = useMemo(() => {
+    if (!investments) return [];
+    return investments.filter(inv =>
+        inv.investorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inv.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [investments, searchTerm]);
 
   const totalInvested = useMemo(() => investments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [investments]);
 
@@ -134,12 +144,23 @@ export default function InvestmentsPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <InvestmentFormDialog>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addNew')}
-          </Button>
-        </InvestmentFormDialog>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <InvestmentFormDialog>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('addNew')}
+            </Button>
+          </InvestmentFormDialog>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -183,7 +204,7 @@ export default function InvestmentsPage() {
                   </TableRow>
                 ))
               ) : (
-                investments?.map((inv) => (
+                filteredInvestments?.map((inv) => (
                   <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} />
                 ))
               )}

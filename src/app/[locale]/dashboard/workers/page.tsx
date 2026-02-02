@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -32,7 +33,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddWorkerDialog } from './add-worker-dialog';
 import type { Worker } from '@/lib/types';
@@ -46,10 +48,19 @@ export default function WorkersPage() {
   const { toast } = useToast();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Worker> | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
   
+  const filteredWorkers = useMemo(() => {
+    if (!workers) return [];
+    return workers.filter(worker =>
+        `${worker.firstName} ${worker.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        worker.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [workers, searchTerm]);
+
   const handleDelete = () => {
     if (!firestore || !deleteTarget) return;
     const docRef = doc(firestore, 'workers', deleteTarget.id);
@@ -70,12 +81,23 @@ export default function WorkersPage() {
       <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-          <AddWorkerDialog>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </AddWorkerDialog>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t('searchPlaceholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-64"
+              />
+            </div>
+            <AddWorkerDialog>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </AddWorkerDialog>
+          </div>
         </div>
         
         <Card>
@@ -102,7 +124,7 @@ export default function WorkersPage() {
                     </TableRow>
                   ))
                 ) : (
-                  workers?.map((worker) => (
+                  filteredWorkers?.map((worker) => (
                     <TableRow key={worker.id}>
                       <TableCell className="font-medium">{`${worker.firstName} ${worker.lastName}`}</TableCell>
                       <TableCell>{worker.role}</TableCell>

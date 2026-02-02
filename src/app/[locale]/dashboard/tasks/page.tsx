@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -26,7 +27,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PlusCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
@@ -154,6 +156,7 @@ export default function TasksPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const t = useTranslations('TasksPage');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
@@ -161,15 +164,23 @@ export default function TasksPage() {
   const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
+  const filteredTasks = useMemo(() => {
+    if (!tasks) return [];
+    return tasks.filter(task =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [tasks, searchTerm]);
+
   const workersMap = useMemo(() => {
     if (!workers) return new Map<string, WithId<Worker>>();
     return new Map(workers.map(w => [w.id, w]));
   }, [workers]);
 
   const sortedTasks = useMemo(() => {
-    if (!tasks) return [];
-    return [...tasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-  }, [tasks]);
+    if (!filteredTasks) return [];
+    return [...filteredTasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  }, [filteredTasks]);
 
   const todoTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'To Do') ?? [], [sortedTasks]);
   const inProgressTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'In Progress') ?? [], [sortedTasks]);
@@ -180,12 +191,23 @@ export default function TasksPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <TaskFormDialog workers={allWorkers}>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {t('addNew')}
-          </Button>
-        </TaskFormDialog>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <TaskFormDialog workers={allWorkers}>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {t('addNew')}
+            </Button>
+          </TaskFormDialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
