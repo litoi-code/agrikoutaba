@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { FirebaseClientProvider, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf } from 'lucide-react';
@@ -35,7 +34,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-export default function LoginPage() {
+function LoginPageContent() {
   const auth = useAuth();
   const router = useRouter();
   const locale = useLocale();
@@ -54,6 +53,7 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setError(null);
     try {
+      if (!auth) throw new Error("Auth service not available");
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push(`/${locale}/dashboard`);
     } catch (err: any) {
@@ -132,4 +132,10 @@ export default function LoginPage() {
   );
 }
 
-    
+export default function LoginPage() {
+    return (
+        <FirebaseClientProvider>
+            <LoginPageContent />
+        </FirebaseClientProvider>
+    )
+}

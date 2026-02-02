@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { useAuth, useFirestore } from '@/firebase';
+import { FirebaseClientProvider, useAuth, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf } from 'lucide-react';
@@ -38,7 +37,7 @@ const signupSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-export default function SignupPage() {
+function SignupPageContent() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
@@ -59,6 +58,10 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof signupSchema>) {
     setError(null);
+    if (!auth || !firestore) {
+        setError("Firebase services are not available.");
+        return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -183,4 +186,11 @@ export default function SignupPage() {
   );
 }
 
-    
+
+export default function SignupPage() {
+    return (
+        <FirebaseClientProvider>
+            <SignupPageContent />
+        </FirebaseClientProvider>
+    )
+}
