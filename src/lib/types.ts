@@ -31,7 +31,7 @@ export interface Income {
   date: string; // Should be ISO date string
   description: string;
   amount: number;
-  customerId: string;
+  customerName: string;
 }
 
 export interface Expense {

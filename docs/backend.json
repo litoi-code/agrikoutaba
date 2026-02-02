@@ -152,9 +152,9 @@
           "type": "number",
           "description": "Amount of the income."
         },
-        "customerId": {
+        "customerName": {
           "type": "string",
-          "description": "Reference to Customer. (Relationship: Customer 1:N Income)"
+          "description": "The name of the customer."
         }
       },
       "required": [
@@ -162,7 +162,7 @@
         "date",
         "description",
         "amount",
-        "customerId"
+        "customerName"
       ]
     },
     "Expense": {

@@ -223,7 +223,7 @@ export function AddInvestmentDialog({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -247,5 +247,3 @@ export function AddInvestmentDialog({
     </Dialog>
   );
 }
-
-    

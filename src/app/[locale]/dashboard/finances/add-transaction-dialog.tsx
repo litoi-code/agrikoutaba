@@ -41,13 +41,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -62,9 +55,7 @@ const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  customerId: z
-    .string({ required_error: "Please select a customer." })
-    .min(1, "Please select a customer."),
+  customerName: z.string().min(1, "Customer name is required"),
 });
 
 const expenseSchema = z.object({
@@ -104,7 +95,7 @@ export function AddTransactionDialog({
     defaultValues: {
       description: "",
       amount: "" as any,
-      customerId: "",
+      customerName: "",
       date: new Date(),
     },
   });
@@ -122,9 +113,16 @@ export function AddTransactionDialog({
   useEffect(() => {
     if (open) {
         if (income) {
-            incomeForm.reset({ ...income, date: new Date(income.date) });
+            let name = (income as any).customerName;
+            if (!name && (income as any).customerId) {
+                const oldCustomer = customers.find(c => c.id === (income as any).customerId);
+                if (oldCustomer) {
+                    name = `${oldCustomer.firstName} ${oldCustomer.lastName}`;
+                }
+            }
+            incomeForm.reset({ ...(income as any), date: new Date(income.date), customerName: name || "" });
         } else {
-            incomeForm.reset({ description: "", amount: "" as any, customerId: "", date: new Date() });
+            incomeForm.reset({ description: "", amount: "" as any, customerName: "", date: new Date() });
         }
         if (expense) {
             let name = (expense as any).supplierName;
@@ -139,7 +137,7 @@ export function AddTransactionDialog({
             expenseForm.reset({ description: "", amount: "" as any, supplierName: "", date: new Date() });
         }
     }
-  }, [open, income, expense, incomeForm, expenseForm, suppliers]);
+  }, [open, income, expense, incomeForm, expenseForm, suppliers, customers]);
 
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
@@ -232,29 +230,13 @@ export function AddTransactionDialog({
                 />
                 <FormField
                   control={incomeForm.control}
-                  name="customerId"
+                  name="customerName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("customerLabel")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("selectCustomerPlaceholder")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {customers.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.firstName} {c.lastName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input placeholder="e.g. John Doe" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -284,7 +266,7 @@ export function AddTransactionDialog({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -378,7 +360,7 @@ export function AddTransactionDialog({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -404,5 +386,3 @@ export function AddTransactionDialog({
     </Dialog>
   );
 }
-
-    
