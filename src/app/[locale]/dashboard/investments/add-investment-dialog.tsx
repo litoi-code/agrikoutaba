@@ -62,6 +62,7 @@ export function InvestmentFormDialog({
   investment?: WithId<Investment>;
 }) {
   const [open, setOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InvestmentsPage.AddInvestmentDialog");
@@ -204,7 +205,7 @@ export function InvestmentFormDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("dateLabel")}</FormLabel>
-                  <Popover modal={true}>
+                  <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -227,7 +228,10 @@ export function InvestmentFormDialog({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setCalendarOpen(false);
+                        }}
                       />
                     </PopoverContent>
                   </Popover>
