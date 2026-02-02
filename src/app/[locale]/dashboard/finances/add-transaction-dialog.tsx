@@ -271,7 +271,9 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={(date) => {
-                                field.onChange(date);
+                                if (date) {
+                                    incomeForm.setValue("date", date, { shouldValidate: true });
+                                }
                                 setIncomeDatePopoverOpen(false);
                             }}
                           />
@@ -365,7 +367,9 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={(date) => {
-                                field.onChange(date);
+                                if (date) {
+                                    expenseForm.setValue("date", date, { shouldValidate: true });
+                                }
                                 setExpenseDatePopoverOpen(false);
                             }}
                           />

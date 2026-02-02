@@ -228,7 +228,9 @@ export function AddInvestmentDialog({
                         mode="single"
                         selected={field.value}
                         onSelect={(date) => {
-                            field.onChange(date);
+                            if (date) {
+                                form.setValue("date", date, { shouldValidate: true });
+                            }
                             setDatePopoverOpen(false);
                         }}
                       />

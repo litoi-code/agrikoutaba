@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -299,7 +298,9 @@ export function TaskFormDialog({
                           mode="single"
                           selected={field.value}
                           onSelect={(date) => {
-                            field.onChange(date);
+                            if (date) {
+                                form.setValue("dueDate", date, { shouldValidate: true });
+                            }
                             setDatePopoverOpen(false);
                           }}
                         />
