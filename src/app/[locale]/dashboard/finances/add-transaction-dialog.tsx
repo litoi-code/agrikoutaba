@@ -282,7 +282,6 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -390,7 +389,6 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
