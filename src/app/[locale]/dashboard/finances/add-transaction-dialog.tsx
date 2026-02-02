@@ -83,8 +83,6 @@ export function AddTransactionDialog({
   defaultTab = 'income'
 }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
-  const [incomeDatePopoverOpen, setIncomeDatePopoverOpen] = useState(false);
-  const [expenseDatePopoverOpen, setExpenseDatePopoverOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("FinancesPage.AddTransactionDialog");
@@ -172,10 +170,14 @@ export function AddTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[425px]"
-        onPointerDownOutside={(e) => {
-          if ((e.target as HTMLElement).closest('.rdp')) {
+        onInteractOutside={(e) => {
+          if (
+            (e.target as HTMLElement).closest(
+              ".rdp"
+            )
+          ) {
             e.preventDefault();
           }
         }}
@@ -240,7 +242,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover open={incomeDatePopoverOpen} onOpenChange={setIncomeDatePopoverOpen}>
+                      <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -263,10 +265,8 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={(date) => {
-                                field.onChange(date);
-                                setIncomeDatePopoverOpen(false);
-                            }}
+                            onSelect={field.onChange}
+                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -334,7 +334,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover open={expenseDatePopoverOpen} onOpenChange={setExpenseDatePopoverOpen}>
+                      <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -357,10 +357,8 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={(date) => {
-                                field.onChange(date);
-                                setExpenseDatePopoverOpen(false);
-                            }}
+                            onSelect={field.onChange}
+                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>

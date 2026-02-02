@@ -62,7 +62,6 @@ export function AddInvestmentDialog({
   investment?: WithId<Investment>;
 }) {
   const [open, setOpen] = useState(false);
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InvestmentsPage.AddInvestmentDialog");
@@ -131,10 +130,14 @@ export function AddInvestmentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[425px]"
-        onPointerDownOutside={(e) => {
-          if ((e.target as HTMLElement).closest('.rdp')) {
+        onInteractOutside={(e) => {
+          if (
+            (e.target as HTMLElement).closest(
+              ".rdp"
+            )
+          ) {
             e.preventDefault();
           }
         }}
@@ -211,7 +214,7 @@ export function AddInvestmentDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("dateLabel")}</FormLabel>
-                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                  <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -234,10 +237,8 @@ export function AddInvestmentDialog({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) => {
-                            field.onChange(date);
-                            setDatePopoverOpen(false);
-                        }}
+                        onSelect={field.onChange}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>

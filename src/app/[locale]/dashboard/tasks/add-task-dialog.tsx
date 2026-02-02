@@ -81,7 +81,6 @@ export function TaskFormDialog({
   task,
 }: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("TasksPage.TaskFormDialog");
@@ -97,7 +96,7 @@ export function TaskFormDialog({
       dueDate: new Date(),
     },
   });
-  
+
   useEffect(() => {
     if (open) {
         if (isEditMode && task) {
@@ -148,10 +147,14 @@ export function TaskFormDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[425px]"
-        onPointerDownOutside={(e) => {
-          if ((e.target as HTMLElement).closest('.rdp')) {
+        onInteractOutside={(e) => {
+          if (
+            (e.target as HTMLElement).closest(
+              ".rdp"
+            )
+          ) {
             e.preventDefault();
           }
         }}
@@ -281,7 +284,7 @@ export function TaskFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{t("dueDateLabel")}</FormLabel>
-                    <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                    <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -304,10 +307,8 @@ export function TaskFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date);
-                            setDatePopoverOpen(false);
-                          }}
+                          onSelect={field.onChange}
+                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
