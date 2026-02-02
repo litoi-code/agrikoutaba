@@ -37,9 +37,7 @@
       "required": [
         "id",
         "firstName",
-        "lastName",
-        "contactNumber",
-        "address"
+        "lastName"
       ]
     },
     "Supplier": {
@@ -78,10 +76,7 @@
       },
       "required": [
         "id",
-        "companyName",
-        "contactName",
-        "contactNumber",
-        "address"
+        "companyName"
       ]
     },
     "Item": {

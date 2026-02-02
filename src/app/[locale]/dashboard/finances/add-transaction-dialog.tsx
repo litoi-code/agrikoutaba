@@ -49,7 +49,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import type { Income, Expense } from "@/lib/types";
+import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 
 const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -70,13 +70,17 @@ interface TransactionFormDialogProps {
   income?: WithId<Income>;
   expense?: WithId<Expense>;
   defaultTab?: 'income' | 'expense';
+  customers: WithId<Customer>[];
+  suppliers: WithId<Supplier>[];
 }
 
 export function TransactionFormDialog({
   children,
   income,
   expense,
-  defaultTab = 'income'
+  defaultTab = 'income',
+  customers,
+  suppliers,
 }: TransactionFormDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -120,6 +124,31 @@ export function TransactionFormDialog({
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
     if (!firestore) return;
+    
+    const customerName = values.customerName.trim();
+    if (customerName) {
+      const existingCustomer = customers.find(
+        (c) =>
+          `${c.firstName} ${c.lastName}`.toLowerCase() ===
+          customerName.toLowerCase()
+      );
+
+      if (!existingCustomer) {
+        const nameParts = customerName.split(' ').filter(Boolean);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ');
+        if (firstName) {
+          const customersRef = collection(firestore, "customers");
+          addDocumentNonBlocking(customersRef, {
+            firstName,
+            lastName,
+            contactNumber: "",
+            address: "",
+          });
+        }
+      }
+    }
+
     const data = { ...values, date: values.date.toISOString() };
     if (income) {
         const incomeRef = doc(firestore, "incomes", income.id);
@@ -141,6 +170,24 @@ export function TransactionFormDialog({
 
   const onExpenseSubmit = (values: z.infer<typeof expenseSchema>) => {
     if (!firestore) return;
+
+    const supplierName = values.supplierName.trim();
+    if (supplierName) {
+        const existingSupplier = suppliers.find(
+            (s) => s.companyName.toLowerCase() === supplierName.toLowerCase()
+        );
+
+        if (!existingSupplier) {
+            const suppliersRef = collection(firestore, "suppliers");
+            addDocumentNonBlocking(suppliersRef, {
+                companyName: supplierName,
+                contactName: "",
+                contactNumber: "",
+                address: "",
+            });
+        }
+    }
+
     const data = { ...values, date: values.date.toISOString() };
 
     if (expense) {
@@ -166,6 +213,11 @@ export function TransactionFormDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
+        onInteractOutside={(e) => {
+          if (e.target instanceof HTMLElement && e.target.closest('.rdp')) {
+            e.preventDefault();
+          }
+        }}
       >
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
@@ -227,7 +279,7 @@ export function TransactionFormDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover modal={true}>
+                      <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -318,7 +370,7 @@ export function TransactionFormDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover modal={true}>
+                      <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
