@@ -223,14 +223,12 @@ export function AddInvestmentDialog({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                    <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={(date) => {
-                            if (date) {
-                                form.setValue("date", date, { shouldValidate: true });
-                            }
+                            field.onChange(date);
                             setDatePopoverOpen(false);
                         }}
                       />

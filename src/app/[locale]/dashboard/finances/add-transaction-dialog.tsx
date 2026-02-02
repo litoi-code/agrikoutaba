@@ -113,26 +113,12 @@ export function AddTransactionDialog({
   useEffect(() => {
     if (open) {
         if (income) {
-            let name = (income as any).customerName;
-            if (!name && (income as any).customerId) {
-                const oldCustomer = customers.find(c => c.id === (income as any).customerId);
-                if (oldCustomer) {
-                    name = `${oldCustomer.firstName} ${oldCustomer.lastName}`;
-                }
-            }
-            incomeForm.reset({ ...(income as any), date: new Date(income.date), customerName: name || "" });
+            incomeForm.reset({ ...(income as any), date: new Date(income.date), customerName: income.customerName || "" });
         } else {
             incomeForm.reset({ description: "", amount: "" as any, customerName: "", date: new Date() });
         }
         if (expense) {
-            let name = (expense as any).supplierName;
-            if (!name && (expense as any).supplierId) {
-                const oldSupplier = suppliers.find(s => s.id === (expense as any).supplierId);
-                if (oldSupplier) {
-                    name = oldSupplier.companyName;
-                }
-            }
-            expenseForm.reset({ ...(expense as any), date: new Date(expense.date), supplierName: name || "" });
+            expenseForm.reset({ ...(expense as any), date: new Date(expense.date), supplierName: expense.supplierName || "" });
         } else {
             expenseForm.reset({ description: "", amount: "" as any, supplierName: "", date: new Date() });
         }
@@ -266,14 +252,12 @@ export function AddTransactionDialog({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={(date) => {
-                                if (date) {
-                                    incomeForm.setValue("date", date, { shouldValidate: true });
-                                }
+                                field.onChange(date);
                                 setIncomeDatePopoverOpen(false);
                             }}
                           />
@@ -362,14 +346,12 @@ export function AddTransactionDialog({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={(date) => {
-                                if (date) {
-                                    expenseForm.setValue("date", date, { shouldValidate: true });
-                                }
+                                field.onChange(date);
                                 setExpenseDatePopoverOpen(false);
                             }}
                           />
