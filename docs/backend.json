@@ -244,11 +244,11 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Worker",
       "type": "object",
-      "description": "Represents a worker in the AgriCentral business.",
+      "description": "Represents a worker/user in the AgriCentral business.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the worker entity."
+          "description": "Unique identifier for the worker entity, matches Firebase Auth UID."
         },
         "firstName": {
           "type": "string",
@@ -258,9 +258,13 @@
           "type": "string",
           "description": "Last name of the worker."
         },
+        "email": {
+          "type": "string",
+          "description": "Email address of the worker, used for login."
+        },
         "role": {
           "type": "string",
-          "description": "Role of the worker (e.g., Field Worker, Supervisor)."
+          "description": "Role of the worker (e.g., Worker, Manager, Admin)."
         },
         "contactNumber": {
           "type": "string",
@@ -278,8 +282,8 @@
         "id",
         "firstName",
         "lastName",
-        "role",
-        "contactNumber"
+        "email",
+        "role"
       ]
     },
     "Investment": {
@@ -362,8 +366,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
@@ -471,11 +474,11 @@
           "schema": {
             "$ref": "#/backend/entities/Worker"
           },
-          "description": "Stores worker profiles. Includes workerId as a parameter for individual worker access.",
+          "description": "Stores worker profiles, which also represent application users. The document ID matches the Firebase Auth UID.",
           "params": [
             {
               "name": "workerId",
-              "description": "The unique identifier for the worker."
+              "description": "The unique identifier for the worker, matching their Auth UID."
             }
           ]
         }
@@ -516,3 +519,5 @@
     "reasoning": "The Firestore data structure is designed to manage entities for the AgriCentral application. It focuses on clarity, security, and scalability. Authorization Independence is achieved through path-based ownership for user-specific data and membership maps for collaborative data, eliminating the need for `get()` calls in security rules. Structural Segregation ensures that each collection has a homogeneous security posture.  For example, Customers, Suppliers, Workers, and Items are stored in top-level collections. Relationships between entities are managed through document references, as seen in the `customerId` field in the `incomes` and `transactions` collections, and `supplierId` in the `items` collection. This direct reference approach simplifies queries and maintains data integrity. To facilitate real-time data fetching from APIs, consider a server-side function triggered by Firestore writes to update an external cache or trigger downstream API calls based on the changes. This provides real-time updates and can be scaled with the application needs."
   }
 }
+
+    

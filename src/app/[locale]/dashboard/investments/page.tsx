@@ -42,8 +42,9 @@ import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
-const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any }) => {
+const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -79,6 +80,7 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, 
           </div>
         </TableCell>
         <TableCell className="text-right">
+          {canEdit && (
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -98,6 +100,7 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, 
                 </DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>
+          )}
         </TableCell>
       </TableRow>
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -126,6 +129,9 @@ export default function InvestmentsPage() {
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
+  const { role } = useCurrentUserRole();
+
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const investmentsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'investments') : null, [firestore, user]);
   const { data: investments, isLoading: investmentsLoading } = useCollection<Investment>(investmentsQuery);
@@ -154,12 +160,14 @@ export default function InvestmentsPage() {
               className="pl-10 w-64"
             />
           </div>
-          <InvestmentFormDialog>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </InvestmentFormDialog>
+          {canEdit && (
+            <InvestmentFormDialog>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </InvestmentFormDialog>
+          )}
         </div>
       </div>
 
@@ -205,7 +213,7 @@ export default function InvestmentsPage() {
                 ))
               ) : (
                 filteredInvestments?.map((inv) => (
-                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} />
+                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} canEdit={canEdit} />
                 ))
               )}
             </TableBody>
@@ -215,3 +223,5 @@ export default function InvestmentsPage() {
     </div>
   );
 }
+
+    

@@ -48,8 +48,9 @@ import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionFormDialog } from './add-transaction-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
-const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, suppliers }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[] }) => {
+const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, suppliers, canEdit }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[], canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -84,31 +85,33 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
           {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
         </TableCell>
         <TableCell className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <TransactionFormDialog 
-                income={type === 'income' ? (transaction as WithId<Income>) : undefined}
-                expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
-                defaultTab={type}
-                customers={customers}
-                suppliers={suppliers}
-              >
-                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>{t('editAction')}</span>
+          {canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <TransactionFormDialog 
+                  income={type === 'income' ? (transaction as WithId<Income>) : undefined}
+                  expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
+                  defaultTab={type}
+                  customers={customers}
+                  suppliers={suppliers}
+                >
+                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      <span>{t('editAction')}</span>
+                  </DropdownMenuItem>
+                </TransactionFormDialog>
+                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                   <Trash className="mr-2 h-4 w-4" />
+                   <span>{t('deleteAction')}</span>
                 </DropdownMenuItem>
-              </TransactionFormDialog>
-              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
-                 <Trash className="mr-2 h-4 w-4" />
-                 <span>{t('deleteAction')}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </TableCell>
       </TableRow>
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -129,7 +132,7 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
   );
 };
 
-const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, customers, suppliers }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', isLoading: boolean, t: any, tDialog: any, tGlobal: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[] }) => (
+const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, customers, suppliers, canEdit }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', isLoading: boolean, t: any, tDialog: any, tGlobal: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[], canEdit: boolean }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -153,7 +156,7 @@ const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, custome
             ))
           ) : (
             data.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} type={type} tGlobal={tGlobal} t={t} tDialog={tDialog} customers={customers} suppliers={suppliers} />
+              <TransactionRow key={transaction.id} transaction={transaction} type={type} tGlobal={tGlobal} t={t} tDialog={tDialog} customers={customers} suppliers={suppliers} canEdit={canEdit} />
             ))
           )}
         </TableBody>
@@ -169,6 +172,9 @@ export default function FinancesPage() {
   const tDialog = useTranslations('FinancesPage.AddTransactionDialog');
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
+  const { role } = useCurrentUserRole();
+
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
@@ -215,12 +221,14 @@ export default function FinancesPage() {
               className="pl-10 w-64"
             />
           </div>
-          <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </TransactionFormDialog>
+          {canEdit && (
+            <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </TransactionFormDialog>
+          )}
         </div>
       </div>
       
@@ -251,12 +259,14 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
+          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} />
+          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+    

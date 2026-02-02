@@ -5,10 +5,9 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection, doc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import {
   useFirestore,
-  addDocumentNonBlocking,
   updateDocumentNonBlocking,
   type WithId,
 } from "@/firebase";
@@ -32,6 +31,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import type { Worker } from "@/lib/types";
@@ -39,72 +45,51 @@ import type { Worker } from "@/lib/types";
 const workerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  role: z.string().min(1, "Role is required"),
+  email: z.string().email(),
+  role: z.enum(["Admin", "Manager", "Worker"]),
   contactNumber: z.string().min(1, "Contact number is required"),
 });
 
-interface AddWorkerDialogProps {
+interface EditWorkerDialogProps {
   children: React.ReactNode;
-  worker?: WithId<Worker>;
+  worker: WithId<Worker>;
 }
 
-export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
+export function AddWorkerDialog({ children, worker }: EditWorkerDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("WorkersPage.AddWorkerDialog");
-  const isEditMode = !!worker;
 
   const form = useForm<z.infer<typeof workerSchema>>({
     resolver: zodResolver(workerSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
-      role: "",
+      email: "",
+      role: "Worker",
       contactNumber: "",
     },
   });
 
   useEffect(() => {
-    if (open) {
-      if (worker) {
-        form.reset(worker);
-      } else {
-        form.reset({
-          firstName: "",
-          lastName: "",
-          role: "",
-          contactNumber: "",
-        });
-      }
+    if (open && worker) {
+      form.reset(worker);
     }
   }, [open, worker, form]);
 
   const onSubmit = (values: z.infer<typeof workerSchema>) => {
-    if (!firestore) return;
+    if (!firestore || !worker) return;
 
-    if (isEditMode && worker) {
-      const workerRef = doc(firestore, "workers", worker.id);
-      updateDocumentNonBlocking(workerRef, values);
-      toast({
-        title: t("toastUpdateTitle"),
-        description: t("toastDescription", {
-          firstName: values.firstName,
-          lastName: values.lastName,
-        }),
-      });
-    } else {
-      const workersRef = collection(firestore, "workers");
-      addDocumentNonBlocking(workersRef, { ...values, taskIds: [] });
-      toast({
-        title: t("toastTitle"),
-        description: t("toastDescription", {
-          firstName: values.firstName,
-          lastName: values.lastName,
-        }),
-      });
-    }
-
+    const workerRef = doc(firestore, "workers", worker.id);
+    updateDocumentNonBlocking(workerRef, values);
+    toast({
+      title: t("toastUpdateTitle"),
+      description: t("toastDescription", {
+        firstName: values.firstName,
+        lastName: values.lastName,
+      }),
+    });
     setOpen(false);
   };
 
@@ -113,9 +98,9 @@ export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogTitle>{t("editTitle")}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? t("editDescription") : t("description")}
+            {t("editDescription")}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -153,13 +138,38 @@ export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
             </div>
             <FormField
               control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("emailLabel")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="john.doe@example.com" {...field} disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("roleLabel")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Field Manager" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Worker">{t('roleWorker')}</SelectItem>
+                      <SelectItem value="Manager">{t('roleManager')}</SelectItem>
+                      <SelectItem value="Admin">{t('roleAdmin')}</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -178,7 +188,7 @@ export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">{isEditMode ? t("saveButton") : t("addButton")}</Button>
+              <Button type="submit">{t("saveButton")}</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -186,3 +196,5 @@ export function AddWorkerDialog({ children, worker }: AddWorkerDialogProps) {
     </Dialog>
   );
 }
+
+    

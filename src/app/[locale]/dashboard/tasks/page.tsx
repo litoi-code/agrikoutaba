@@ -33,8 +33,9 @@ import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
-const TaskCard = ({ task, assignees, workers, t }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any }) => {
+const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const firestore = useFirestore();
@@ -64,25 +65,27 @@ const TaskCard = ({ task, assignees, workers, t }: { task: WithId<Task>, assigne
         <CardContent className="p-4 flex-col flex h-full">
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-semibold pr-2">{task.title}</h3>
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <TaskFormDialog workers={workers} task={task}>
-                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>{t('editAction')}</span>
+            {canEdit && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <TaskFormDialog workers={workers} task={task}>
+                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>{t('editAction')}</span>
+                    </DropdownMenuItem>
+                  </TaskFormDialog>
+                  <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                     <Trash className="mr-2 h-4 w-4" />
+                     <span>{t('deleteAction')}</span>
                   </DropdownMenuItem>
-                </TaskFormDialog>
-                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
-                   <Trash className="mr-2 h-4 w-4" />
-                   <span>{t('deleteAction')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
           <p className="text-sm text-muted-foreground mb-4 flex-grow">{task.description}</p>
           <div className="text-sm text-muted-foreground mb-4">{formattedDate ? t('due', {date: formattedDate}) : <Skeleton className="h-4 w-24" />}</div>
@@ -132,7 +135,7 @@ const TaskCard = ({ task, assignees, workers, t }: { task: WithId<Task>, assigne
   );
 };
 
-const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any }) => (
+const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
@@ -144,7 +147,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t }: { title
         tasks.map((task) => {
           const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
-            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} />
+            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} />
           )
         })
       )}
@@ -157,6 +160,9 @@ export default function TasksPage() {
   const { user } = useUser();
   const t = useTranslations('TasksPage');
   const [searchTerm, setSearchTerm] = useState('');
+  const { role } = useCurrentUserRole();
+
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
@@ -201,20 +207,24 @@ export default function TasksPage() {
               className="pl-10 w-64"
             />
           </div>
-          <TaskFormDialog workers={allWorkers}>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </TaskFormDialog>
+          {canEdit && (
+            <TaskFormDialog workers={allWorkers}>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </TaskFormDialog>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
       </div>
     </div>
   );
 }
+
+    

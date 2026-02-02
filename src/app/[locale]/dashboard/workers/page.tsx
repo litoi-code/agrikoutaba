@@ -34,11 +34,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddWorkerDialog } from './add-worker-dialog';
 import type { Worker } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 export default function WorkersPage() {
   const firestore = useFirestore();
@@ -46,9 +47,12 @@ export default function WorkersPage() {
   const t = useTranslations('WorkersPage');
   const tDialog = useTranslations('WorkersPage.AddWorkerDialog');
   const { toast } = useToast();
+  const { role } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Worker> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const isAdmin = role === 'Admin';
 
   const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
@@ -91,12 +95,6 @@ export default function WorkersPage() {
                 className="pl-10 w-64"
               />
             </div>
-            <AddWorkerDialog>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('addNew')}
-              </Button>
-            </AddWorkerDialog>
           </div>
         </div>
         
@@ -131,6 +129,7 @@ export default function WorkersPage() {
                       <TableCell className="hidden sm:table-cell">{worker.contactNumber}</TableCell>
                       <TableCell className="text-right">{worker.taskIds?.length ?? 0}</TableCell>
                       <TableCell className="text-right">
+                        {isAdmin && (
                          <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -150,6 +149,7 @@ export default function WorkersPage() {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -176,3 +176,5 @@ export default function WorkersPage() {
     </>
   );
 }
+
+    

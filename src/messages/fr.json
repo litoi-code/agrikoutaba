@@ -14,7 +14,8 @@
     "investments": "Investissements",
     "farmOwner": "Propriétaire",
     "settings": "Paramètres",
-    "changeLanguage": "Changer de langue"
+    "changeLanguage": "Changer de langue",
+    "logout": "Déconnexion"
   },
   "HomePage": {
     "title": "Le Futur de l'Agriculture au Cameroun est Là",
@@ -40,6 +41,30 @@
     "ctaSubtitle": "Passez à l'étape suivante dans la modernisation de votre ferme. C'est simple, puissant et conçu pour vous.",
     "goToDashboard": "Aller à Votre Tableau de Bord",
     "footer": "© {year} AgriFuture. Propulser l'Agriculture Camerounaise."
+  },
+  "LoginPage": {
+    "title": "Se Connecter",
+    "description": "Entrez votre email ci-dessous pour vous connecter à votre compte.",
+    "emailLabel": "Email",
+    "passwordLabel": "Mot de passe",
+    "submitButton": "Se Connecter",
+    "submitting": "Connexion...",
+    "noAccount": "Vous n'avez pas de compte?",
+    "signUpLink": "S'inscrire",
+    "errorTitle": "Échec de la Connexion"
+  },
+  "SignupPage": {
+    "title": "Créer un Compte",
+    "description": "Entrez vos informations pour créer un compte.",
+    "firstNameLabel": "Prénom",
+    "lastNameLabel": "Nom de famille",
+    "emailLabel": "Email",
+    "passwordLabel": "Mot de passe",
+    "submitButton": "Créer un Compte",
+    "submitting": "Création du Compte...",
+    "hasAccount": "Vous avez déjà un compte?",
+    "logInLink": "Se connecter",
+    "errorTitle": "Échec de l'Inscription"
   },
   "DashboardPage": {
     "title": "Tableau de bord",
@@ -159,7 +184,11 @@
       "editDescription": "Mettez à jour les détails de cet ouvrier.",
       "firstNameLabel": "Prénom",
       "lastNameLabel": "Nom de famille",
+      "emailLabel": "Email",
       "roleLabel": "Rôle",
+      "roleWorker": "Ouvrier",
+      "roleManager": "Manager",
+      "roleAdmin": "Admin",
       "phoneLabel": "Téléphone",
       "addButton": "Ajouter l'Ouvrier",
       "saveButton": "Enregistrer",
@@ -294,3 +323,5 @@
     }
   }
 }
+
+    

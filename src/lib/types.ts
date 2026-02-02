@@ -1,3 +1,4 @@
+
 export interface Customer {
   id: string;
   firstName: string;
@@ -55,8 +56,9 @@ export interface Worker {
   id: string;
   firstName: string;
   lastName:string;
+  email: string;
   avatarUrl?: string;
-  role: string;
+  role: 'Admin' | 'Manager' | 'Worker';
   contactNumber: string;
   taskIds?: string[];
 }
@@ -76,3 +78,5 @@ export type FinancialData = {
   Income: number;
   Expenses: number;
 };
+
+    

@@ -14,7 +14,8 @@
     "investments": "Investments",
     "farmOwner": "Farm Owner",
     "settings": "Settings",
-    "changeLanguage": "Change language"
+    "changeLanguage": "Change language",
+    "logout": "Logout"
   },
   "HomePage": {
     "title": "The Future of Farming in Cameroon is Here",
@@ -40,6 +41,30 @@
     "ctaSubtitle": "Take the next step in modernizing your farm. It's simple, powerful, and built for you.",
     "goToDashboard": "Go to Your Dashboard",
     "footer": "© {year} AgriFuture. Powering Cameroonian Agriculture."
+  },
+  "LoginPage": {
+    "title": "Log In",
+    "description": "Enter your email below to log in to your account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submitButton": "Log In",
+    "submitting": "Logging in...",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign up",
+    "errorTitle": "Login Failed"
+  },
+  "SignupPage": {
+    "title": "Create an Account",
+    "description": "Enter your information to create an account.",
+    "firstNameLabel": "First Name",
+    "lastNameLabel": "Last Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submitButton": "Create Account",
+    "submitting": "Creating Account...",
+    "hasAccount": "Already have an account?",
+    "logInLink": "Log in",
+    "errorTitle": "Signup Failed"
   },
   "DashboardPage": {
     "title": "Dashboard",
@@ -159,7 +184,11 @@
       "editDescription": "Update the details for this worker.",
       "firstNameLabel": "First Name",
       "lastNameLabel": "Last Name",
+      "emailLabel": "Email",
       "roleLabel": "Role",
+      "roleWorker": "Worker",
+      "roleManager": "Manager",
+      "roleAdmin": "Admin",
       "phoneLabel": "Phone",
       "addButton": "Add Worker",
       "saveButton": "Save Changes",
@@ -294,3 +323,5 @@
     }
   }
 }
+
+    

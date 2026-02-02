@@ -1,36 +1,6 @@
-/**
- * @file firestore.rules
- * @description Security rules for the AgriCentral business management application.
- *
- * Core Philosophy:
- * This ruleset establishes a security model for an internal business application. It assumes that
- * all authenticated users are trusted employees of the AgriCentral business. Therefore, most data
- * is readable and writable by any signed-in user to facilitate collaboration and management.
- * A stricter ownership model is applied only where the data schema explicitly supports it (e.g., Tasks).
- *
- * Data Structure:
- * The data is organized into flat, top-level collections, each representing a core business entity
- * like Customers, Suppliers, and Items. This flat hierarchy simplifies rules and queries.
- *
- * Key Security Decisions:
- * - Default Trust: Authenticated users are considered internal employees and are granted broad
- *   read/write access to most business data collections (Customers, Suppliers, Items, etc.) to
- *   enable rapid prototyping and internal collaboration.
- * - Strict Task Ownership: The 'Tasks' collection is an exception. Only the assigned worker can 
- *   update or delete their own tasks. Any authenticated user can create tasks for others.
- * - No Public Access: All collections require user authentication for any type of access. There is
- *   no publicly readable or writable data.
- *
- * Denormalization for Authorization:
- * The ruleset leverages the denormalized `workerId` field on each `Task` document. This allows for
- * fast and efficient security checks without needing to perform extra reads (`get()`) on other
- * documents to determine ownership, making the rules more performant and scalable.
- *
- * Structural Segregation:
- * Each primary entity (Customer, Supplier, etc.) is stored in its own top-level collection. This
- * segregation provides a clear, uniform security posture for all documents of a given type.
- */
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -46,11 +16,41 @@ service cloud.firestore {
     }
 
     /**
-     * Returns true if the document exists before the operation.
-     * Crucial for safe update and delete operations.
+     * Retrieves the requesting user's data document from the 'workers' collection.
+     * The 'workers' collection stores user metadata, including their role.
+     * The document ID must match the user's UID.
      */
-    function isExistingDocument() {
-      return resource != null;
+    function getUserData() {
+      return get(/databases/$(database)/documents/workers/$(request.auth.uid)).data;
+    }
+
+    /**
+     * Returns the role of the currently authenticated user.
+     * Defaults to 'Worker' if the role is not present in their user document.
+     */
+    function getRole() {
+      let userData = getUserData();
+      if (userData != null && 'role' in userData) {
+        return userData.role;
+      }
+      // Default to the least privileged role if not explicitly set.
+      return 'Worker';
+    }
+
+    /**
+     * Returns true if the user's role is 'Admin'.
+     */
+    function isAdmin() {
+      return getRole() == 'Admin';
+    }
+
+    /**
+     * Returns true if the user's role is 'Manager' or 'Admin'.
+     * This is useful for granting write permissions to both roles.
+     */
+    function isManager() {
+      let role = getRole();
+      return role == 'Admin' || role == 'Manager';
     }
 
     // ------------------------------------------------------------------------
@@ -58,120 +58,102 @@ service cloud.firestore {
     // ------------------------------------------------------------------------
 
     /**
-     * @description Manages customer profiles. Assumes all authenticated users (employees) can manage customer data.
-     * @path /customers/{customerId}
-     * @allow A signed-in employee (create) a new customer profile.
-     * @deny An anonymous user (get) a customer's details.
-     * @principle Grants access to trusted internal users for managing shared business data.
-     */
-    match /customers/{customerId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages supplier profiles. Assumes all authenticated users (employees) can manage supplier data.
-     * @path /suppliers/{supplierId}
-     * @allow A signed-in employee (update) an existing supplier's address.
-     * @deny A signed-in employee (update) a supplier that does not exist.
-     * @principle Grants access to trusted internal users for managing shared business data.
-     */
-    match /suppliers/{supplierId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages inventory items. Assumes all authenticated users (employees) can manage inventory.
-     * @path /items/{itemId}
-     * @allow A signed-in employee (create) a new inventory item.
-     * @deny An anonymous user (list) all items.
-     * @principle Grants access to trusted internal users for managing shared business data.
-     */
-    match /items/{itemId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages income records. Assumes all authenticated users (employees) can manage financial data.
-     * @path /incomes/{incomeId}
-     * @allow A signed-in employee (get) an income record.
-     * @deny An anonymous user (create) a new income record.
-     * @principle Grants access to trusted internal users for managing shared business data.
-     */
-    match /incomes/{incomeId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages expense records. Assumes all authenticated users (employees) can manage financial data.
-     * @path /expenses/{expenseId}
-     * @allow A signed-in employee (delete) an expense record.
-     * @deny A signed-in employee (delete) an expense record that doesn't exist.
-     * @principle Grants access to trusted internal users for managing shared business data.
-     */
-    match /expenses/{expenseId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages worker tasks. Any authenticated user (employee) can create, view, and manage all tasks.
-     * @path /tasks/{taskId}
-     * @allow A manager (create) a task for any worker.
-     * @allow A manager (update) any task in the system.
-     * @principle Aligns with the app's internal-trust model where any employee can manage shared business data.
-     */
-    match /tasks/{taskId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
-    }
-
-    /**
-     * @description Manages worker profiles. Assumes all authenticated users (employees) can view and manage worker data.
+     * @description Manages worker/user profiles.
      * @path /workers/{workerId}
-     * @allow A signed-in employee (create) a profile for a new worker.
-     * @deny An anonymous user (get) a worker's profile.
-     * @principle Grants access to trusted internal users for managing shared business data.
+     * @allow A user can create their own profile document upon signup.
+     * @allow Any signed-in user can view worker profiles (e.g., for task assignment).
+     * @allow Only Admins can update or delete worker profiles.
+     * @principle Establishes a clear ownership and administrative model for user data.
      */
     match /workers/{workerId} {
       allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
+      // Allow a user to create their own worker document upon signup.
+      // The UID of the creating user must match the document ID.
+      allow create: if request.auth.uid == workerId;
+      // Only Admins can modify roles or other user details.
+      allow update, delete: if isAdmin();
     }
 
     /**
-     * @description Manages business investment records. Assumes all authenticated users (employees) can manage financial data.
-     * @path /investments/{investmentId}
-     * @allow A signed-in employee (list) all investment records.
-     * @deny An anonymous user (get) any investment record.
-     * @principle Grants access to trusted internal users for managing shared business data.
+     * A generic read function that grants access to any authenticated user.
+     * Used for collections that contain general business data visible to all employees.
+     */
+    function canRead() {
+      return isSignedIn();
+    }
+
+    /**
+     * A generic write function that grants access only to Managers and Admins.
+     * Used to protect critical business data from being modified by standard workers.
+     */
+    function canWrite() {
+      return isSignedIn() && isManager();
+    }
+
+    /**
+     * @description Manages customer profiles. Readable by all, writable by managers/admins.
+     */
+    match /customers/{customerId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages supplier profiles. Readable by all, writable by managers/admins.
+     */
+    match /suppliers/{supplierId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages inventory items. Readable by all, writable by managers/admins.
+     */
+    match /items/{itemId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages income records. Readable by all, writable by managers/admins.
+     */
+    match /incomes/{incomeId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages expense records. Readable by all, writable by managers/admins.
+     */
+    match /expenses/{expenseId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages worker tasks. Readable by all, writable by managers/admins.
+     */
+    match /tasks/{taskId} {
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    /**
+     * @description Manages investment records. Readable by all, writable by managers/admins.
      */
     match /investments/{investmentId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
     }
 
     /**
-     * @description Manages transaction records. Assumes all authenticated users (employees) can manage financial data.
-     * @path /transactions/{transactionId}
-     * @allow A signed-in employee (create) a new transaction.
-     * @deny An anonymous user (list) all transactions.
-     * @principle Grants access to trusted internal users for managing shared business data.
+     * @description Manages transaction records. Readable by all, writable by managers/admins.
      */
     match /transactions/{transactionId} {
-      allow get, list: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isExistingDocument();
+      allow get, list: if canRead();
+      allow create, update, delete: if canWrite();
     }
   }
 }
+
+    

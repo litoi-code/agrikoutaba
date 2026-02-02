@@ -42,6 +42,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AddItemDialog } from './add-item-dialog';
 import type { Item, Supplier } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 export default function InventoryPage() {
   const firestore = useFirestore();
@@ -50,9 +51,12 @@ export default function InventoryPage() {
   const tDialog = useTranslations('InventoryPage.AddInventoryItemDialog');
   const tGlobal = useTranslations('Global');
   const { toast } = useToast();
+  const { role } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const itemsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'items') : null, [firestore, user]);
   const { data: items, isLoading: itemsLoading } = useCollection<Item>(itemsQuery);
@@ -103,12 +107,14 @@ export default function InventoryPage() {
               className="pl-10 w-64"
             />
           </div>
-          <AddItemDialog suppliers={allSuppliers}>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </AddItemDialog>
+          {canEdit && (
+            <AddItemDialog suppliers={allSuppliers}>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </AddItemDialog>
+          )}
         </div>
       </div>
       
@@ -155,25 +161,27 @@ export default function InventoryPage() {
                     </TableCell>
                     <TableCell className="text-right font-mono">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <AddItemDialog suppliers={allSuppliers} item={item}>
-                             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                <span>{t('editAction')}</span>
+                      {canEdit && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <AddItemDialog suppliers={allSuppliers} item={item}>
+                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                            </AddItemDialog>
+                            <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
+                               <Trash className="mr-2 h-4 w-4" />
+                               <span>{t('deleteAction')}</span>
                             </DropdownMenuItem>
-                          </AddItemDialog>
-                          <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
-                             <Trash className="mr-2 h-4 w-4" />
-                             <span>{t('deleteAction')}</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -200,3 +208,5 @@ export default function InventoryPage() {
     </>
   );
 }
+
+    

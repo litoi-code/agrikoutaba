@@ -45,6 +45,7 @@ import type { Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddContactDialog } from './add-contact-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 interface DisplayContact {
   id: string;
@@ -54,7 +55,7 @@ interface DisplayContact {
   transactionCount: number;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any }) => {
+const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean }) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -128,6 +129,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog }: { data: (WithId<Cu
                       <TableCell className="hidden sm:table-cell">{displayData.phone}</TableCell>
                       <TableCell className="text-right">{displayData.transactionCount}</TableCell>
                       <TableCell className="text-right">
+                        {canEdit && (
                          <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -147,6 +149,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog }: { data: (WithId<Cu
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        )}
                       </TableCell>
                     </TableRow>
                   )
@@ -180,6 +183,9 @@ export default function ContactsPage() {
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
   const [searchTerm, setSearchTerm] = useState('');
+  const { role } = useCurrentUserRole();
+  
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
@@ -216,12 +222,14 @@ export default function ContactsPage() {
               className="pl-10 w-64"
             />
           </div>
-          <AddContactDialog>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              {t('addNew')}
-            </Button>
-          </AddContactDialog>
+          {canEdit && (
+            <AddContactDialog>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('addNew')}
+              </Button>
+            </AddContactDialog>
+          )}
         </div>
       </div>
       
@@ -231,12 +239,14 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={filteredCustomers ?? []} isLoading={customersLoading} type="customer" t={t} tDialog={tDialog} />
+          <ContactsTable data={filteredCustomers ?? []} isLoading={customersLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={filteredSuppliers ?? []} isLoading={suppliersLoading} type="supplier" t={t} tDialog={tDialog} />
+          <ContactsTable data={filteredSuppliers ?? []} isLoading={suppliersLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+    
