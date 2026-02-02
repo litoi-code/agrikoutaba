@@ -172,15 +172,6 @@ export function AddTransactionDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
-        onInteractOutside={(e) => {
-          if (
-            (e.target as HTMLElement).closest(
-              ".rdp"
-            )
-          ) {
-            e.preventDefault();
-          }
-        }}
       >
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
@@ -242,7 +233,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover modal={true}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -266,7 +257,9 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
                           />
                         </PopoverContent>
                       </Popover>
@@ -334,7 +327,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover modal={true}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -358,7 +351,9 @@ export function AddTransactionDialog({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
                           />
                         </PopoverContent>
                       </Popover>

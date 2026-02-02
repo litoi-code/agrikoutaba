@@ -149,15 +149,6 @@ export function TaskFormDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px]"
-        onInteractOutside={(e) => {
-          if (
-            (e.target as HTMLElement).closest(
-              ".rdp"
-            )
-          ) {
-            e.preventDefault();
-          }
-        }}
       >
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
@@ -284,7 +275,7 @@ export function TaskFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{t("dueDateLabel")}</FormLabel>
-                    <Popover>
+                    <Popover modal={true}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -308,7 +299,6 @@ export function TaskFormDialog({
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
