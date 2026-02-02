@@ -71,9 +71,7 @@ const expenseSchema = z.object({
   description: z.string().min(1, "Description is required"),
   amount: z.coerce.number().positive("Amount must be positive"),
   date: z.date({ required_error: "Please select a date." }),
-  supplierId: z
-    .string({ required_error: "Please select a supplier." })
-    .min(1, "Please select a supplier."),
+  supplierName: z.string().min(1, "Supplier name is required"),
 });
 
 interface AddTransactionDialogProps {
@@ -94,6 +92,8 @@ export function AddTransactionDialog({
   defaultTab = 'income'
 }: AddTransactionDialogProps) {
   const [open, setOpen] = useState(false);
+  const [incomeDatePopoverOpen, setIncomeDatePopoverOpen] = useState(false);
+  const [expenseDatePopoverOpen, setExpenseDatePopoverOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("FinancesPage.AddTransactionDialog");
@@ -114,7 +114,7 @@ export function AddTransactionDialog({
     defaultValues: {
       description: "",
       amount: "" as any,
-      supplierId: "",
+      supplierName: "",
       date: new Date(),
     },
   });
@@ -127,12 +127,19 @@ export function AddTransactionDialog({
             incomeForm.reset({ description: "", amount: "" as any, customerId: "", date: new Date() });
         }
         if (expense) {
-            expenseForm.reset({ ...expense, date: new Date(expense.date) });
+            let name = (expense as any).supplierName;
+            if (!name && (expense as any).supplierId) {
+                const oldSupplier = suppliers.find(s => s.id === (expense as any).supplierId);
+                if (oldSupplier) {
+                    name = oldSupplier.companyName;
+                }
+            }
+            expenseForm.reset({ ...(expense as any), date: new Date(expense.date), supplierName: name || "" });
         } else {
-            expenseForm.reset({ description: "", amount: "" as any, supplierId: "", date: new Date() });
+            expenseForm.reset({ description: "", amount: "" as any, supplierName: "", date: new Date() });
         }
     }
-  }, [open, income, expense, incomeForm, expenseForm]);
+  }, [open, income, expense, incomeForm, expenseForm, suppliers]);
 
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
@@ -258,7 +265,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover open={incomeDatePopoverOpen} onOpenChange={setIncomeDatePopoverOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -281,7 +288,10 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => {
+                                field.onChange(date);
+                                setIncomeDatePopoverOpen(false);
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -332,29 +342,13 @@ export function AddTransactionDialog({
                 />
                 <FormField
                   control={expenseForm.control}
-                  name="supplierId"
+                  name="supplierName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("supplierLabel")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("selectSupplierPlaceholder")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {suppliers.map((s) => (
-                            <SelectItem key={s.id} value={s.id}>
-                              {s.companyName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input placeholder="e.g. Global Seeds Inc." {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -365,7 +359,7 @@ export function AddTransactionDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>{t("dateLabel")}</FormLabel>
-                      <Popover>
+                      <Popover open={expenseDatePopoverOpen} onOpenChange={setExpenseDatePopoverOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -388,7 +382,10 @@ export function AddTransactionDialog({
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => {
+                                field.onChange(date);
+                                setExpenseDatePopoverOpen(false);
+                            }}
                           />
                         </PopoverContent>
                       </Popover>

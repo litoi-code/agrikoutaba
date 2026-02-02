@@ -39,7 +39,7 @@ export interface Expense {
   date: string; // Should be ISO date string
   description: string;
   amount: number;
-  supplierId: string;
+  supplierName: string;
 }
 
 export interface Task {

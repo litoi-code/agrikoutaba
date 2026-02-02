@@ -188,9 +188,9 @@
           "type": "number",
           "description": "Amount of the expense."
         },
-        "supplierId": {
+        "supplierName": {
           "type": "string",
-          "description": "Reference to Supplier. (Relationship: Supplier 1:N Expense)"
+          "description": "The name of the supplier."
         }
       },
       "required": [
@@ -198,7 +198,7 @@
         "date",
         "description",
         "amount",
-        "supplierId"
+        "supplierName"
       ]
     },
     "Task": {

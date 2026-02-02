@@ -82,6 +82,7 @@ export function TaskFormDialog({
   task,
 }: TaskFormDialogProps) {
   const [open, setOpen] = useState(false);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("TasksPage.TaskFormDialog");
@@ -274,7 +275,7 @@ export function TaskFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{t("dueDateLabel")}</FormLabel>
-                    <Popover>
+                    <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -297,7 +298,10 @@ export function TaskFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setDatePopoverOpen(false);
+                          }}
                         />
                       </PopoverContent>
                     </Popover>
