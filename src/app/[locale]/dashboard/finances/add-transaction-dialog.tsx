@@ -49,7 +49,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import type { Customer, Supplier, Income, Expense } from "@/lib/types";
+import type { Income, Expense } from "@/lib/types";
 
 const incomeSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -65,23 +65,19 @@ const expenseSchema = z.object({
   supplierName: z.string().min(1, "Supplier name is required"),
 });
 
-interface AddTransactionDialogProps {
+interface TransactionFormDialogProps {
   children: React.ReactNode;
-  customers: WithId<Customer>[];
-  suppliers: WithId<Supplier>[];
   income?: WithId<Income>;
   expense?: WithId<Expense>;
   defaultTab?: 'income' | 'expense';
 }
 
-export function AddTransactionDialog({
+export function TransactionFormDialog({
   children,
-  customers,
-  suppliers,
   income,
   expense,
   defaultTab = 'income'
-}: AddTransactionDialogProps) {
+}: TransactionFormDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -94,7 +90,6 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       customerName: "",
-      date: new Date(),
     },
   });
 
@@ -104,7 +99,6 @@ export function AddTransactionDialog({
       description: "",
       amount: "" as any,
       supplierName: "",
-      date: new Date(),
     },
   });
 
@@ -121,7 +115,7 @@ export function AddTransactionDialog({
             expenseForm.reset({ description: "", amount: "" as any, supplierName: "", date: new Date() });
         }
     }
-  }, [open, income, expense, incomeForm, expenseForm, suppliers, customers]);
+  }, [open, income, expense, incomeForm, expenseForm]);
 
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {

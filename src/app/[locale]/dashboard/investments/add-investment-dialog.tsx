@@ -54,7 +54,7 @@ const investmentSchema = z.object({
   equityDetails: z.string().min(1, "Equity details are required"),
 });
 
-export function AddInvestmentDialog({
+export function InvestmentFormDialog({
   children,
   investment,
 }: {
@@ -74,7 +74,6 @@ export function AddInvestmentDialog({
       description: "",
       amount: "" as any,
       equityDetails: "",
-      date: new Date(),
     },
   });
 

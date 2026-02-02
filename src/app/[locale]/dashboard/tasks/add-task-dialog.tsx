@@ -14,7 +14,7 @@ import {
 } from "@/firebase";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Edit, Trash } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,6 @@ export function TaskFormDialog({
       description: "",
       workerIds: [],
       status: "To Do",
-      dueDate: new Date(),
     },
   });
 

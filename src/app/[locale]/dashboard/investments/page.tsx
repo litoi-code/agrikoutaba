@@ -39,7 +39,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
-import { AddInvestmentDialog } from './add-investment-dialog';
+import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any }) => {
@@ -85,12 +85,12 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog }: { inv: WithId<Investment>, 
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <AddInvestmentDialog investment={inv}>
+                <InvestmentFormDialog investment={inv}>
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <Edit className="mr-2 h-4 w-4" />
                         <span>{t('editAction')}</span>
                     </DropdownMenuItem>
-                </AddInvestmentDialog>
+                </InvestmentFormDialog>
                 <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                     <Trash className="mr-2 h-4 w-4" />
                     <span>{t('deleteAction')}</span>
@@ -134,12 +134,12 @@ export default function InvestmentsPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddInvestmentDialog>
+        <InvestmentFormDialog>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('addNew')}
           </Button>
-        </AddInvestmentDialog>
+        </InvestmentFormDialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

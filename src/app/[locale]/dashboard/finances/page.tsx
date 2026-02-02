@@ -45,10 +45,10 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
-import { AddTransactionDialog } from './add-transaction-dialog';
+import { TransactionFormDialog } from './add-transaction-dialog';
 import { useToast } from '@/hooks/use-toast';
 
-const TransactionRow = ({ transaction, type, customers, suppliers, tGlobal, t, tDialog }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', customers: WithId<Customer>[], suppliers: WithId<Supplier>[], tGlobal: any, t: any, tDialog: any }) => {
+const TransactionRow = ({ transaction, type, tGlobal, t, tDialog }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -90,9 +90,7 @@ const TransactionRow = ({ transaction, type, customers, suppliers, tGlobal, t, t
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <AddTransactionDialog 
-                customers={customers} 
-                suppliers={suppliers} 
+              <TransactionFormDialog 
                 income={type === 'income' ? (transaction as WithId<Income>) : undefined}
                 expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
                 defaultTab={type}
@@ -101,7 +99,7 @@ const TransactionRow = ({ transaction, type, customers, suppliers, tGlobal, t, t
                     <Edit className="mr-2 h-4 w-4" />
                     <span>{t('editAction')}</span>
                 </DropdownMenuItem>
-              </AddTransactionDialog>
+              </TransactionFormDialog>
               <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                  <Trash className="mr-2 h-4 w-4" />
                  <span>{t('deleteAction')}</span>
@@ -128,7 +126,7 @@ const TransactionRow = ({ transaction, type, customers, suppliers, tGlobal, t, t
   );
 };
 
-const TransactionsTable = ({ data, type, customers, suppliers, isLoading, t, tDialog, tGlobal }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', customers: WithId<Customer>[], suppliers: WithId<Supplier>[], isLoading: boolean, t: any, tDialog: any, tGlobal: any }) => (
+const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', isLoading: boolean, t: any, tDialog: any, tGlobal: any }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -152,7 +150,7 @@ const TransactionsTable = ({ data, type, customers, suppliers, isLoading, t, tDi
             ))
           ) : (
             data.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} type={type} customers={customers} suppliers={suppliers} tGlobal={tGlobal} t={t} tDialog={tDialog} />
+              <TransactionRow key={transaction.id} transaction={transaction} type={type} tGlobal={tGlobal} t={t} tDialog={tDialog} />
             ))
           )}
         </TableBody>
@@ -173,29 +171,20 @@ export default function FinancesPage() {
 
   const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
-
-  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
-  const { data: customers } = useCollection<Customer>(customersQuery);
-
-  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
-  const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
   
   const totalIncome = useMemo(() => income?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [income]);
   const totalExpenses = useMemo(() => expenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [expenses]);
-
-  const allCustomers = customers ?? [];
-  const allSuppliers = suppliers ?? [];
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <AddTransactionDialog customers={allCustomers} suppliers={allSuppliers}>
+        <TransactionFormDialog>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             {t('addNew')}
           </Button>
-        </AddTransactionDialog>
+        </TransactionFormDialog>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2">
@@ -225,10 +214,10 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={income ?? []} type="income" customers={allCustomers} suppliers={allSuppliers} isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
+          <TransactionsTable data={income ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={expenses ?? []} type="expense" customers={allCustomers} suppliers={allSuppliers} isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
+          <TransactionsTable data={expenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} />
         </TabsContent>
       </Tabs>
     </div>
