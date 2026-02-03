@@ -22,6 +22,7 @@ export function getSdks(firebaseApp: FirebaseApp) {
     auth: getAuth(firebaseApp),
     firestore: getFirestore(firebaseApp, {
       experimentalForceLongPolling: true,
+      useFetchStreams: false,
     })
   };
 }
