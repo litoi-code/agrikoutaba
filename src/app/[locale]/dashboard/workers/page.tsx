@@ -47,7 +47,7 @@ export default function WorkersPage() {
   const t = useTranslations('WorkersPage');
   const tDialog = useTranslations('WorkersPage.AddWorkerDialog');
   const { toast } = useToast();
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Worker> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,6 +80,8 @@ export default function WorkersPage() {
     setDeleteTarget(null);
   };
 
+  const isLoading = workersLoading || isRoleLoading;
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -111,7 +113,7 @@ export default function WorkersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {workersLoading ? (
+                {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -129,7 +131,7 @@ export default function WorkersPage() {
                       <TableCell className="hidden sm:table-cell">{worker.contactNumber}</TableCell>
                       <TableCell className="text-right">{worker.taskIds?.length ?? 0}</TableCell>
                       <TableCell className="text-right">
-                        {isAdmin && (
+                        {!isLoading && isAdmin && (
                          <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -176,5 +178,3 @@ export default function WorkersPage() {
     </>
   );
 }
-
-    

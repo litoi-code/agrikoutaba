@@ -51,7 +51,7 @@ export default function InventoryPage() {
   const tDialog = useTranslations('InventoryPage.AddInventoryItemDialog');
   const tGlobal = useTranslations('Global');
   const { toast } = useToast();
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,7 +76,7 @@ export default function InventoryPage() {
     );
   }, [items, searchTerm]);
 
-  const isLoading = itemsLoading || suppliersLoading;
+  const isLoading = itemsLoading || suppliersLoading || isRoleLoading;
 
   const handleDelete = () => {
     if (!firestore || !deleteTarget) return;
@@ -107,7 +107,7 @@ export default function InventoryPage() {
               className="pl-10 w-64"
             />
           </div>
-          {canEdit && (
+          {!isLoading && canEdit && (
             <AddItemDialog suppliers={allSuppliers}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -161,7 +161,7 @@ export default function InventoryPage() {
                     </TableCell>
                     <TableCell className="text-right font-mono">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
                     <TableCell className="text-right">
-                      {canEdit && (
+                      {!isLoading && canEdit && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -208,5 +208,3 @@ export default function InventoryPage() {
     </>
   );
 }
-
-    

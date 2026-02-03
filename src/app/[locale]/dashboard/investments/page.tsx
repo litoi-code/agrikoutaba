@@ -129,7 +129,7 @@ export default function InvestmentsPage() {
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -146,6 +146,8 @@ export default function InvestmentsPage() {
 
   const totalInvested = useMemo(() => investments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [investments]);
 
+  const isLoading = investmentsLoading || isRoleLoading;
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -160,7 +162,7 @@ export default function InvestmentsPage() {
               className="pl-10 w-64"
             />
           </div>
-          {canEdit && (
+          {!isLoading && canEdit && (
             <InvestmentFormDialog>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -178,7 +180,7 @@ export default function InvestmentsPage() {
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {investmentsLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalInvested.toLocaleString()} {tGlobal('currency')}</div>}
+            {isLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalInvested.toLocaleString()} {tGlobal('currency')}</div>}
           </CardContent>
         </Card>
       </div>
@@ -200,7 +202,7 @@ export default function InvestmentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {investmentsLoading ? (
+              {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
@@ -223,5 +225,3 @@ export default function InvestmentsPage() {
     </div>
   );
 }
-
-    

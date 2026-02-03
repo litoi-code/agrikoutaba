@@ -183,7 +183,7 @@ export default function ContactsPage() {
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
   const [searchTerm, setSearchTerm] = useState('');
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -207,6 +207,8 @@ export default function ContactsPage() {
       (s.contactName && s.contactName.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [suppliers, searchTerm]);
+
+  const isLoading = customersLoading || suppliersLoading || isRoleLoading;
   
   return (
     <div className="flex flex-col gap-8">
@@ -222,7 +224,7 @@ export default function ContactsPage() {
               className="pl-10 w-64"
             />
           </div>
-          {canEdit && (
+          {!isLoading && canEdit && (
             <AddContactDialog>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -239,14 +241,12 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={filteredCustomers ?? []} isLoading={customersLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={filteredSuppliers ?? []} isLoading={suppliersLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-    

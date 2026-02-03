@@ -172,7 +172,7 @@ export default function FinancesPage() {
   const tDialog = useTranslations('FinancesPage.AddTransactionDialog');
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -183,16 +183,18 @@ export default function FinancesPage() {
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
   
   const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
-  const { data: customers } = useCollection<Customer>(customersQuery);
+  const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
   const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
-  const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
+  const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
+
+  const isLoading = incomeLoading || expensesLoading || customersLoading || suppliersLoading || isRoleLoading;
 
   const filteredIncome = useMemo(() => {
     if (!income) return [];
     return income.filter(i =>
         i.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        i.customerName.toLowerCase().includes(searchTerm.toLowerCase())
+        (i.customerName && i.customerName.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [income, searchTerm]);
 
@@ -200,7 +202,7 @@ export default function FinancesPage() {
       if (!expenses) return [];
       return expenses.filter(e =>
           e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          e.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
+          (e.supplierName && e.supplierName.toLowerCase().includes(searchTerm.toLowerCase()))
       );
   }, [expenses, searchTerm]);
 
@@ -221,7 +223,7 @@ export default function FinancesPage() {
               className="pl-10 w-64"
             />
           </div>
-          {canEdit && (
+          {!isLoading && canEdit && (
             <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -239,7 +241,7 @@ export default function FinancesPage() {
             <ArrowUpCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            {incomeLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalIncome.toLocaleString('en-US')} {tGlobal('currency')}</div>}
+            {isLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalIncome.toLocaleString('en-US')} {tGlobal('currency')}</div>}
           </CardContent>
         </Card>
         <Card>
@@ -248,7 +250,7 @@ export default function FinancesPage() {
             <ArrowDownCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            {expensesLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalExpenses.toLocaleString('en-US')} {tGlobal('currency')}</div>}
+            {isLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalExpenses.toLocaleString('en-US')} {tGlobal('currency')}</div>}
           </CardContent>
         </Card>
       </div>
@@ -259,14 +261,12 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={incomeLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
+          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={expensesLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
+          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-    

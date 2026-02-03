@@ -160,7 +160,7 @@ export default function TasksPage() {
   const { user } = useUser();
   const t = useTranslations('TasksPage');
   const [searchTerm, setSearchTerm] = useState('');
-  const { role } = useCurrentUserRole();
+  const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -193,6 +193,8 @@ export default function TasksPage() {
   const doneTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'Completed') ?? [], [sortedTasks]);
   const allWorkers = useMemo(() => workers ?? [], [workers]);
 
+  const isLoading = tasksLoading || workersLoading || isRoleLoading;
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -207,7 +209,7 @@ export default function TasksPage() {
               className="pl-10 w-64"
             />
           </div>
-          {canEdit && (
+          {!isLoading && canEdit && (
             <TaskFormDialog workers={allWorkers}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -219,12 +221,10 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={tasksLoading || workersLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
       </div>
     </div>
   );
 }
-
-    
