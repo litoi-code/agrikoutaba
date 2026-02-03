@@ -20,7 +20,6 @@ export function getSdks(firebaseApp: FirebaseApp) {
   // Explicitly initialize Firestore with long-polling settings
   const firestore = initializeFirestore(firebaseApp, {
     experimentalForceLongPolling: true,
-    useFetchStreams: false,
   });
 
   return {
