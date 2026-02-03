@@ -53,8 +53,9 @@ export default function WorkersPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const isAdmin = role === 'Admin';
+  const isManagerOrAdmin = role === 'Admin' || role === 'Manager';
 
-  const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
+  const workersQuery = useMemoFirebase(() => (firestore && user && isManagerOrAdmin) ? collection(firestore, 'workers') : null, [firestore, user, isManagerOrAdmin]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
   
   const filteredWorkers = useMemo(() => {

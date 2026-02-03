@@ -29,11 +29,11 @@ service cloud.firestore {
      * Defaults to 'Worker' if the role is not present in their user document.
      */
     function getRole() {
+      // Check for existence of user data before accessing.
       let userData = getUserData();
       if (userData != null && 'role' in userData) {
         return userData.role;
       }
-      // Default to the least privileged role if not explicitly set.
       return 'Worker';
     }
 
@@ -53,35 +53,6 @@ service cloud.firestore {
       return role == 'Admin' || role == 'Manager';
     }
 
-    // ------------------------------------------------------------------------
-    // Collection Rules
-    // ------------------------------------------------------------------------
-
-    /**
-     * @description Manages worker/user profiles.
-     * @path /workers/{workerId}
-     * @allow A user can create their own profile document upon signup.
-     * @allow Any signed-in user can view worker profiles (e.g., for task assignment).
-     * @allow Only Admins can update or delete worker profiles.
-     * @principle Establishes a clear ownership and administrative model for user data.
-     */
-    match /workers/{workerId} {
-      allow get, list: if isSignedIn();
-      // Allow a user to create their own worker document upon signup.
-      // The UID of the creating user must match the document ID.
-      allow create: if request.auth.uid == workerId;
-      // Only Admins can modify roles or other user details.
-      allow update, delete: if isAdmin();
-    }
-
-    /**
-     * A generic read function that grants access to any authenticated user.
-     * Used for collections that contain general business data visible to all employees.
-     */
-    function canRead() {
-      return isSignedIn();
-    }
-
     /**
      * A generic write function that grants access only to Managers and Admins.
      * Used to protect critical business data from being modified by standard workers.
@@ -89,71 +60,87 @@ service cloud.firestore {
     function canWrite() {
       return isSignedIn() && isManager();
     }
+    
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages worker/user profiles.
+     * - A user can create their own profile.
+     * - A user can read their own profile.
+     * - Managers and Admins can read any profile and list all profiles.
+     * - Only Admins can update or delete profiles.
+     */
+    match /workers/{workerId} {
+      allow get: if request.auth.uid == workerId || isManager();
+      allow list: if isManager();
+      allow create: if request.auth.uid == workerId;
+      allow update, delete: if isAdmin();
+    }
 
     /**
      * @description Manages customer profiles. Readable by all, writable by managers/admins.
      */
     match /customers/{customerId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages supplier profiles. Readable by all, writable by managers/admins.
      */
     match /suppliers/{supplierId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages inventory items. Readable by all, writable by managers/admins.
      */
     match /items/{itemId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages income records. Readable by all, writable by managers/admins.
      */
     match /incomes/{incomeId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages expense records. Readable by all, writable by managers/admins.
      */
     match /expenses/{expenseId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages worker tasks. Readable by all, writable by managers/admins.
      */
     match /tasks/{taskId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages investment records. Readable by all, writable by managers/admins.
      */
     match /investments/{investmentId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
 
     /**
      * @description Manages transaction records. Readable by all, writable by managers/admins.
      */
     match /transactions/{transactionId} {
-      allow get, list: if canRead();
-      allow create, update, delete: if canWrite();
+      allow read: if request.auth != null;
+      allow write: if canWrite();
     }
   }
 }
-
-    
