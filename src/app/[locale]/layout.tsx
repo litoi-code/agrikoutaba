@@ -7,7 +7,7 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
   const t = await getTranslations({locale, namespace: 'HomePage'});
 
   return {
-    title: 'AgriFuture',
+    title: 'AgriKoutaba',
     description: t('subtitle'),
   }
 }

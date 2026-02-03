@@ -1,7 +1,7 @@
 
 {
   "Global": {
-    "appName": "AgriFuture",
+    "appName": "AgriKoutaba",
     "currency": "FCFA"
   },
   "Sidebar": {
@@ -19,7 +19,7 @@
   },
   "HomePage": {
     "title": "Le Futur de l'Agriculture au Cameroun est Là",
-    "subtitle": "AgriFuture est la plateforme tout-en-un pour gérer votre exploitation, optimiser vos rendements et augmenter vos profits. Conçu pour le Cameroun.",
+    "subtitle": "AgriKoutaba est la plateforme tout-en-un pour gérer votre exploitation, optimiser vos rendements et augmenter vos profits. Conçu pour le Cameroun.",
     "getStarted": "Commencer l'Agriculture Intelligente",
     "allInOne": "Une Boîte à Outils Complète pour l'Agriculteur Moderne",
     "featureInventoryTitle": "Contrôle de l'Inventaire",
@@ -33,14 +33,14 @@
     "featureInvestmentsTitle": "Suivi des Investissements",
     "featureInvestmentsDescription": "Surveillez de près les investissements et les capitaux propres pour alimenter votre croissance.",
     "whyAgriFutureTitle": "Conçu pour le Cœur du Cameroun",
-    "whyAgriFutureDescription": "Nous ne sommes pas seulement un outil; nous sommes un partenaire de votre succès. AgriFuture est adapté aux défis et opportunités uniques de l'agriculture au Cameroun.",
+    "whyAgriFutureDescription": "Nous ne sommes pas seulement un outil; nous sommes un partenaire de votre succès. AgriKoutaba est adapté aux défis et opportunités uniques de l'agriculture au Cameroun.",
     "whyAgriFuturePoint1": "Suivi des cycles de cultures locales",
     "whyAgriFuturePoint2": "Gestion des finances en FCFA",
     "whyAgriFuturePoint3": "Connexion avec les fournisseurs régionaux",
     "ctaTitle": "Prêt à Cultiver le Succès ?",
     "ctaSubtitle": "Passez à l'étape suivante dans la modernisation de votre ferme. C'est simple, puissant et conçu pour vous.",
     "goToDashboard": "Aller à Votre Tableau de Bord",
-    "footer": "© {year} AgriFuture. Propulser l'Agriculture Camerounaise."
+    "footer": "© {year} AgriKoutaba. Propulser l'Agriculture Camerounaise."
   },
   "LoginPage": {
     "title": "Se Connecter",
@@ -323,5 +323,3 @@
     }
   }
 }
-
-    

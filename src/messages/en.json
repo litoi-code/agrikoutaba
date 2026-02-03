@@ -1,7 +1,7 @@
 
 {
   "Global": {
-    "appName": "AgriFuture",
+    "appName": "AgriKoutaba",
     "currency": "FCFA"
   },
   "Sidebar": {
@@ -19,7 +19,7 @@
   },
   "HomePage": {
     "title": "The Future of Farming in Cameroon is Here",
-    "subtitle": "AgriFuture is the all-in-one platform to manage your farm, optimize your yield, and boost your profits. Built for Cameroon.",
+    "subtitle": "AgriKoutaba is the all-in-one platform to manage your farm, optimize your yield, and boost your profits. Built for Cameroon.",
     "getStarted": "Start Farming Smarter",
     "allInOne": "A Complete Toolkit for the Modern Farmer",
     "featureInventoryTitle": "Inventory Control",
@@ -33,14 +33,14 @@
     "featureInvestmentsTitle": "Investment Tracking",
     "featureInvestmentsDescription": "Keep a close eye on investments and equity to fuel your growth.",
     "whyAgriFutureTitle": "Designed for the Heart of Cameroon",
-    "whyAgriFutureDescription": "We're not just a tool; we're a partner in your success. AgriFuture is tailored to the unique challenges and opportunities of farming in Cameroon.",
+    "whyAgriFutureDescription": "We're not just a tool; we're a partner in your success. AgriKoutaba is tailored to the unique challenges and opportunities of farming in Cameroon.",
     "whyAgriFuturePoint1": "Track local crop cycles",
     "whyAgriFuturePoint2": "Manage finances in FCFA",
     "whyAgriFuturePoint3": "Connect with regional suppliers",
     "ctaTitle": "Ready to Cultivate Success?",
     "ctaSubtitle": "Take the next step in modernizing your farm. It's simple, powerful, and built for you.",
     "goToDashboard": "Go to Your Dashboard",
-    "footer": "© {year} AgriFuture. Powering Cameroonian Agriculture."
+    "footer": "© {year} AgriKoutaba. Powering Cameroonian Agriculture."
   },
   "LoginPage": {
     "title": "Log In",
@@ -323,5 +323,3 @@
     }
   }
 }
-
-    
