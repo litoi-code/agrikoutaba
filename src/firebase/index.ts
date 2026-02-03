@@ -3,7 +3,7 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore';
 
 export function initializeFirebase() {
   // If an app is already initialized, return the existing SDKs.
@@ -17,10 +17,16 @@ export function initializeFirebase() {
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {
+  // Explicitly initialize Firestore with long-polling settings
+  const firestore = initializeFirestore(firebaseApp, {
+    experimentalForceLongPolling: true,
+    useFetchStreams: false,
+  });
+
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    firestore: firestore,
   };
 }
 
