@@ -70,8 +70,8 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
     <>
       <TableRow>
         <TableCell className="font-medium">{inv.investorName}</TableCell>
-        <TableCell>{inv.description}</TableCell>
-        <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+        <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>
+        <TableCell className="hidden md:table-cell">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
         <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2">
@@ -194,8 +194,8 @@ export default function InvestmentsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t('investorColumn')}</TableHead>
-                <TableHead>{t('descriptionColumn')}</TableHead>
-                <TableHead>{t('dateColumn')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t('descriptionColumn')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('dateColumn')}</TableHead>
                 <TableHead>{t('amountColumn')}</TableHead>
                 <TableHead>{t('equityDetailsColumn')}</TableHead>
                 <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
@@ -206,8 +206,8 @@ export default function InvestmentsPage() {
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
