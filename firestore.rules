@@ -30,6 +30,7 @@ service cloud.firestore {
      */
     function getRole() {
       // Check for existence of user data before accessing.
+      // This rule is problematic on the `workers` collection itself.
       let userData = getUserData();
       if (userData != null && 'role' in userData) {
         return userData.role;
@@ -67,14 +68,13 @@ service cloud.firestore {
 
     /**
      * @description Manages worker/user profiles.
-     * - A user can create their own profile.
-     * - A user can read their own profile.
-     * - Managers and Admins can read any profile and list all profiles.
+     * - Any signed-in user can read worker profiles. This is necessary to break a recursive loop
+     *   in the previous rules that caused the app to hang. The UI still restricts who can see the list.
+     * - A user can create their own profile upon signup.
      * - Only Admins can update or delete profiles.
      */
     match /workers/{workerId} {
-      allow get: if request.auth.uid == workerId || isManager();
-      allow list: if isManager();
+      allow read: if isSignedIn();
       allow create: if request.auth.uid == workerId;
       allow update, delete: if isAdmin();
     }
