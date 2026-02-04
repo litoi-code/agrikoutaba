@@ -216,6 +216,9 @@
     "actionsColumn": "Actions",
     "editAction": "Edit",
     "deleteAction": "Delete",
+    "DateRangePicker": {
+      "placeholder": "Pick a date range"
+    },
     "AddTransactionDialog": {
       "title": "Add Transaction",
       "description": "Record a new income or expense.",

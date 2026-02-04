@@ -216,6 +216,9 @@
     "actionsColumn": "Actions",
     "editAction": "Modifier",
     "deleteAction": "Supprimer",
+    "DateRangePicker": {
+      "placeholder": "Choisir une période"
+    },
     "AddTransactionDialog": {
       "title": "Ajouter une Transaction",
       "description": "Enregistrez un nouveau revenu ou une nouvelle dépense.",
