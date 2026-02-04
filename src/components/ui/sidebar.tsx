@@ -32,7 +32,7 @@ type SidebarContext = {
   setOpen: (open: boolean) => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
-  isMobile: boolean
+  isMobile: boolean | null
   toggleSidebar: () => void
 }
 
@@ -176,12 +176,22 @@ const Sidebar = React.forwardRef<
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-    const [isClient, setIsClient] = React.useState(false)
 
-    React.useEffect(() => {
-      setIsClient(true)
-    }, [])
-
+    if (isMobile === null) {
+      // On the server, and during the first client render, `isMobile` will be null.
+      // We render a placeholder that takes up the same space as the collapsed desktop sidebar
+      // to prevent layout shift and match what the server would infer.
+      return (
+        <div
+          className={cn(
+            "peer hidden md:block",
+            variant === "floating" || variant === "inset"
+              ? "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
+              : "w-[--sidebar-width-icon]"
+          )}
+        />
+      )
+    }
 
     if (collapsible === "none") {
       return (
@@ -199,8 +209,6 @@ const Sidebar = React.forwardRef<
     }
 
     if (isMobile) {
-      if (!isClient) return null
-      
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
@@ -591,7 +599,7 @@ const SidebarMenuButton = React.forwardRef<
         <TooltipContent
           side="right"
           align="center"
-          hidden={state !== "collapsed" || isMobile}
+          hidden={state !== "collapsed" || !!isMobile}
           {...tooltip}
         />
       </Tooltip>
