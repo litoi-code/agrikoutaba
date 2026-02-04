@@ -178,19 +178,7 @@ const Sidebar = React.forwardRef<
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
     if (isMobile === null) {
-      // On the server, and during the first client render, `isMobile` will be null.
-      // We render a placeholder that takes up the same space as the collapsed desktop sidebar
-      // to prevent layout shift and match what the server would infer.
-      return (
-        <div
-          className={cn(
-            "peer hidden md:block",
-            variant === "floating" || variant === "inset"
-              ? "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "w-[--sidebar-width-icon]"
-          )}
-        />
-      )
+      return null;
     }
 
     if (collapsible === "none") {
