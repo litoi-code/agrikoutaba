@@ -18,9 +18,10 @@ export function initializeFirebase() {
 
 export function getSdks(firebaseApp: FirebaseApp) {
   // Explicitly initialize Firestore with settings to improve network compatibility.
-  // Using `useFetchStreams: false` as an alternative approach to the connectivity issue.
+  // Forcing long-polling is a robust way to deal with environments that
+  // might block the default gRPC-web connection.
   const firestore = initializeFirestore(firebaseApp, {
-    useFetchStreams: false,
+    experimentalForceLongPolling: true,
   });
 
   return {
