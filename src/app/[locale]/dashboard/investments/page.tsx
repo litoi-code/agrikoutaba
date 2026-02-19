@@ -4,7 +4,8 @@ import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
+import { DateRange } from 'react-day-picker';
 import {
   Card,
   CardContent,
@@ -43,6 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { DatePickerWithRange } from '@/components/date-range-picker';
 
 const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
@@ -129,6 +131,7 @@ export default function InvestmentsPage() {
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -138,11 +141,19 @@ export default function InvestmentsPage() {
 
   const filteredInvestments = useMemo(() => {
     if (!investments) return [];
-    return investments.filter(inv =>
-        inv.investorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [investments, searchTerm]);
+    return investments.filter(inv => {
+        const matchesSearch = inv.investorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            inv.description.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        if (!dateRange?.from) return matchesSearch;
+
+        const itemDate = new Date(inv.date);
+        const from = startOfDay(dateRange.from);
+        const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+
+        return matchesSearch && itemDate >= from && itemDate <= to;
+    });
+  }, [investments, searchTerm, dateRange]);
 
   const totalInvested = useMemo(() => filteredInvestments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [filteredInvestments]);
 
@@ -150,21 +161,22 @@ export default function InvestmentsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
+              className="pl-10 w-full sm:w-48"
             />
           </div>
+          <DatePickerWithRange date={dateRange} setDate={setDateRange} className="w-full sm:w-auto" />
           {!isLoading && canEdit && (
             <InvestmentFormDialog>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 {t('addNew')}
               </Button>
