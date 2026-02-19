@@ -1,9 +1,11 @@
+
 "use client"
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
+import { DateRange } from 'react-day-picker';
 import {
   Card,
   CardContent,
@@ -29,6 +31,7 @@ import {
 } from "lucide-react";
 import type { Customer, Supplier, Task, Worker, Income, Expense, FinancialData } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
+import { DatePickerWithRange } from '@/components/date-range-picker';
 
 const chartConfig = {
   Income: {
@@ -71,6 +74,8 @@ export default function DashboardPage() {
   const t = useTranslations('DashboardPage');
   const tGlobal = useTranslations('Global');
 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
   // Fetching data
   const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
@@ -101,20 +106,50 @@ export default function DashboardPage() {
   }, [income, expenses]);
 
   const financialChartData = useMemo<FinancialData[]>(() => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const data: FinancialData[] = months.map(m => ({ month: m, Income: 0, Expenses: 0 }));
+    const monthsLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const data: FinancialData[] = monthsLabels.map(m => ({ month: m, Income: 0, Expenses: 0 }));
 
-    income?.forEach(i => {
+    if (!income || !expenses) return data.slice(0, 7);
+
+    const filteredIncome = income.filter(i => {
+      if (!dateRange?.from) return true;
+      const d = new Date(i.date);
+      const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+      return d >= startOfDay(dateRange.from) && d <= to;
+    });
+
+    const filteredExpenses = expenses.filter(e => {
+      if (!dateRange?.from) return true;
+      const d = new Date(e.date);
+      const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+      return d >= startOfDay(dateRange.from) && d <= to;
+    });
+
+    filteredIncome.forEach(i => {
       const monthIndex = new Date(i.date).getMonth();
       data[monthIndex].Income += i.amount;
     });
-    expenses?.forEach(e => {
+    filteredExpenses.forEach(e => {
       const monthIndex = new Date(e.date).getMonth();
       data[monthIndex].Expenses += e.amount;
     });
 
-    return data.slice(0, 7); // Show first 7 months for now
-  }, [income, expenses]);
+    if (!dateRange?.from) return data.slice(0, 7);
+    
+    // Show only months that fall within the range or have data
+    return data.filter((d, index) => {
+        const hasData = d.Income > 0 || d.Expenses > 0;
+        const startMonth = dateRange.from?.getMonth();
+        const endMonth = dateRange.to ? dateRange.to.getMonth() : startMonth;
+        
+        // If same year, filter by index
+        if (startMonth !== undefined && endMonth !== undefined && dateRange.from?.getFullYear() === (dateRange.to || dateRange.from)?.getFullYear()) {
+             return index >= startMonth && index <= endMonth;
+        }
+        
+        return hasData;
+    });
+  }, [income, expenses, dateRange]);
 
   const workersMap = useMemo(() => {
     if (!workers) return new Map<string, WithId<Worker>>();
@@ -165,9 +200,12 @@ export default function DashboardPage() {
 
       <div className="grid gap-8 lg:grid-cols-2">
         <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>{t('financialOverview')}</CardTitle>
-            <CardDescription>{t('financialOverviewDescription')}</CardDescription>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <CardTitle>{t('financialOverview')}</CardTitle>
+                <CardDescription>{t('financialOverviewDescription')}</CardDescription>
+            </div>
+            <DatePickerWithRange date={dateRange} setDate={setDateRange} className="w-full sm:w-auto" />
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
