@@ -144,7 +144,7 @@ export default function InvestmentsPage() {
     );
   }, [investments, searchTerm]);
 
-  const totalInvested = useMemo(() => investments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [investments]);
+  const totalInvested = useMemo(() => filteredInvestments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [filteredInvestments]);
 
   const isLoading = investmentsLoading || isRoleLoading;
 
