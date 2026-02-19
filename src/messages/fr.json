@@ -82,7 +82,9 @@
     "taskColumn": "Tâche",
     "statusColumn": "Statut",
     "assigneeColumn": "Assigné à",
-    "dueDateColumn": "Date d'échéance"
+    "dueDateColumn": "Date d'échéance",
+    "selectYear": "Sélectionner l'année",
+    "allTime": "Tout le temps"
   },
   "ContactsPage": {
     "title": "Contacts",

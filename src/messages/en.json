@@ -82,7 +82,9 @@
     "taskColumn": "Task",
     "statusColumn": "Status",
     "assigneeColumn": "Assignee",
-    "dueDateColumn": "Due Date"
+    "dueDateColumn": "Due Date",
+    "selectYear": "Select Year",
+    "allTime": "All Time"
   },
   "ContactsPage": {
     "title": "Contacts",

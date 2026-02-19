@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
 import { useTranslations } from 'next-intl';
-import { format, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfDay, endOfDay, startOfYear, endOfYear } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import {
   Card,
@@ -21,6 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
@@ -47,7 +54,6 @@ const chartConfig = {
 const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: string }) => {
   const [formattedDate, setFormattedDate] = useState('');
   useEffect(() => {
-    // Defensively check if dueDate exists before formatting
     if (task.dueDate) {
       setFormattedDate(format(new Date(task.dueDate), 'PPP'));
     }
@@ -75,6 +81,7 @@ export default function DashboardPage() {
   const tGlobal = useTranslations('Global');
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedYear, setSelectedYear] = useState<string>("current");
 
   // Fetching data
   const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
@@ -95,6 +102,16 @@ export default function DashboardPage() {
   const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
 
+  // Available years for the dropdown
+  const availableYears = useMemo(() => {
+    const years = new Set<number>();
+    income?.forEach(i => years.add(new Date(i.date).getFullYear()));
+    expenses?.forEach(e => years.add(new Date(e.date).getFullYear()));
+    const currentYear = new Date().getFullYear();
+    years.add(currentYear);
+    return Array.from(years).sort((a, b) => b - a);
+  }, [income, expenses]);
+
   // Memoized calculations
   const totalContacts = useMemo(() => (customers?.length ?? 0) + (suppliers?.length ?? 0), [customers, suppliers]);
   const pendingTasks = useMemo(() => tasks?.filter(task => task.status !== "Completed").length ?? 0, [tasks]);
@@ -111,18 +128,32 @@ export default function DashboardPage() {
 
     if (!income || !expenses) return data.slice(0, 7);
 
+    // Determine the effective date filter
+    let start: Date | undefined;
+    let end: Date | undefined;
+
+    if (selectedYear !== "all" && selectedYear !== "current") {
+      const year = parseInt(selectedYear);
+      start = startOfYear(new Date(year, 0, 1));
+      end = endOfYear(new Date(year, 0, 1));
+    } else if (selectedYear === "current") {
+      start = startOfYear(new Date());
+      end = endOfYear(new Date());
+    } else if (dateRange?.from) {
+      start = startOfDay(dateRange.from);
+      end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
+    }
+
     const filteredIncome = income.filter(i => {
-      if (!dateRange?.from) return true;
+      if (!start || !end) return true;
       const d = new Date(i.date);
-      const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
-      return d >= startOfDay(dateRange.from) && d <= to;
+      return d >= start && d <= end;
     });
 
     const filteredExpenses = expenses.filter(e => {
-      if (!dateRange?.from) return true;
+      if (!start || !end) return true;
       const d = new Date(e.date);
-      const to = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
-      return d >= startOfDay(dateRange.from) && d <= to;
+      return d >= start && d <= end;
     });
 
     filteredIncome.forEach(i => {
@@ -134,22 +165,28 @@ export default function DashboardPage() {
       data[monthIndex].Expenses += e.amount;
     });
 
-    if (!dateRange?.from) return data.slice(0, 7);
+    // If viewing all time or specific multi-year, just show all months that have data
+    if (selectedYear === "all" && !dateRange?.from) {
+        return data.filter(d => d.Income > 0 || d.Expenses > 0);
+    }
     
-    // Show only months that fall within the range or have data
+    // If a year is selected (including current), show all 12 months
+    if (selectedYear !== "all" || (start && end && start.getFullYear() === end.getFullYear())) {
+      return data;
+    }
+
     return data.filter((d, index) => {
         const hasData = d.Income > 0 || d.Expenses > 0;
-        const startMonth = dateRange.from?.getMonth();
-        const endMonth = dateRange.to ? dateRange.to.getMonth() : startMonth;
+        const startMonth = start?.getMonth();
+        const endMonth = end?.getMonth();
         
-        // If same year, filter by index
-        if (startMonth !== undefined && endMonth !== undefined && dateRange.from?.getFullYear() === (dateRange.to || dateRange.from)?.getFullYear()) {
+        if (startMonth !== undefined && endMonth !== undefined) {
              return index >= startMonth && index <= endMonth;
         }
         
         return hasData;
     });
-  }, [income, expenses, dateRange]);
+  }, [income, expenses, dateRange, selectedYear]);
 
   const workersMap = useMemo(() => {
     if (!workers) return new Map<string, WithId<Worker>>();
@@ -205,7 +242,24 @@ export default function DashboardPage() {
                 <CardTitle>{t('financialOverview')}</CardTitle>
                 <CardDescription>{t('financialOverviewDescription')}</CardDescription>
             </div>
-            <DatePickerWithRange date={dateRange} setDate={setDateRange} className="w-full sm:w-auto" />
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-full sm:w-[150px]">
+                  <SelectValue placeholder={t('selectYear')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="current">{new Date().getFullYear()}</SelectItem>
+                  {availableYears.filter(y => y !== new Date().getFullYear()).map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                  <SelectItem value="all">{t('allTime')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <DatePickerWithRange date={dateRange} setDate={(range) => {
+                setDateRange(range);
+                if (range?.from) setSelectedYear("all");
+              }} className="w-full sm:w-auto" />
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
