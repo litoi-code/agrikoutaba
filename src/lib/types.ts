@@ -21,6 +21,7 @@ export interface Item {
   id: string;
   name: string;
   description: string;
+  category: 'Input' | 'Produce' | 'Equipment';
   unitPrice: number;
   stockLevel: number;
   reorderLevel: number;
@@ -78,5 +79,3 @@ export type FinancialData = {
   Income: number;
   Expenses: number;
 };
-
-    

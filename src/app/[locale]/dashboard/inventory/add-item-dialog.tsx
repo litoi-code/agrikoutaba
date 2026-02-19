@@ -47,6 +47,7 @@ import type { Supplier, Item } from "@/lib/types";
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
   description: z.string().min(1, "Description is required"),
+  category: z.enum(["Input", "Produce", "Equipment"]),
   unitPrice: z.coerce.number().positive("Price must be a positive number"),
   stockLevel: z.coerce.number().min(0, "Stock can't be negative"),
   reorderLevel: z.coerce.number().min(0, "Reorder level can't be negative"),
@@ -70,6 +71,7 @@ export function AddItemDialog({
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InventoryPage.AddInventoryItemDialog");
+  const tPage = useTranslations("InventoryPage");
   const isEditMode = !!item;
 
   const form = useForm<z.infer<typeof itemSchema>>({
@@ -77,6 +79,7 @@ export function AddItemDialog({
     defaultValues: {
       name: "",
       description: "",
+      category: "Input",
       unitPrice: "" as any,
       stockLevel: "" as any,
       reorderLevel: "" as any,
@@ -92,6 +95,7 @@ export function AddItemDialog({
         form.reset({
           name: "",
           description: "",
+          category: "Input",
           unitPrice: "" as any,
           stockLevel: "" as any,
           reorderLevel: "" as any,
@@ -138,19 +142,48 @@ export function AddItemDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 py-4"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("nameLabel")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Corn Seeds" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("nameLabel")}</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Corn Seeds" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("categoryLabel")}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={t("selectCategoryPlaceholder")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Input">{tPage("categoryInput")}</SelectItem>
+                        <SelectItem value="Produce">{tPage("categoryProduce")}</SelectItem>
+                        <SelectItem value="Equipment">{tPage("categoryEquipment")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="description"
