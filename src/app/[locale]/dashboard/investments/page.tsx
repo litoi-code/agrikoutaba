@@ -2,7 +2,7 @@
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -126,7 +126,6 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
 
 export default function InvestmentsPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('InvestmentsPage');
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
@@ -136,7 +135,8 @@ export default function InvestmentsPage() {
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  const investmentsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'investments') : null, [firestore, user]);
+  // Removed user dependency from queries
+  const investmentsQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'investments') : null, [firestore]);
   const { data: investments, isLoading: investmentsLoading } = useCollection<Investment>(investmentsQuery);
 
   const filteredInvestments = useMemo(() => {

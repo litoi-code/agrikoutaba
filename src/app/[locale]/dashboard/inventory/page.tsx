@@ -2,13 +2,11 @@
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -46,7 +44,6 @@ import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 export default function InventoryPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('InventoryPage');
   const tDialog = useTranslations('InventoryPage.AddInventoryItemDialog');
   const tGlobal = useTranslations('Global');
@@ -58,10 +55,11 @@ export default function InventoryPage() {
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  const itemsQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'items') : null, [firestore, user]);
+  // Removed user dependency from queries
+  const itemsQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'items') : null, [firestore]);
   const { data: items, isLoading: itemsLoading } = useCollection<Item>(itemsQuery);
 
-  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
+  const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
   const suppliersMap = useMemo(() => {

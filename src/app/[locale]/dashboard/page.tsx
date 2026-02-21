@@ -2,7 +2,7 @@
 "use client"
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format, startOfDay, endOfDay, startOfYear, endOfYear } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -73,33 +73,31 @@ const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: s
   );
 };
 
-
 export default function DashboardPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('DashboardPage');
   const tGlobal = useTranslations('Global');
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedYear, setSelectedYear] = useState<string>("current");
 
-  // Fetching data
-  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
+  // Fetching data - removed user dependency as auth is disabled
+  const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
-  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
+  const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
-  const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
+  const tasksQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'tasks') : null, [firestore]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
   
-  const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
+  const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
-  const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
+  const incomeQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'incomes') : null, [firestore]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
 
-  const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
+  const expensesQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'expenses') : null, [firestore]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
 
   // Available years for the dropdown
@@ -165,12 +163,10 @@ export default function DashboardPage() {
       data[monthIndex].Expenses += e.amount;
     });
 
-    // If viewing all time or specific multi-year, just show all months that have data
     if (selectedYear === "all" && !dateRange?.from) {
         return data.filter(d => d.Income > 0 || d.Expenses > 0);
     }
     
-    // If a year is selected (including current), show all 12 months
     if (selectedYear !== "all" || (start && end && start.getFullYear() === end.getFullYear())) {
       return data;
     }

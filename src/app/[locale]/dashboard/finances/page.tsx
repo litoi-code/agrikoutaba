@@ -2,7 +2,7 @@
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -76,7 +76,6 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
     });
     setIsDeleteDialogOpen(false);
   };
-
 
   return (
     <>
@@ -169,7 +168,6 @@ const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, custome
 
 export default function FinancesPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('FinancesPage');
   const tDialog = useTranslations('FinancesPage.AddTransactionDialog');
   const tGlobal = useTranslations('Global');
@@ -179,16 +177,17 @@ export default function FinancesPage() {
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  const incomeQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'incomes') : null, [firestore, user]);
+  // Removed user dependency from queries
+  const incomeQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'incomes') : null, [firestore]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
 
-  const expensesQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'expenses') : null, [firestore, user]);
+  const expensesQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'expenses') : null, [firestore]);
   const { data: expenses, isLoading: expensesLoading } = useCollection<Expense>(expensesQuery);
   
-  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
+  const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
-  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
+  const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
   const isLoading = incomeLoading || expensesLoading || customersLoading || suppliersLoading || isRoleLoading;

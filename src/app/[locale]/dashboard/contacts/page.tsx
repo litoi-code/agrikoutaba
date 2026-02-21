@@ -2,7 +2,7 @@
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import {
   Card,
@@ -179,7 +179,6 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
 
 export default function ContactsPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
   const [searchTerm, setSearchTerm] = useState('');
@@ -187,10 +186,11 @@ export default function ContactsPage() {
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  const customersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'customers') : null, [firestore, user]);
+  // Removed user dependency from queries
+  const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
-  const suppliersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'suppliers') : null, [firestore, user]);
+  const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
   const filteredCustomers = useMemo(() => {

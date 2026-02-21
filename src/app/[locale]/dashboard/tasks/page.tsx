@@ -2,7 +2,7 @@
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, useUser, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import {
@@ -157,17 +157,17 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }
 
 export default function TasksPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('TasksPage');
   const [searchTerm, setSearchTerm] = useState('');
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  const tasksQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'tasks') : null, [firestore, user]);
+  // Removed user dependency from queries
+  const tasksQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'tasks') : null, [firestore]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
 
-  const workersQuery = useMemoFirebase(() => (firestore && user) ? collection(firestore, 'workers') : null, [firestore, user]);
+  const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
   const filteredTasks = useMemo(() => {

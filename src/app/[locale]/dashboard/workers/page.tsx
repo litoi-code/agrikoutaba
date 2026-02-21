@@ -2,7 +2,7 @@
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, useUser, type WithId, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import {
   Card,
@@ -43,7 +43,6 @@ import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 export default function WorkersPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
   const t = useTranslations('WorkersPage');
   const tDialog = useTranslations('WorkersPage.AddWorkerDialog');
   const { toast } = useToast();
@@ -53,9 +52,9 @@ export default function WorkersPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const isAdmin = role === 'Admin';
-  const isManagerOrAdmin = role === 'Admin' || role === 'Manager';
 
-  const workersQuery = useMemoFirebase(() => (firestore && user && isManagerOrAdmin) ? collection(firestore, 'workers') : null, [firestore, user, isManagerOrAdmin]);
+  // Query now runs regardless of auth user
+  const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
   
   const filteredWorkers = useMemo(() => {

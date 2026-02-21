@@ -1,22 +1,7 @@
-import { Header } from './_components/header';
-import { HeroSection } from './_components/hero-section';
-import { FeaturesSection } from './_components/features-section';
-import { WhySection } from './_components/why-section';
-import { CtaSection } from './_components/cta-section';
-import { Footer } from './_components/footer';
 
+import { redirect } from 'next/navigation';
 
-export default function Home() {
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      <main className="flex-1">
-        <HeroSection />
-        <FeaturesSection />
-        <WhySection />
-        <CtaSection />
-      </main>
-      <Footer />
-    </div>
-  );
+export default function Home({ params: { locale } }: { params: { locale: string } }) {
+  // Directly redirect the landing page to the dashboard.
+  redirect(`/${locale}/dashboard`);
 }
