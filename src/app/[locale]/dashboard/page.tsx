@@ -1,3 +1,4 @@
+
 "use client"
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
@@ -60,7 +61,7 @@ const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: s
 
   return (
     <TableRow>
-      <TableCell className="font-medium max-w-[120px] md:max-w-none truncate">{task.title || task.description}</TableCell>
+      <TableCell className="font-medium max-w-[150px] md:max-w-none truncate">{task.title || task.description}</TableCell>
       <TableCell>
         <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white text-[10px] px-1.5" : "text-[10px] px-1.5"}>
           {task.status}
@@ -201,10 +202,10 @@ export default function DashboardPage() {
   chartConfig.Expenses.label = t('expenses');
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8">
-      <h1 className="text-2xl md:text-3xl font-headline font-bold">{t('title')}</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="text-2xl font-headline font-bold">{t('title')}</h1>
       
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('totalContacts')}</CardTitle>
@@ -237,7 +238,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card className="col-span-1 lg:col-span-2">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
@@ -268,7 +269,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
+            {isLoading ? <Skeleton className="h-[250px] w-full" /> : (
             <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                  <BarChart data={financialChartData} margin={{ top: 20, right: 10, bottom: 0, left: -10 }}>
@@ -285,13 +286,13 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="col-span-1 lg:col-span-2 overflow-hidden">
+        <Card className="col-span-1 lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl">{t('recentTasks')}</CardTitle>
           </CardHeader>
           <CardContent className="p-0 sm:p-6">
             <Table>
-              <TableHeader className="bg-muted/50 sm:bg-transparent">
+              <TableHeader>
                 <TableRow>
                   <TableHead className="pl-4 sm:pl-0">{t('taskColumn')}</TableHead>
                   <TableHead>{t('statusColumn')}</TableHead>

@@ -98,7 +98,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
                 <TableHead className="hidden md:table-cell">{t('companyColumn')}</TableHead>
                 <TableHead className="hidden sm:table-cell">{t('phoneColumn')}</TableHead>
                 <TableHead className="text-right">{t('transactionsColumn')}</TableHead>
-                <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
+                <TableHead className="w-[80px] text-right">{t('actionsColumn')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -124,8 +124,8 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
                   };
                   return (
                     <TableRow key={contact.id}>
-                      <TableCell className="font-medium">{displayData.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{displayData.company}</TableCell>
+                      <TableCell className="font-medium truncate max-w-[150px]">{displayData.name}</TableCell>
+                      <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>
                       <TableCell className="hidden sm:table-cell">{displayData.phone}</TableCell>
                       <TableCell className="text-right">{displayData.transactionCount}</TableCell>
                       <TableCell className="text-right">
@@ -186,7 +186,6 @@ export default function ContactsPage() {
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  // Removed user dependency from queries
   const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
@@ -211,24 +210,25 @@ export default function ContactsPage() {
   const isLoading = customersLoading || suppliersLoading || isRoleLoading;
   
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl font-headline font-bold">{t('title')}</h1>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
+              className="pl-10 w-full"
             />
           </div>
           {!isLoading && canEdit && (
             <AddContactDialog>
-              <Button>
+              <Button size="sm">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                {t('addNew')}
+                <span className="hidden sm:inline">{t('addNew')}</span>
+                <span className="sm:hidden">{t('addNew').split(' ')[0]}</span>
               </Button>
             </AddContactDialog>
           )}

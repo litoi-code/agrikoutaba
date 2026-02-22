@@ -57,8 +57,9 @@ function DashboardLayoutInner({
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
-  // To prevent hydration errors, we must return the EXACT SAME structure on server and client.
-  // We keep the SidebarProvider/Sidebar shell stable and only defer children or show a spinner INSIDE the main content.
+  // Standardizing the structural shell to prevent hydration mismatches.
+  // The SidebarProvider and Sidebar structure are ALWAYS rendered.
+  // Dynamic user data and main content are handled carefully.
   return (
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
@@ -87,15 +88,15 @@ function DashboardLayoutInner({
         <SidebarFooter>
           <div className="flex items-center gap-3 p-3">
             <Avatar className="h-8 w-8 shrink-0">
-              {currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
-              <AvatarFallback>{userInitial}</AvatarFallback>
+              {mounted && currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
+              <AvatarFallback>{mounted ? userInitial : '...'}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
               <span className="text-sm font-semibold truncate leading-none mb-1">
-                {currentWorker?.firstName} {currentWorker?.lastName}
+                {mounted ? `${currentWorker?.firstName} ${currentWorker?.lastName}` : 'Loading...'}
               </span>
               <span className="text-xs text-muted-foreground truncate leading-none">
-                {currentWorker?.role}
+                {mounted ? currentWorker?.role : '...'}
               </span>
             </div>
             <div className="ml-auto group-data-[collapsible=icon]:hidden">
@@ -133,7 +134,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  // Use 'use' to handle the async params in Next.js 15
   use(params);
 
   return (

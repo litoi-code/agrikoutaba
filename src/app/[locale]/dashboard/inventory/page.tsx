@@ -55,7 +55,6 @@ export default function InventoryPage() {
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  // Removed user dependency from queries
   const itemsQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'items') : null, [firestore]);
   const { data: items, isLoading: itemsLoading } = useCollection<Item>(itemsQuery);
 
@@ -102,24 +101,25 @@ export default function InventoryPage() {
 
   return (
     <>
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl font-headline font-bold">{t('title')}</h1>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
+              className="pl-10 w-full"
             />
           </div>
           {!isLoading && canEdit && (
             <AddItemDialog suppliers={allSuppliers}>
-              <Button>
+              <Button size="sm">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                {t('addNew')}
+                <span className="hidden sm:inline">{t('addNew')}</span>
+                <span className="sm:hidden">{t('addNew').split(' ')[0]}</span>
               </Button>
             </AddItemDialog>
           )}
@@ -127,17 +127,17 @@ export default function InventoryPage() {
       </div>
       
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-0 sm:pt-6">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t('nameColumn')}</TableHead>
-                <TableHead>{t('categoryColumn')}</TableHead>
-                <TableHead className="hidden sm:table-cell">{t('supplierColumn')}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('categoryColumn')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t('supplierColumn')}</TableHead>
                 <TableHead className="text-right">{t('stockColumn')}</TableHead>
                 <TableHead className="text-right">{t('statusColumn')}</TableHead>
-                <TableHead className="text-right">{t('priceColumn')}</TableHead>
-                <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
+                <TableHead className="hidden sm:table-cell text-right">{t('priceColumn')}</TableHead>
+                <TableHead className="w-[80px] text-right">{t('actionsColumn')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -145,33 +145,33 @@ export default function InventoryPage() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
+                    <TableCell className="hidden sm:table-cell text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : (
                 filteredItems?.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium max-w-[120px] truncate">{item.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge variant="outline" className="font-normal">
                         {getCategoryLabel(item.category)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">{suppliersMap.get(item.supplierId) ?? 'Unknown'}</TableCell>
+                    <TableCell className="hidden lg:table-cell text-muted-foreground">{suppliersMap.get(item.supplierId) ?? 'Unknown'}</TableCell>
                     <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
                     <TableCell className="text-right">
                       {item.stockLevel <= item.reorderLevel ? (
-                        <Badge variant="destructive">{t('statusLowStock')}</Badge>
+                        <Badge variant="destructive" className="text-[10px] px-1">{t('statusLowStock')}</Badge>
                       ) : (
-                        <Badge variant="secondary">{t('statusInStock')}</Badge>
+                        <Badge variant="secondary" className="text-[10px] px-1">{t('statusInStock')}</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right font-mono">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-right font-mono text-xs">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
                     <TableCell className="text-right">
                       {!isLoading && canEdit && (
                         <DropdownMenu>

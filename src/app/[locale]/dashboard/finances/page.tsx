@@ -59,7 +59,7 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
   const firestore = useFirestore();
 
   useEffect(() => {
-    setFormattedDate(format(new Date(transaction.date), 'PPP'));
+    setFormattedDate(format(new Date(transaction.date), 'MMM d, yyyy'));
   }, [transaction.date]);
 
   const handleDelete = () => {
@@ -80,9 +80,9 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
   return (
     <>
       <TableRow>
-        <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
-        <TableCell className="font-medium">{transaction.description}</TableCell>
-        <TableCell className="text-right font-mono">
+        <TableCell className="text-xs whitespace-nowrap">{formattedDate ? formattedDate : <Skeleton className="h-4 w-16" />}</TableCell>
+        <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">{transaction.description}</TableCell>
+        <TableCell className="text-right font-mono text-xs">
           {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
         </TableCell>
         <TableCell className="text-right">
@@ -139,19 +139,19 @@ const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, custome
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('dateColumn')}</TableHead>
+            <TableHead className="w-[100px]">{t('dateColumn')}</TableHead>
             <TableHead>{t('descriptionColumn')}</TableHead>
             <TableHead className="text-right">{t('amountColumn')}</TableHead>
-            <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
+            <TableHead className="w-[80px] text-right">{t('actionsColumn')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             Array.from({length: 5}).map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
               </TableRow>
             ))
@@ -177,7 +177,6 @@ export default function FinancesPage() {
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  // Removed user dependency from queries
   const incomeQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'incomes') : null, [firestore]);
   const { data: income, isLoading: incomeLoading } = useCollection<Income>(incomeQuery);
 
@@ -228,11 +227,11 @@ export default function FinancesPage() {
   const totalExpenses = useMemo(() => filteredExpenses?.reduce((sum, t) => sum + t.amount, 0) ?? 0, [filteredExpenses]);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
-        <div className="flex flex-col sm:flex-row items-center gap-2">
-            <div className="relative w-full sm:w-auto">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl font-headline font-bold">{t('title')}</h1>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder={t('searchPlaceholder')}
@@ -244,7 +243,7 @@ export default function FinancesPage() {
             <DatePickerWithRange date={dateRange} setDate={setDateRange} className="w-full sm:w-auto" />
             {!isLoading && canEdit && (
             <TransactionFormDialog customers={customers ?? []} suppliers={suppliers ?? []}>
-                <Button className="w-full sm:w-auto">
+                <Button size="sm">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     {t('addNew')}
                 </Button>
@@ -253,23 +252,23 @@ export default function FinancesPage() {
         </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('totalIncome')}</CardTitle>
-            <ArrowUpCircle className="h-4 w-4 text-green-500" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-xs font-medium">{t('totalIncome')}</CardTitle>
+            <ArrowUpCircle className="h-3 w-3 text-green-500" />
           </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalIncome.toLocaleString('en-US')} {tGlobal('currency')}</div>}
+          <CardContent className="px-4 pb-4">
+            {isLoading ? <Skeleton className="h-6 w-20" /> : <div className="text-lg font-bold truncate">{totalIncome.toLocaleString('en-US')} {tGlobal('currency')}</div>}
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('totalExpenses')}</CardTitle>
-            <ArrowDownCircle className="h-4 w-4 text-red-500" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-xs font-medium">{t('totalExpenses')}</CardTitle>
+            <ArrowDownCircle className="h-3 w-3 text-red-500" />
           </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-32" /> : <div className="text-2xl font-bold">{totalExpenses.toLocaleString('en-US')} {tGlobal('currency')}</div>}
+          <CardContent className="px-4 pb-4">
+            {isLoading ? <Skeleton className="h-6 w-20" /> : <div className="text-lg font-bold truncate">{totalExpenses.toLocaleString('en-US')} {tGlobal('currency')}</div>}
           </CardContent>
         </Card>
       </div>
