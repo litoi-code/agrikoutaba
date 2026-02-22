@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import {
   AreaChart,
   ClipboardList,
@@ -39,10 +39,10 @@ function DashboardLayoutInner({
   const t = useTranslations("Sidebar");
   const tGlobal = useTranslations("Global");
   const { currentWorker } = useCurrentUserRole();
-  const [hasMounted, setHasMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setHasMounted(true);
+    setMounted(true);
   }, []);
 
   const navItems = [
@@ -56,14 +56,6 @@ function DashboardLayoutInner({
   ];
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
-
-  if (!hasMounted) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-         <Leaf className="h-10 w-10 text-primary animate-pulse" />
-      </div>
-    );
-  }
 
   return (
     <SidebarProvider>
@@ -121,7 +113,11 @@ function DashboardLayoutInner({
           </div>
         </header>
         <main className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
-          {children}
+          {!mounted ? (
+             <div className="flex h-full w-full items-center justify-center py-20">
+                <Leaf className="h-10 w-10 text-primary animate-pulse" />
+             </div>
+          ) : children}
         </main>
       </SidebarInset>
     </SidebarProvider>
@@ -130,9 +126,14 @@ function DashboardLayoutInner({
 
 export default function DashboardLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  // Use 'use' to handle the async params in Next.js 15
+  use(params);
+
   return (
     <FirebaseClientProvider>
       <DashboardLayoutInner>
