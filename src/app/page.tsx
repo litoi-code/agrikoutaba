@@ -1,6 +1,7 @@
-// This page is no longer used directly.
-// The user is redirected to /en or /fr by the middleware.
-// The content is now in src/app/[locale]/page.tsx.
+
+import { redirect } from 'next/navigation';
+
 export default function Home() {
-  return null;
+  // Middleware handles the locale, so we just redirect to the default dashboard
+  redirect('/en/dashboard');
 }
