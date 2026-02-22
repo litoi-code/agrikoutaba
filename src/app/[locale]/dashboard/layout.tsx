@@ -57,8 +57,10 @@ function DashboardLayoutInner({
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
+  // To prevent hydration errors, we must return the EXACT SAME structure on server and client.
+  // We keep the SidebarProvider/Sidebar shell stable and only defer children or show a spinner INSIDE the main content.
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
           <Link href="/dashboard" className="flex items-center gap-2 px-2">
