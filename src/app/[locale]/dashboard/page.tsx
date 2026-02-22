@@ -1,4 +1,3 @@
-
 "use client"
 import { useMemo, useState, useEffect } from 'react';
 import { collection } from 'firebase/firestore';
@@ -80,6 +79,11 @@ export default function DashboardPage() {
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedYear, setSelectedYear] = useState<string>("current");
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   // Fetching data
   const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
@@ -102,13 +106,14 @@ export default function DashboardPage() {
 
   // Available years for the dropdown
   const availableYears = useMemo(() => {
+    if (!hasMounted) return [];
     const years = new Set<number>();
     income?.forEach(i => years.add(new Date(i.date).getFullYear()));
     expenses?.forEach(e => years.add(new Date(e.date).getFullYear()));
     const currentYear = new Date().getFullYear();
     years.add(currentYear);
     return Array.from(years).sort((a, b) => b - a);
-  }, [income, expenses]);
+  }, [income, expenses, hasMounted]);
 
   // Memoized calculations
   const totalContacts = useMemo(() => (customers?.length ?? 0) + (suppliers?.length ?? 0), [customers, suppliers]);
@@ -124,7 +129,7 @@ export default function DashboardPage() {
     const monthsLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const data: FinancialData[] = monthsLabels.map(m => ({ month: m, Income: 0, Expenses: 0 }));
 
-    if (!income || !expenses) return data.slice(0, 7);
+    if (!hasMounted || !income || !expenses) return data.slice(0, 7);
 
     // Determine the effective date filter
     let start: Date | undefined;
@@ -135,8 +140,9 @@ export default function DashboardPage() {
       start = startOfYear(new Date(year, 0, 1));
       end = endOfYear(new Date(year, 0, 1));
     } else if (selectedYear === "current") {
-      start = startOfYear(new Date());
-      end = endOfYear(new Date());
+      const now = new Date();
+      start = startOfYear(now);
+      end = endOfYear(now);
     } else if (dateRange?.from) {
       start = startOfDay(dateRange.from);
       end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
@@ -182,14 +188,14 @@ export default function DashboardPage() {
         
         return hasData;
     });
-  }, [income, expenses, dateRange, selectedYear]);
+  }, [income, expenses, dateRange, selectedYear, hasMounted]);
 
   const workersMap = useMemo(() => {
     if (!workers) return new Map<string, WithId<Worker>>();
     return new Map(workers.map(w => [w.id, w]));
   }, [workers]);
 
-  const isLoading = customersLoading || suppliersLoading || tasksLoading || incomeLoading || expensesLoading || workersLoading;
+  const isLoading = !hasMounted || customersLoading || suppliersLoading || tasksLoading || incomeLoading || expensesLoading || workersLoading;
 
   chartConfig.Income.label = t('income');
   chartConfig.Expenses.label = t('expenses');
@@ -205,7 +211,7 @@ export default function DashboardPage() {
             <UsersRound className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {customersLoading || suppliersLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{totalContacts}</div>}
+            {isLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{totalContacts}</div>}
             <p className="text-xs text-muted-foreground mt-1">{t('totalContactsDescription')}</p>
           </CardContent>
         </Card>
@@ -215,7 +221,7 @@ export default function DashboardPage() {
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {tasksLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{pendingTasks}</div>}
+            {isLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{pendingTasks}</div>}
             <p className="text-xs text-muted-foreground mt-1">{t('pendingTasksDescription')}</p>
           </CardContent>
         </Card>
@@ -225,7 +231,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {incomeLoading || expensesLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{netIncome.toLocaleString()} {tGlobal('currency')}</div>}
+            {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{netIncome.toLocaleString()} {tGlobal('currency')}</div>}
             <p className="text-xs text-muted-foreground mt-1">{t('netIncomeDescription')}</p>
           </CardContent>
         </Card>
@@ -244,10 +250,14 @@ export default function DashboardPage() {
                   <SelectValue placeholder={t('selectYear')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="current">{new Date().getFullYear()}</SelectItem>
-                  {availableYears.filter(y => y !== new Date().getFullYear()).map(year => (
-                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                  ))}
+                  {hasMounted && (
+                    <>
+                      <SelectItem value="current">{new Date().getFullYear()}</SelectItem>
+                      {availableYears.filter(y => y !== new Date().getFullYear()).map(year => (
+                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                      ))}
+                    </>
+                  )}
                   <SelectItem value="all">{t('allTime')}</SelectItem>
                 </SelectContent>
               </Select>
@@ -290,7 +300,7 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tasksLoading || workersLoading ? (
+                {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
