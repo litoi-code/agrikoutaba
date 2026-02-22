@@ -55,20 +55,20 @@ const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: s
   const [formattedDate, setFormattedDate] = useState('');
   useEffect(() => {
     if (task.dueDate) {
-      setFormattedDate(format(new Date(task.dueDate), 'PPP'));
+      setFormattedDate(format(new Date(task.dueDate), 'MMM d, yyyy'));
     }
   }, [task.dueDate]);
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{task.title || task.description}</TableCell>
+      <TableCell className="font-medium max-w-[120px] md:max-w-none truncate">{task.title || task.description}</TableCell>
       <TableCell>
-        <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white" : ""}>
+        <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white text-[10px] px-1.5" : "text-[10px] px-1.5"}>
           {task.status}
         </Badge>
       </TableCell>
-      <TableCell>{workerName}</TableCell>
-      <TableCell>{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
+      <TableCell className="hidden sm:table-cell">{workerName}</TableCell>
+      <TableCell className="hidden md:table-cell">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
     </TableRow>
   );
 };
@@ -81,7 +81,7 @@ export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedYear, setSelectedYear] = useState<string>("current");
 
-  // Fetching data - removed user dependency as auth is disabled
+  // Fetching data
   const customersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'customers') : null, [firestore]);
   const { data: customers, isLoading: customersLoading } = useCollection<Customer>(customersQuery);
 
@@ -115,9 +115,9 @@ export default function DashboardPage() {
   const pendingTasks = useMemo(() => tasks?.filter(task => task.status !== "Completed").length ?? 0, [tasks]);
   
   const netIncome = useMemo(() => {
-    const totalIncome = income?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
-    const totalExpenses = expenses?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
-    return totalIncome - totalExpenses;
+    const totalIncomeValue = income?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
+    const totalExpensesValue = expenses?.reduce((acc, item) => acc + item.amount, 0) ?? 0;
+    return totalIncomeValue - totalExpensesValue;
   }, [income, expenses]);
 
   const financialChartData = useMemo<FinancialData[]>(() => {
@@ -142,23 +142,23 @@ export default function DashboardPage() {
       end = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
     }
 
-    const filteredIncome = income.filter(i => {
+    const filteredIncomeItems = income.filter(i => {
       if (!start || !end) return true;
       const d = new Date(i.date);
       return d >= start && d <= end;
     });
 
-    const filteredExpenses = expenses.filter(e => {
+    const filteredExpensesItems = expenses.filter(e => {
       if (!start || !end) return true;
       const d = new Date(e.date);
       return d >= start && d <= end;
     });
 
-    filteredIncome.forEach(i => {
+    filteredIncomeItems.forEach(i => {
       const monthIndex = new Date(i.date).getMonth();
       data[monthIndex].Income += i.amount;
     });
-    filteredExpenses.forEach(e => {
+    filteredExpensesItems.forEach(e => {
       const monthIndex = new Date(e.date).getMonth();
       data[monthIndex].Expenses += e.amount;
     });
@@ -195,52 +195,52 @@ export default function DashboardPage() {
   chartConfig.Expenses.label = t('expenses');
 
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="text-3xl font-headline font-bold">{t('title')}</h1>
+    <div className="flex flex-col gap-6 md:gap-8">
+      <h1 className="text-2xl md:text-3xl font-headline font-bold">{t('title')}</h1>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('totalContacts')}</CardTitle>
             <UsersRound className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {customersLoading || suppliersLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{totalContacts}</div>}
-            <p className="text-xs text-muted-foreground">{t('totalContactsDescription')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('totalContactsDescription')}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('pendingTasks')}</CardTitle>
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {tasksLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{pendingTasks}</div>}
-            <p className="text-xs text-muted-foreground">{t('pendingTasksDescription')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('pendingTasksDescription')}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('netIncome')}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {incomeLoading || expensesLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{netIncome.toLocaleString()} {tGlobal('currency')}</div>}
-            <p className="text-xs text-muted-foreground">{t('netIncomeDescription')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('netIncomeDescription')}</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 md:gap-8 lg:grid-cols-2">
         <Card className="col-span-1 lg:col-span-2">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <CardTitle>{t('financialOverview')}</CardTitle>
-                <CardDescription>{t('financialOverviewDescription')}</CardDescription>
+            <div className="space-y-1">
+                <CardTitle className="text-xl">{t('financialOverview')}</CardTitle>
+                <CardDescription className="text-sm">{t('financialOverviewDescription')}</CardDescription>
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectTrigger className="w-full sm:w-[130px]">
                   <SelectValue placeholder={t('selectYear')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -259,15 +259,15 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                 <BarChart data={financialChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
-                    <CartesianGrid vertical={false} />
+                 <BarChart data={financialChartData} margin={{ top: 20, right: 10, bottom: 0, left: -10 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
                     <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                    <YAxis tickFormatter={(value) => `${value/1000}k ${tGlobal('currency')}`} />
+                    <YAxis tickFormatter={(value) => `${value/1000}k`} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="Income" fill="var(--color-Income)" radius={4} />
-                    <Bar dataKey="Expenses" fill="var(--color-Expenses)" radius={4} />
+                    <Bar dataKey="Income" fill="var(--color-Income)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Expenses" fill="var(--color-Expenses)" radius={[4, 4, 0, 0]} />
                   </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -275,18 +275,18 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="col-span-1 lg:col-span-2">
+        <Card className="col-span-1 lg:col-span-2 overflow-hidden">
           <CardHeader>
-            <CardTitle>{t('recentTasks')}</CardTitle>
+            <CardTitle className="text-xl">{t('recentTasks')}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-muted/50 sm:bg-transparent">
                 <TableRow>
-                  <TableHead>{t('taskColumn')}</TableHead>
+                  <TableHead className="pl-4 sm:pl-0">{t('taskColumn')}</TableHead>
                   <TableHead>{t('statusColumn')}</TableHead>
-                  <TableHead>{t('assigneeColumn')}</TableHead>
-                  <TableHead>{t('dueDateColumn')}</TableHead>
+                  <TableHead className="hidden sm:table-cell">{t('assigneeColumn')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('dueDateColumn')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -294,17 +294,17 @@ export default function DashboardPage() {
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-4 w-1/2" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                     </TableRow>
                   ))
                 ) : (
                   tasks?.slice(0, 5).map((task) => {
                     const assignedWorkers = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
-                    const workerName = assignedWorkers.length > 0 ? assignedWorkers.map(w => `${w.firstName} ${w.lastName}`).join(', ') : 'Unassigned';
+                    const workerNameDisplay = assignedWorkers.length > 0 ? assignedWorkers.map(w => `${w.firstName} ${w.lastName}`).join(', ') : 'Unassigned';
                     return (
-                      <RecentTaskRow key={task.id} task={task} workerName={workerName} />
+                      <RecentTaskRow key={task.id} task={task} workerName={workerNameDisplay} />
                     );
                   })
                 )}

@@ -13,7 +13,6 @@ import {
   UsersRound,
   Users,
   Boxes,
-  Menu,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -27,7 +26,6 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FirebaseClientProvider } from "@/firebase";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -82,7 +80,7 @@ function DashboardLayoutInner({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton asChild tooltip={item.label}>
+                <SidebarMenuButton asChild tooltip={item.label} className="h-11">
                   <Link href={item.href}>
                     {item.icon}
                     <span>{item.label}</span>
@@ -93,7 +91,7 @@ function DashboardLayoutInner({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-3 p-2">
+          <div className="flex items-center gap-3 p-3">
             <Avatar className="h-8 w-8 shrink-0">
               {currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
               <AvatarFallback>{userInitial}</AvatarFallback>
@@ -113,10 +111,10 @@ function DashboardLayoutInner({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 shadow-sm">
           <SidebarTrigger className="-ml-1" />
           <div className="flex-1">
-             <h1 className="text-lg font-semibold md:hidden">{tGlobal("appName")}</h1>
+             <h1 className="text-lg font-semibold md:hidden truncate">{tGlobal("appName")}</h1>
           </div>
           <div className="flex items-center gap-2 md:hidden">
              <LanguageSwitcher />
