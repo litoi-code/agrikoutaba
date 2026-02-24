@@ -98,6 +98,8 @@ function DashboardLayoutInner({
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
+  // Render the structural shell consistently to prevent hydration mismatches.
+  // We only defer the dynamic data-dependent parts like badges and user initials.
   return (
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
@@ -134,18 +136,18 @@ function DashboardLayoutInner({
           <div className="flex items-center gap-3 p-3">
             <Avatar className="h-8 w-8 shrink-0">
               {mounted && currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
-              <AvatarFallback>{mounted ? userInitial : '...'}</AvatarFallback>
+              <AvatarFallback>{mounted ? userInitial : ''}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
               <span className="text-sm font-semibold truncate leading-none mb-1">
-                {mounted ? `${currentWorker?.firstName} ${currentWorker?.lastName}` : 'Loading...'}
+                {mounted ? `${currentWorker?.firstName} ${currentWorker?.lastName}` : '...'}
               </span>
               <span className="text-xs text-muted-foreground truncate leading-none">
                 {mounted ? currentWorker?.role : '...'}
               </span>
             </div>
             <div className="ml-auto group-data-[collapsible=icon]:hidden">
-               <LanguageSwitcher />
+               {mounted && <LanguageSwitcher />}
             </div>
           </div>
         </SidebarFooter>
@@ -157,7 +159,7 @@ function DashboardLayoutInner({
              <h1 className="text-lg font-semibold md:hidden truncate">{tGlobal("appName")}</h1>
           </div>
           <div className="flex items-center gap-2 md:hidden">
-             <LanguageSwitcher />
+             {mounted && <LanguageSwitcher />}
           </div>
         </header>
         <main className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">

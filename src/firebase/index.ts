@@ -3,44 +3,48 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
 
 /**
- * Initializes the Firebase App and services.
- * Uses existing instances if already initialized to prevent errors during hot reloads.
+ * Singleton-style references to ensure we don't re-initialize 
+ * SDKs unnecessarily during hot reloads.
  */
-export function initializeFirebase() {
-  const firebaseApp = getApps().length === 0 
-    ? initializeApp(firebaseConfig) 
-    : getApp();
-    
-  return getSdks(firebaseApp);
-}
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let db: Firestore | undefined;
 
 /**
- * Retrieves or initializes Firebase services (Auth, Firestore).
- * @param firebaseApp The initialized FirebaseApp instance.
+ * Initializes the Firebase App and services.
+ * Enforces long-polling for maximum compatibility in all network environments.
  */
-export function getSdks(firebaseApp: FirebaseApp) {
-  let firestore: Firestore;
-  
-  try {
-    // Attempt to get the existing Firestore instance
-    firestore = getFirestore(firebaseApp);
-  } catch (e) {
-    // If Firestore hasn't been initialized yet, initialize it with custom settings.
-    // Forcing long-polling is a robust way to deal with environments that
-    // might block the default gRPC-web connection (like some cloud IDEs).
-    firestore = initializeFirestore(firebaseApp, {
-      experimentalForceLongPolling: true,
-    });
+export function initializeFirebase() {
+  if (!app) {
+    app = getApps().length === 0 
+      ? initializeApp(firebaseConfig) 
+      : getApp();
+  }
+    
+  if (!auth) {
+    auth = getAuth(app);
+  }
+
+  if (!db) {
+    try {
+      // Force long polling to avoid gRPC/connection issues in restricted environments.
+      db = initializeFirestore(app, {
+        experimentalForceLongPolling: true,
+      });
+    } catch (e) {
+      // Fallback if already initialized
+      db = getFirestore(app);
+    }
   }
 
   return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore,
+    firebaseApp: app,
+    auth,
+    firestore: db,
   };
 }
 
