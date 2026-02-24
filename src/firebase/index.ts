@@ -1,33 +1,46 @@
+
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { initializeFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
 
+/**
+ * Initializes the Firebase App and services.
+ * Uses existing instances if already initialized to prevent errors during hot reloads.
+ */
 export function initializeFirebase() {
-  // If an app is already initialized, return the existing SDKs.
-  if (getApps().length) {
-    return getSdks(getApp());
-  }
-
-  // Otherwise, initialize a new app using the explicit configuration.
-  const firebaseApp = initializeApp(firebaseConfig);
+  const firebaseApp = getApps().length === 0 
+    ? initializeApp(firebaseConfig) 
+    : getApp();
+    
   return getSdks(firebaseApp);
 }
 
+/**
+ * Retrieves or initializes Firebase services (Auth, Firestore).
+ * @param firebaseApp The initialized FirebaseApp instance.
+ */
 export function getSdks(firebaseApp: FirebaseApp) {
-  // Explicitly initialize Firestore with settings to improve network compatibility.
-  // Forcing long-polling is a robust way to deal with environments that
-  // might block the default gRPC-web connection.
-  const firestore = initializeFirestore(firebaseApp, {
-    experimentalForceLongPolling: true,
-  });
+  let firestore: Firestore;
+  
+  try {
+    // Attempt to get the existing Firestore instance
+    firestore = getFirestore(firebaseApp);
+  } catch (e) {
+    // If Firestore hasn't been initialized yet, initialize it with custom settings.
+    // Forcing long-polling is a robust way to deal with environments that
+    // might block the default gRPC-web connection (like some cloud IDEs).
+    firestore = initializeFirestore(firebaseApp, {
+      experimentalForceLongPolling: true,
+    });
+  }
 
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: firestore,
+    firestore,
   };
 }
 
