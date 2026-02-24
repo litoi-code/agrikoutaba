@@ -98,8 +98,6 @@ function DashboardLayoutInner({
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
-  // Render the structural shell consistently to prevent hydration mismatches.
-  // We only defer the dynamic data-dependent parts like badges and user initials.
   return (
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
@@ -122,7 +120,7 @@ function DashboardLayoutInner({
                         <span>{item.label}</span>
                     </div>
                     {mounted && item.count !== undefined && item.count > 0 && (
-                        <Badge variant="accent" className="h-5 min-w-5 flex items-center justify-center rounded-full p-0 text-[10px] group-data-[collapsible=icon]:hidden">
+                        <Badge variant="default" className="h-5 min-w-5 flex items-center justify-center rounded-full p-0 text-[10px] group-data-[collapsible=icon]:hidden">
                             {item.count}
                         </Badge>
                     )}
@@ -181,7 +179,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  use(params);
+  const { locale } = use(params);
 
   return (
     <FirebaseClientProvider>
