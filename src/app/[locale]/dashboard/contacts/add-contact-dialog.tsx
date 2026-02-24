@@ -125,7 +125,10 @@ export function AddContactDialog({
       });
     } else {
       const customersRef = collection(firestore, "customers");
-      addDocumentNonBlocking(customersRef, values);
+      addDocumentNonBlocking(customersRef, {
+        ...values,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: t("toastCustomerTitle"),
         description: t("toastCustomerDescription", {
@@ -150,7 +153,10 @@ export function AddContactDialog({
       });
     } else {
       const suppliersRef = collection(firestore, "suppliers");
-      addDocumentNonBlocking(suppliersRef, values);
+      addDocumentNonBlocking(suppliersRef, {
+        ...values,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: t("toastSupplierTitle"),
         description: t("toastSupplierDescription", {

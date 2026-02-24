@@ -143,6 +143,7 @@ export function TransactionFormDialog({
           addDocumentNonBlocking(customersRef, {
             firstName,
             lastName,
+            createdAt: new Date().toISOString(),
           });
         }
       }
@@ -158,7 +159,10 @@ export function TransactionFormDialog({
         });
     } else {
         const incomesRef = collection(firestore, "incomes");
-        addDocumentNonBlocking(incomesRef, data);
+        addDocumentNonBlocking(incomesRef, {
+            ...data,
+            createdAt: new Date().toISOString(),
+        });
         toast({
             title: t("toastIncomeTitle"),
             description: t("toastIncomeDescription", { amount: values.amount }),
@@ -180,6 +184,7 @@ export function TransactionFormDialog({
             const suppliersRef = collection(firestore, "suppliers");
             addDocumentNonBlocking(suppliersRef, {
                 companyName: supplierName,
+                createdAt: new Date().toISOString(),
             });
         }
     }
@@ -195,7 +200,10 @@ export function TransactionFormDialog({
         });
     } else {
         const expensesRef = collection(firestore, "expenses");
-        addDocumentNonBlocking(expensesRef, data);
+        addDocumentNonBlocking(expensesRef, {
+            ...data,
+            createdAt: new Date().toISOString(),
+        });
         toast({
             title: t("toastExpenseTitle"),
             description: t("toastExpenseDescription", { amount: values.amount }),

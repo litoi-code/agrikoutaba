@@ -133,7 +133,10 @@ export function TaskFormDialog({
       });
     } else {
       const tasksRef = collection(firestore, "tasks");
-      addDocumentNonBlocking(tasksRef, taskData);
+      addDocumentNonBlocking(tasksRef, {
+        ...taskData,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: t("toastTitle"),
         description: t("toastDescription", { title: values.title }),

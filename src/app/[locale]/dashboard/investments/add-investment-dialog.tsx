@@ -115,7 +115,10 @@ export function InvestmentFormDialog({
       });
     } else {
       const investmentsRef = collection(firestore, "investments");
-      addDocumentNonBlocking(investmentsRef, data);
+      addDocumentNonBlocking(investmentsRef, {
+        ...data,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: t("toastTitle"),
         description: t("toastDescription", {

@@ -27,13 +27,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { cn, isNew } from '@/lib/utils';
 
 const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
@@ -41,6 +43,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
   const firestore = useFirestore();
   const { toast } = useToast();
   const tForm = useTranslations("TasksPage.TaskFormDialog");
+  const isRecentlyAdded = isNew(task.createdAt);
 
   useEffect(() => {
     if (task.dueDate) {
@@ -61,10 +64,18 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
 
   return (
     <>
-      <Card className="flex flex-col">
+      <Card className={cn("flex flex-col relative", isRecentlyAdded && "border-accent/50 bg-accent/5")}>
+        {isRecentlyAdded && (
+          <div className="absolute -top-2 -right-2">
+            <Badge variant="accent" className="text-[8px] uppercase px-1">New</Badge>
+          </div>
+        )}
         <CardContent className="p-4 flex-col flex h-full">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold pr-2">{task.title}</h3>
+            <h3 className="font-semibold pr-2 flex items-center gap-2">
+              {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent" />}
+              {task.title}
+            </h3>
             {canEdit && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -163,7 +174,6 @@ export default function TasksPage() {
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  // Removed user dependency from queries
   const tasksQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'tasks') : null, [firestore]);
   const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
 

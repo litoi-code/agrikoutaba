@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
 import {
   AreaChart,
   ClipboardList,
@@ -27,9 +27,13 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FirebaseClientProvider } from "@/firebase";
+import { Badge } from "@/components/ui/badge";
+import { FirebaseClientProvider, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
+import { isNew } from "@/lib/utils";
+import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
 
 function DashboardLayoutInner({
   children,
@@ -39,27 +43,61 @@ function DashboardLayoutInner({
   const t = useTranslations("Sidebar");
   const tGlobal = useTranslations("Global");
   const { currentWorker } = useCurrentUserRole();
+  const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Data fetching for notification badges
+  const itemsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'items') : null, [firestore]);
+  const { data: items } = useCollection<Item>(itemsQuery);
+
+  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const { data: customers } = useCollection<Customer>(customersQuery);
+
+  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
+
+  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks } = useCollection<Task>(tasksQuery);
+
+  const incomesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const { data: incomes } = useCollection<Income>(incomesQuery);
+
+  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const { data: expenses } = useCollection<Expense>(expensesQuery);
+
+  const investmentsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'investments') : null, [firestore]);
+  const { data: investments } = useCollection<Investment>(investmentsQuery);
+
+  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const { data: workers } = useCollection<Worker>(workersQuery);
+
+  const newCounts = useMemo(() => {
+    return {
+      inventory: (items || []).filter(i => isNew(i.createdAt)).length,
+      contacts: (customers || []).filter(c => isNew(c.createdAt)).length + (suppliers || []).filter(s => isNew(s.createdAt)).length,
+      tasks: (tasks || []).filter(t => isNew(t.createdAt)).length,
+      finances: (incomes || []).filter(i => isNew(i.createdAt)).length + (expenses || []).filter(e => isNew(e.createdAt)).length,
+      investments: (investments || []).filter(i => isNew(i.createdAt)).length,
+      workers: (workers || []).filter(w => isNew(w.createdAt)).length,
+    };
+  }, [items, customers, suppliers, tasks, incomes, expenses, investments, workers]);
+
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: t("dashboard") },
-    { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory") },
-    { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts") },
-    { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks") },
-    { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers") },
-    { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances") },
-    { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments") },
+    { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory"), count: newCounts.inventory },
+    { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts"), count: newCounts.contacts },
+    { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks"), count: newCounts.tasks },
+    { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers"), count: newCounts.workers },
+    { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: newCounts.finances },
+    { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: newCounts.investments },
   ];
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
 
-  // Standardizing the structural shell to prevent hydration mismatches.
-  // The SidebarProvider and Sidebar structure are ALWAYS rendered.
-  // Dynamic user data and main content are handled carefully.
   return (
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
@@ -76,9 +114,16 @@ function DashboardLayoutInner({
             {navItems.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton asChild tooltip={item.label} className="h-11">
-                  <Link href={item.href}>
-                    {item.icon}
-                    <span>{item.label}</span>
+                  <Link href={item.href} className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                        {item.icon}
+                        <span>{item.label}</span>
+                    </div>
+                    {mounted && item.count !== undefined && item.count > 0 && (
+                        <Badge variant="accent" className="h-5 min-w-5 flex items-center justify-center rounded-full p-0 text-[10px] group-data-[collapsible=icon]:hidden">
+                            {item.count}
+                        </Badge>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

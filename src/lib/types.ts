@@ -6,6 +6,7 @@ export interface Customer {
   contactNumber: string;
   address: string;
   transactionIds?: string[];
+  createdAt?: string;
 }
 
 export interface Supplier {
@@ -15,6 +16,7 @@ export interface Supplier {
   contactNumber: string;
   address: string;
   itemIds?: string[];
+  createdAt?: string;
 }
 
 export interface Item {
@@ -26,6 +28,7 @@ export interface Item {
   stockLevel: number;
   reorderLevel: number;
   supplierId: string;
+  createdAt?: string;
 }
 
 export interface Income {
@@ -34,6 +37,7 @@ export interface Income {
   description: string;
   amount: number;
   customerName: string;
+  createdAt?: string;
 }
 
 export interface Expense {
@@ -42,6 +46,7 @@ export interface Expense {
   description: string;
   amount: number;
   supplierName: string;
+  createdAt?: string;
 }
 
 export interface Task {
@@ -51,6 +56,7 @@ export interface Task {
   status: 'To Do' | 'In Progress' | 'Completed';
   workerIds: string[];
   title: string;
+  createdAt?: string;
 }
 
 export interface Worker {
@@ -62,6 +68,7 @@ export interface Worker {
   role: 'Admin' | 'Manager' | 'Worker';
   contactNumber: string;
   taskIds?: string[];
+  createdAt?: string;
 }
 
 export interface Investment {
@@ -71,6 +78,7 @@ export interface Investment {
   description: string;
   amount: number;
   equityDetails: string;
+  createdAt?: string;
 }
 
 

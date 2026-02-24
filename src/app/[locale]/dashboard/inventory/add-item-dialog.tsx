@@ -125,7 +125,10 @@ export function AddItemDialog({
       });
     } else {
       const itemsRef = collection(firestore, "items");
-      addDocumentNonBlocking(itemsRef, values);
+      addDocumentNonBlocking(itemsRef, {
+        ...values,
+        createdAt: new Date().toISOString(),
+      });
       toast({
         title: t("toastTitle"),
         description: t("toastDescription", { name: values.name }),
