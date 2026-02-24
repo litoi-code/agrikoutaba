@@ -46,7 +46,7 @@ import type { Supplier, Item } from "@/lib/types";
 
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional().or(z.string()),
   category: z.enum(["Input", "Produce", "Equipment"]),
   unitPrice: z.coerce.number().positive("Price must be a positive number"),
   stockLevel: z.coerce.number().min(0, "Stock can't be negative"),

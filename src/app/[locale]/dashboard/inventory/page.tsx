@@ -61,17 +61,12 @@ export default function InventoryPage() {
   const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
-  const suppliersMap = useMemo(() => {
-    if (!suppliers) return new Map<string, string>();
-    return new Map(suppliers.map(s => [s.id, s.companyName]));
-  }, [suppliers]);
-
   const filteredItems = useMemo(() => {
     if (!items) return [];
     return items.filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [items, searchTerm]);
 
@@ -134,7 +129,7 @@ export default function InventoryPage() {
               <TableRow>
                 <TableHead>{t('nameColumn')}</TableHead>
                 <TableHead className="hidden lg:table-cell">{t('categoryColumn')}</TableHead>
-                <TableHead className="hidden xl:table-cell">{t('descriptionLabel') || "Description"}</TableHead>
+                <TableHead className="hidden md:table-cell">{t('descriptionLabel')}</TableHead>
                 <TableHead className="text-right">{t('stockColumn')}</TableHead>
                 <TableHead className="text-right">{t('statusColumn')}</TableHead>
                 <TableHead className="hidden sm:table-cell text-right">{t('priceColumn')}</TableHead>
@@ -147,7 +142,7 @@ export default function InventoryPage() {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
                     <TableCell className="hidden sm:table-cell text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
@@ -163,7 +158,7 @@ export default function InventoryPage() {
                         {getCategoryLabel(item.category)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell max-w-[200px] truncate text-muted-foreground">
+                    <TableCell className="hidden md:table-cell max-w-[200px] truncate text-muted-foreground">
                       {item.description}
                     </TableCell>
                     <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
