@@ -193,6 +193,7 @@ export function AddItemDialog({
                   <FormControl>
                     <Textarea
                       placeholder="e.g. High-yield hybrid corn seeds"
+                      className="min-h-[100px]"
                       {...field}
                     />
                   </FormControl>

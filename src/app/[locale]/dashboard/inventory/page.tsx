@@ -70,7 +70,8 @@ export default function InventoryPage() {
     if (!items) return [];
     return items.filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase())
+      item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [items, searchTerm]);
 
@@ -132,8 +133,8 @@ export default function InventoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t('nameColumn')}</TableHead>
-                <TableHead className="hidden md:table-cell">{t('categoryColumn')}</TableHead>
-                <TableHead className="hidden lg:table-cell">{t('supplierColumn')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t('categoryColumn')}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t('descriptionLabel') || "Description"}</TableHead>
                 <TableHead className="text-right">{t('stockColumn')}</TableHead>
                 <TableHead className="text-right">{t('statusColumn')}</TableHead>
                 <TableHead className="hidden sm:table-cell text-right">{t('priceColumn')}</TableHead>
@@ -145,8 +146,8 @@ export default function InventoryPage() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
+                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
                     <TableCell className="hidden sm:table-cell text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
@@ -157,12 +158,14 @@ export default function InventoryPage() {
                 filteredItems?.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium max-w-[120px] truncate">{item.name}</TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden lg:table-cell">
                       <Badge variant="outline" className="font-normal">
                         {getCategoryLabel(item.category)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell text-muted-foreground">{suppliersMap.get(item.supplierId) ?? 'Unknown'}</TableCell>
+                    <TableCell className="hidden xl:table-cell max-w-[200px] truncate text-muted-foreground">
+                      {item.description}
+                    </TableCell>
                     <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
                     <TableCell className="text-right">
                       {item.stockLevel <= item.reorderLevel ? (
