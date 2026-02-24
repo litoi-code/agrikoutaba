@@ -46,7 +46,7 @@ import type { Supplier, Item } from "@/lib/types";
 
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
-  description: z.string().default("").optional(),
+  description: z.string().default(""),
   category: z.enum(["Input", "Produce", "Equipment"]),
   unitPrice: z.coerce.number().positive("Price must be a positive number"),
   stockLevel: z.coerce.number().min(0, "Stock can't be negative"),
@@ -92,7 +92,7 @@ export function AddItemDialog({
       if (item) {
         form.reset({
           name: item.name || "",
-          description: item.description ?? "",
+          description: item.description || "",
           category: item.category || "Input",
           unitPrice: item.unitPrice || 0,
           stockLevel: item.stockLevel || 0,
@@ -203,7 +203,6 @@ export function AddItemDialog({
                       placeholder="e.g. High-yield hybrid corn seeds"
                       className="min-h-[100px]"
                       {...field}
-                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />

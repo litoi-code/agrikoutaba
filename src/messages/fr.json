@@ -296,7 +296,7 @@
     "categoryColumn": "Catégorie",
     "descriptionLabel": "Description",
     "stockColumn": "En Stock",
-    "statusColumn": "Statut",
+    "statusColumn": "Status",
     "priceColumn": "Valeur Unitaire",
     "reorderColumn": "Seuil de réapprov.",
     "supplierColumn": "Source/Fournisseur",
