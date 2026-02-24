@@ -44,19 +44,22 @@ import {
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PlusCircle, ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionFormDialog } from './add-transaction-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
+import { cn, isNew } from '@/lib/utils';
 
 const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, suppliers, canEdit }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[], canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const isRecentlyAdded = isNew(transaction.createdAt);
 
   useEffect(() => {
     setFormattedDate(format(new Date(transaction.date), 'MMM d, yyyy'));
@@ -79,9 +82,19 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
 
   return (
     <>
-      <TableRow>
-        <TableCell className="text-xs whitespace-nowrap">{formattedDate ? formattedDate : <Skeleton className="h-4 w-16" />}</TableCell>
-        <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">{transaction.description}</TableCell>
+      <TableRow className={cn(isRecentlyAdded && "bg-accent/10")}>
+        <TableCell className="text-xs whitespace-nowrap">
+           <div className="flex items-center gap-1">
+             {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+             {formattedDate ? formattedDate : <Skeleton className="h-4 w-16" />}
+           </div>
+        </TableCell>
+        <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">
+          <div className="flex items-center gap-2">
+            {transaction.description}
+            {isRecentlyAdded && <Badge variant="accent" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+          </div>
+        </TableCell>
         <TableCell className="text-right font-mono text-xs">
           {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
         </TableCell>
@@ -139,7 +152,7 @@ const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, custome
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">{t('dateColumn')}</TableHead>
+            <TableHead className="w-[120px]">{t('dateColumn')}</TableHead>
             <TableHead>{t('descriptionColumn')}</TableHead>
             <TableHead className="text-right">{t('amountColumn')}</TableHead>
             <TableHead className="w-[80px] text-right">{t('actionsColumn')}</TableHead>

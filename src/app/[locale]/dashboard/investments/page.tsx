@@ -38,19 +38,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
+import { cn, isNew } from '@/lib/utils';
 
 const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const isRecentlyAdded = isNew(inv.createdAt);
 
   useEffect(() => {
     setFormattedDate(format(new Date(inv.date), 'PPP'));
@@ -70,15 +73,21 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
 
   return (
     <>
-      <TableRow>
-        <TableCell className="font-medium">{inv.investorName}</TableCell>
+      <TableRow className={cn(isRecentlyAdded && "bg-accent/10")}>
+        <TableCell className="font-medium">
+           <div className="flex items-center gap-2">
+             {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+             {inv.investorName}
+             {isRecentlyAdded && <Badge variant="accent" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+           </div>
+        </TableCell>
         <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>
         <TableCell className="hidden md:table-cell">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
         <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>
         <TableCell>
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
-            <span>{inv.equityDetails}</span>
+            <span className="truncate max-w-[100px] md:max-w-none">{inv.equityDetails}</span>
           </div>
         </TableCell>
         <TableCell className="text-right">
@@ -135,7 +144,6 @@ export default function InvestmentsPage() {
 
   const canEdit = role === 'Admin' || role === 'Manager';
 
-  // Removed user dependency from queries
   const investmentsQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'investments') : null, [firestore]);
   const { data: investments, isLoading: investmentsLoading } = useCollection<Investment>(investmentsQuery);
 
@@ -201,7 +209,7 @@ export default function InvestmentsPage() {
         <CardHeader>
           <CardTitle>{t('investmentRecords')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           <Table>
             <TableHeader>
               <TableRow>
@@ -210,7 +218,7 @@ export default function InvestmentsPage() {
                 <TableHead className="hidden md:table-cell">{t('dateColumn')}</TableHead>
                 <TableHead>{t('amountColumn')}</TableHead>
                 <TableHead>{t('equityDetailsColumn')}</TableHead>
-                <TableHead className="w-[100px] text-right">{t('actionsColumn')}</TableHead>
+                <TableHead className="w-[80px] text-right">{t('actionsColumn')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

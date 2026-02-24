@@ -124,7 +124,7 @@ export default function InventoryPage() {
       </div>
       
       <Card>
-        <CardContent className="p-0 sm:pt-6">
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -154,10 +154,10 @@ export default function InventoryPage() {
                 filteredItems?.map((item) => {
                   const isRecentlyAdded = isNew(item.createdAt);
                   return (
-                    <TableRow key={item.id} className={cn(isRecentlyAdded && "bg-accent/5")}>
+                    <TableRow key={item.id} className={cn(isRecentlyAdded && "bg-accent/10")}>
                       <TableCell className="font-medium max-w-[120px] truncate">
                         <div className="flex items-center gap-2">
-                          {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent" />}
+                          {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
                           {item.name}
                         </div>
                       </TableCell>
@@ -166,7 +166,7 @@ export default function InventoryPage() {
                           {getCategoryLabel(item.category)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell max-w-[200px] truncate text-muted-foreground">
+                      <TableCell className="hidden md:table-cell max-w-[200px] truncate text-muted-foreground text-xs">
                         {item.description}
                       </TableCell>
                       <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
@@ -199,7 +199,7 @@ export default function InventoryPage() {
                                 </DropdownMenuItem>
                               </AddItemDialog>
                               <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
-                                 <Sparkles className="mr-2 h-4 w-4" />
+                                 <Trash className="mr-2 h-4 w-4" />
                                  <span>{t('deleteAction')}</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
