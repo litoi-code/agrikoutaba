@@ -294,6 +294,7 @@
     "searchPlaceholder": "Search items by name...",
     "nameColumn": "Item Name",
     "categoryColumn": "Category",
+    "descriptionLabel": "Description",
     "stockColumn": "In Stock",
     "statusColumn": "Status",
     "priceColumn": "Unit Value",

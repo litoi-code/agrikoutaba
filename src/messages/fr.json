@@ -294,6 +294,7 @@
     "searchPlaceholder": "Rechercher des articles par nom...",
     "nameColumn": "Nom de l'article",
     "categoryColumn": "Catégorie",
+    "descriptionLabel": "Description",
     "stockColumn": "En Stock",
     "statusColumn": "Statut",
     "priceColumn": "Valeur Unitaire",
