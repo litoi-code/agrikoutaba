@@ -80,9 +80,9 @@ export function AddItemDialog({
       name: "",
       description: "",
       category: "Input",
-      unitPrice: "" as any,
-      stockLevel: "" as any,
-      reorderLevel: "" as any,
+      unitPrice: 0,
+      stockLevel: 0,
+      reorderLevel: 0,
       supplierId: "",
     },
   });
@@ -90,15 +90,23 @@ export function AddItemDialog({
   useEffect(() => {
     if (open) {
       if (item) {
-        form.reset(item);
+        form.reset({
+          name: item.name || "",
+          description: item.description || "",
+          category: item.category || "Input",
+          unitPrice: item.unitPrice || 0,
+          stockLevel: item.stockLevel || 0,
+          reorderLevel: item.reorderLevel || 0,
+          supplierId: item.supplierId || "",
+        });
       } else {
         form.reset({
           name: "",
           description: "",
           category: "Input",
-          unitPrice: "" as any,
-          stockLevel: "" as any,
-          reorderLevel: "" as any,
+          unitPrice: 0,
+          stockLevel: 0,
+          reorderLevel: 0,
           supplierId: "",
         });
       }
