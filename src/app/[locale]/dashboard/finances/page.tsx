@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -95,20 +96,18 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <TransactionFormDialog 
-                    income={type === 'income' ? (transaction as WithId<Income>) : undefined}
-                    expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
-                    defaultTab={type}
-                    customers={customers}
-                    suppliers={suppliers}
-                  >
-                     <div className="flex w-full items-center">
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>{t('editAction')}</span>
-                     </div>
-                  </TransactionFormDialog>
-                </DropdownMenuItem>
+                <TransactionFormDialog 
+                  income={type === 'income' ? (transaction as WithId<Income>) : undefined}
+                  expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
+                  defaultTab={type}
+                  customers={customers}
+                  suppliers={suppliers}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>{t('editAction')}</span>
+                  </DropdownMenuItem>
+                </TransactionFormDialog>
                 <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                    <Trash className="mr-2 h-4 w-4" />
                    <span>{t('deleteAction')}</span>

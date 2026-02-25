@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -73,14 +74,12 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <TaskFormDialog workers={workers} task={task}>
-                       <div className="flex w-full items-center">
-                          <Edit className="mr-2 h-4 w-4" />
-                          <span>{t('editAction')}</span>
-                       </div>
-                    </TaskFormDialog>
-                  </DropdownMenuItem>
+                  <TaskFormDialog workers={workers} task={task}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>{t('editAction')}</span>
+                    </DropdownMenuItem>
+                  </TaskFormDialog>
                   <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                      <Trash className="mr-2 h-4 w-4" />
                      <span>{t('deleteAction')}</span>

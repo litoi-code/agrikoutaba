@@ -1,3 +1,4 @@
+
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -178,14 +179,12 @@ export default function InventoryPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <AddItemDialog suppliers={allSuppliers} item={item}>
-                                 <div className="flex w-full items-center">
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>{t('editAction')}</span>
-                                 </div>
-                              </AddItemDialog>
-                            </DropdownMenuItem>
+                            <AddItemDialog suppliers={allSuppliers} item={item}>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                            </AddItemDialog>
                             <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>
