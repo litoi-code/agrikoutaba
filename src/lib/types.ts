@@ -5,6 +5,7 @@ export interface Customer {
   lastName: string;
   contactNumber: string;
   address: string;
+  email?: string;
   transactionIds?: string[];
   createdAt?: string;
 }
@@ -15,6 +16,7 @@ export interface Supplier {
   contactName: string;
   contactNumber: string;
   address: string;
+  email?: string;
   itemIds?: string[];
   createdAt?: string;
 }
@@ -63,7 +65,7 @@ export interface Worker {
   id: string;
   firstName: string;
   lastName:string;
-  email: string;
+  email?: string;
   avatarUrl?: string;
   role: 'Admin' | 'Manager' | 'Worker';
   contactNumber: string;

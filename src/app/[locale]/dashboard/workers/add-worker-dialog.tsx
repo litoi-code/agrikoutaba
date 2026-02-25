@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -44,7 +45,7 @@ import type { Worker } from "@/lib/types";
 const workerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional().or(z.literal('')),
   role: z.enum(["Admin", "Manager", "Worker"]),
   contactNumber: z.string().min(1, "Contact number is required"),
 });
@@ -78,7 +79,13 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
 
   useEffect(() => {
     if (open && worker) {
-      form.reset(worker);
+      form.reset({
+        firstName: worker.firstName || "",
+        lastName: worker.lastName || "",
+        email: worker.email || "",
+        role: worker.role || "Worker",
+        contactNumber: worker.contactNumber || "",
+      });
     }
   }, [open, worker, form]);
 

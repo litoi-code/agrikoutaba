@@ -47,6 +47,7 @@ const customerSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   contactNumber: z.string().min(1, "Contact number is required"),
   address: z.string().min(1, "Address is required"),
+  email: z.string().email("Invalid email address").optional().or(z.literal('')),
 });
 
 const supplierSchema = z.object({
@@ -54,6 +55,7 @@ const supplierSchema = z.object({
   contactName: z.string().min(1, "Contact name is required"),
   contactNumber: z.string().min(1, "Contact number is required"),
   address: z.string().min(1, "Address is required"),
+  email: z.string().email("Invalid email address").optional().or(z.literal('')),
 });
 
 interface AddContactDialogProps {
@@ -89,6 +91,7 @@ export function AddContactDialog({
       lastName: "",
       contactNumber: "",
       address: "",
+      email: "",
     },
   });
 
@@ -99,21 +102,34 @@ export function AddContactDialog({
       contactName: "",
       contactNumber: "",
       address: "",
+      email: "",
     },
   });
 
   useEffect(() => {
     if (open) {
       if (customer) {
-        customerForm.reset(customer);
+        customerForm.reset({
+          firstName: customer.firstName || "",
+          lastName: customer.lastName || "",
+          contactNumber: customer.contactNumber || "",
+          address: customer.address || "",
+          email: customer.email || "",
+        });
       } else {
-        customerForm.reset({ firstName: "", lastName: "", contactNumber: "", address: "" });
+        customerForm.reset({ firstName: "", lastName: "", contactNumber: "", address: "", email: "" });
       }
 
       if (supplier) {
-        supplierForm.reset(supplier);
+        supplierForm.reset({
+          companyName: supplier.companyName || "",
+          contactName: supplier.contactName || "",
+          contactNumber: supplier.contactNumber || "",
+          address: supplier.address || "",
+          email: supplier.email || "",
+        });
       } else {
-        supplierForm.reset({ companyName: "", contactName: "", contactNumber: "", address: "" });
+        supplierForm.reset({ companyName: "", contactName: "", contactNumber: "", address: "", email: "" });
       }
     }
   }, [open, customer, supplier, customerForm, supplierForm]);
@@ -223,6 +239,19 @@ export function AddContactDialog({
                 />
                 <FormField
                   control={customerForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("emailLabel")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="john.doe@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={customerForm.control}
                   name="contactNumber"
                   render={({ field }) => (
                     <FormItem>
@@ -283,6 +312,19 @@ export function AddContactDialog({
                       <FormLabel>{t("contactNameLabel")}</FormLabel>
                       <FormControl>
                         <Input placeholder="Jane Smith" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={supplierForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("emailLabel")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="sales@globalseeds.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

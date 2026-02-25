@@ -109,6 +109,7 @@
       "supplierTab": "Fournisseur",
       "firstNameLabel": "Prénom",
       "lastNameLabel": "Nom de famille",
+      "emailLabel": "Email",
       "phoneLabel": "Téléphone",
       "addressLabel": "Adresse",
       "addCustomerButton": "Ajouter le Client",
