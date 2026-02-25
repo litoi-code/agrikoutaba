@@ -127,12 +127,12 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
                       isNew: isNew(contact.createdAt)
                   };
                   return (
-                    <TableRow key={contact.id} className={cn(displayData.isNew && "bg-accent/10")}>
+                    <TableRow key={contact.id} className={cn(displayData.isNew && "bg-primary/10")}>
                       <TableCell className="font-medium truncate max-w-[150px]">
                         <div className="flex items-center gap-2">
-                          {displayData.isNew && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+                          {displayData.isNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
                           {displayData.name}
-                          {displayData.isNew && <Badge variant="accent" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+                          {displayData.isNew && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>

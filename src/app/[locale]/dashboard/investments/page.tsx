@@ -73,12 +73,12 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
 
   return (
     <>
-      <TableRow className={cn(isRecentlyAdded && "bg-accent/10")}>
+      <TableRow className={cn(isRecentlyAdded && "bg-primary/10")}>
         <TableCell className="font-medium">
            <div className="flex items-center gap-2">
-             {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+             {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
              {inv.investorName}
-             {isRecentlyAdded && <Badge variant="accent" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+             {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
            </div>
         </TableCell>
         <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>

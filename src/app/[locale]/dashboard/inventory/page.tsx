@@ -154,10 +154,10 @@ export default function InventoryPage() {
                 filteredItems?.map((item) => {
                   const isRecentlyAdded = isNew(item.createdAt);
                   return (
-                    <TableRow key={item.id} className={cn(isRecentlyAdded && "bg-accent/10")}>
+                    <TableRow key={item.id} className={cn(isRecentlyAdded && "bg-primary/10")}>
                       <TableCell className="font-medium max-w-[120px] truncate">
                         <div className="flex items-center gap-2">
-                          {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+                          {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
                           {item.name}
                         </div>
                       </TableCell>
@@ -178,7 +178,7 @@ export default function InventoryPage() {
                             <Badge variant="secondary" className="text-[10px] px-1">{t('statusInStock')}</Badge>
                           )}
                           {isRecentlyAdded && (
-                            <Badge variant="accent" className="text-[8px] px-1 py-0 uppercase">New</Badge>
+                            <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>
                           )}
                         </div>
                       </TableCell>

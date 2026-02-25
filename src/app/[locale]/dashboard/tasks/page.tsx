@@ -64,16 +64,16 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
 
   return (
     <>
-      <Card className={cn("flex flex-col relative", isRecentlyAdded && "border-accent/50 bg-accent/10")}>
+      <Card className={cn("flex flex-col relative", isRecentlyAdded && "border-primary/50 bg-primary/10")}>
         {isRecentlyAdded && (
           <div className="absolute -top-2 -right-2">
-            <Badge variant="accent" className="text-[8px] uppercase px-1">New</Badge>
+            <Badge variant="default" className="text-[8px] uppercase px-1">New</Badge>
           </div>
         )}
         <CardContent className="p-4 flex-col flex h-full">
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-semibold pr-2 flex items-center gap-2">
-              {isRecentlyAdded && <Sparkles className="h-3 w-3 text-accent shrink-0" />}
+              {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
               {task.title}
             </h3>
             {canEdit && (
