@@ -70,17 +70,24 @@ const taskSchema = z.object({
 });
 
 interface TaskFormDialogProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   workers: WithId<Worker>[];
   task?: WithId<Task>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function TaskFormDialog({
   children,
   workers,
   task,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: TaskFormDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -149,7 +156,7 @@ export function TaskFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
         className="sm:max-w-[425px]"
       >

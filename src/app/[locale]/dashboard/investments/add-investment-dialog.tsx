@@ -57,11 +57,18 @@ const investmentSchema = z.object({
 export function InvestmentFormDialog({
   children,
   investment,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   investment?: WithId<Investment>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -132,7 +139,7 @@ export function InvestmentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
         className="sm:max-w-[425px]"
       >

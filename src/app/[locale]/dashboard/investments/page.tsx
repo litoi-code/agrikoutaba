@@ -1,6 +1,6 @@
 
 "use client";
-import { useMemo, useState, useEffect } from 'reac';
+import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -46,7 +46,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
 
-const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean }) => {
+const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit, onEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean, onEdit: (inv: WithId<Investment>) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -90,12 +90,10 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <InvestmentFormDialog investment={inv}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>{t('editAction')}</span>
-                    </DropdownMenuItem>
-                </InvestmentFormDialog>
+                <DropdownMenuItem onClick={() => onEdit(inv)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>{t('editAction')}</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                     <Trash className="mr-2 h-4 w-4" />
                     <span>{t('deleteAction')}</span>
@@ -131,6 +129,7 @@ export default function InvestmentsPage() {
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [editInvestment, setEditInvestment] = useState<WithId<Investment> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -226,13 +225,19 @@ export default function InvestmentsPage() {
                 ))
               ) : (
                 filteredInvestments?.map((inv) => (
-                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} canEdit={canEdit} />
+                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} canEdit={canEdit} onEdit={setEditInvestment} />
                 ))
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      <InvestmentFormDialog 
+        investment={editInvestment || undefined} 
+        open={!!editInvestment} 
+        onOpenChange={(open) => !open && setEditInvestment(null)} 
+      />
     </div>
   );
 }

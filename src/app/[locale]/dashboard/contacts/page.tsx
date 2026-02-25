@@ -55,7 +55,7 @@ interface DisplayContact {
   transactionCount: number;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean }) => {
+const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, onEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean, onEdit: (contact: any) => void }) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -137,16 +137,10 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <AddContactDialog 
-                              customer={type === 'customer' ? (contact as WithId<Customer>) : undefined} 
-                              supplier={type === 'supplier' ? (contact as WithId<Supplier>) : undefined} 
-                              defaultTab={type}
-                            >
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>{t('editAction')}</span>
-                              </DropdownMenuItem>
-                            </AddContactDialog>
+                            <DropdownMenuItem onClick={() => onEdit(contact)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                <span>{t('editAction')}</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setDeleteTarget(contact)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>
@@ -186,6 +180,7 @@ export default function ContactsPage() {
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editContact, setEditContact] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
   
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -245,12 +240,36 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable 
+            data={filteredCustomers ?? []} 
+            isLoading={isLoading} 
+            type="customer" 
+            t={t} 
+            tDialog={tDialog} 
+            canEdit={canEdit} 
+            onEdit={setEditContact}
+          />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable 
+            data={filteredSuppliers ?? []} 
+            isLoading={isLoading} 
+            type="supplier" 
+            t={t} 
+            tDialog={tDialog} 
+            canEdit={canEdit} 
+            onEdit={setEditContact}
+          />
         </TabsContent>
       </Tabs>
+
+      <AddContactDialog 
+        customer={editContact && 'firstName' in editContact ? (editContact as WithId<Customer>) : undefined}
+        supplier={editContact && 'companyName' in editContact ? (editContact as WithId<Supplier>) : undefined}
+        defaultTab={editContact && 'companyName' in editContact ? 'supplier' : 'customer'}
+        open={!!editContact}
+        onOpenChange={(open) => !open && setEditContact(null)}
+      />
     </div>
   );
 }

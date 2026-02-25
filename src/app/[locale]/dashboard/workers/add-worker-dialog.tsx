@@ -51,12 +51,17 @@ const workerSchema = z.object({
 });
 
 interface EditWorkerDialogProps {
-  children: React.ReactNode;
-  worker: WithId<Worker>;
+  children?: React.ReactNode;
+  worker: WithId<Worker> | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AddWorkerDialog({ children, worker }: EditWorkerDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpenChange: setControlledOpen }: EditWorkerDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("WorkersPage.AddWorkerDialog");
@@ -95,7 +100,7 @@ export function AddWorkerDialog({ children, worker }: EditWorkerDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{t("editTitle")}</DialogTitle>
@@ -196,5 +201,3 @@ export function AddWorkerDialog({ children, worker }: EditWorkerDialogProps) {
     </Dialog>
   );
 }
-
-    

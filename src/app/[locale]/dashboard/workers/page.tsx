@@ -49,6 +49,7 @@ export default function WorkersPage() {
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Worker> | null>(null);
+  const [editWorker, setEditWorker] = useState<WithId<Worker> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const isAdmin = role === 'Admin';
@@ -139,12 +140,10 @@ export default function WorkersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <AddWorkerDialog worker={worker}>
-                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>{t('editAction')}</span>
-                               </DropdownMenuItem>
-                            </AddWorkerDialog>
+                            <DropdownMenuItem onClick={() => setEditWorker(worker)}>
+                               <Edit className="mr-2 h-4 w-4" />
+                               <span>{t('editAction')}</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setDeleteTarget(worker)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>
@@ -161,6 +160,11 @@ export default function WorkersPage() {
           </CardContent>
         </Card>
       </div>
+      <AddWorkerDialog 
+        worker={editWorker} 
+        open={!!editWorker} 
+        onOpenChange={(open) => !open && setEditWorker(null)} 
+      />
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

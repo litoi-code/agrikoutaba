@@ -52,7 +52,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
 
-const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, suppliers, canEdit }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[], canEdit: boolean }) => {
+const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, canEdit, onEdit }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, canEdit: boolean, onEdit: (transaction: any) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -96,18 +96,10 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <TransactionFormDialog 
-                  income={type === 'income' ? (transaction as WithId<Income>) : undefined}
-                  expense={type === 'expense' ? (transaction as WithId<Expense>) : undefined}
-                  defaultTab={type}
-                  customers={customers}
-                  suppliers={suppliers}
-                >
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>{t('editAction')}</span>
-                  </DropdownMenuItem>
-                </TransactionFormDialog>
+                <DropdownMenuItem onClick={() => onEdit(transaction)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>{t('editAction')}</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                    <Trash className="mr-2 h-4 w-4" />
                    <span>{t('deleteAction')}</span>
@@ -135,7 +127,7 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
   );
 };
 
-const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, customers, suppliers, canEdit }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', isLoading: boolean, t: any, tDialog: any, tGlobal: any, customers: WithId<Customer>[], suppliers: WithId<Supplier>[], canEdit: boolean }) => (
+const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, canEdit, onEdit }: { data: (WithId<Income> | WithId<Expense>)[], type: 'income' | 'expense', isLoading: boolean, t: any, tDialog: any, tGlobal: any, canEdit: boolean, onEdit: (transaction: any) => void }) => (
   <Card>
     <CardContent className="p-0">
       <Table>
@@ -159,7 +151,7 @@ const TransactionsTable = ({ data, type, isLoading, t, tDialog, tGlobal, custome
             ))
           ) : (
             data.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} type={type} tGlobal={tGlobal} t={t} tDialog={tDialog} customers={customers} suppliers={suppliers} canEdit={canEdit} />
+              <TransactionRow key={transaction.id} transaction={transaction} type={type} tGlobal={tGlobal} t={t} tDialog={tDialog} canEdit={canEdit} onEdit={onEdit} />
             ))
           )}
         </TableBody>
@@ -175,6 +167,7 @@ export default function FinancesPage() {
   const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [editTransaction, setEditTransaction] = useState<WithId<Income> | WithId<Expense> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -281,12 +274,22 @@ export default function FinancesPage() {
           <TabsTrigger value="expenses">{t('expensesTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="income">
-          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
+          <TransactionsTable data={filteredIncome ?? []} type="income" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} canEdit={canEdit} onEdit={setEditTransaction} />
         </TabsContent>
         <TabsContent value="expenses">
-          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} customers={customers ?? []} suppliers={suppliers ?? []} canEdit={canEdit} />
+          <TransactionsTable data={filteredExpenses ?? []} type="expense" isLoading={isLoading} t={t} tDialog={tDialog} tGlobal={tGlobal} canEdit={canEdit} onEdit={setEditTransaction} />
         </TabsContent>
       </Tabs>
+
+      <TransactionFormDialog 
+        income={editTransaction && 'customerName' in editTransaction ? (editTransaction as WithId<Income>) : undefined}
+        expense={editTransaction && 'supplierName' in editTransaction ? (editTransaction as WithId<Expense>) : undefined}
+        defaultTab={editTransaction && 'supplierName' in editTransaction ? 'expense' : 'income'}
+        customers={customers ?? []}
+        suppliers={suppliers ?? []}
+        open={!!editTransaction}
+        onOpenChange={(open) => !open && setEditTransaction(null)}
+      />
     </div>
   );
 }

@@ -57,10 +57,12 @@ const supplierSchema = z.object({
 });
 
 interface AddContactDialogProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   customer?: WithId<Customer>;
   supplier?: WithId<Supplier>;
   defaultTab?: 'customer' | 'supplier';
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function AddContactDialog({
@@ -68,8 +70,13 @@ export function AddContactDialog({
   customer,
   supplier,
   defaultTab = 'customer',
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: AddContactDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("ContactsPage.AddContactDialog");
@@ -169,7 +176,7 @@ export function AddContactDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>

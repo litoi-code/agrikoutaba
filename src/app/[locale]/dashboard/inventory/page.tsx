@@ -51,6 +51,7 @@ export default function InventoryPage() {
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
+  const [editItem, setEditItem] = useState<WithId<Item> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -179,12 +180,10 @@ export default function InventoryPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <AddItemDialog suppliers={allSuppliers} item={item}>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <DropdownMenuItem onClick={() => setEditItem(item)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 <span>{t('editAction')}</span>
-                              </DropdownMenuItem>
-                            </AddItemDialog>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>
@@ -201,6 +200,12 @@ export default function InventoryPage() {
         </CardContent>
       </Card>
     </div>
+    <AddItemDialog 
+      suppliers={allSuppliers} 
+      item={editItem || undefined} 
+      open={!!editItem} 
+      onOpenChange={(open) => !open && setEditItem(null)} 
+    />
     <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

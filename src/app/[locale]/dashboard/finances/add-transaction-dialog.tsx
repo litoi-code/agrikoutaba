@@ -66,12 +66,14 @@ const expenseSchema = z.object({
 });
 
 interface TransactionFormDialogProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   income?: WithId<Income>;
   expense?: WithId<Expense>;
   defaultTab?: 'income' | 'expense';
   customers: WithId<Customer>[];
   suppliers: WithId<Supplier>[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function TransactionFormDialog({
@@ -81,8 +83,13 @@ export function TransactionFormDialog({
   defaultTab = 'income',
   customers,
   suppliers,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: TransactionFormDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -214,7 +221,7 @@ export function TransactionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
         className="sm:max-w-[425px]"
       >

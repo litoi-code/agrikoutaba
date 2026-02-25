@@ -36,7 +36,7 @@ import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
-const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean }) => {
+const TaskCard = ({ task, assignees, workers, t, canEdit, onEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const firestore = useFirestore();
@@ -74,12 +74,10 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <TaskFormDialog workers={workers} task={task}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>{t('editAction')}</span>
-                    </DropdownMenuItem>
-                  </TaskFormDialog>
+                  <DropdownMenuItem onClick={() => onEdit(task)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      <span>{t('editAction')}</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                      <Trash className="mr-2 h-4 w-4" />
                      <span>{t('deleteAction')}</span>
@@ -136,7 +134,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
   );
 };
 
-const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean }) => (
+const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, onEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
@@ -148,7 +146,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }
         tasks.map((task) => {
           const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
-            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} />
+            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} onEdit={onEdit} />
           )
         })
       )}
@@ -160,6 +158,7 @@ export default function TasksPage() {
   const firestore = useFirestore();
   const t = useTranslations('TasksPage');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editTask, setEditTask] = useState<WithId<Task> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -221,10 +220,17 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
       </div>
+
+      <TaskFormDialog 
+        workers={allWorkers} 
+        task={editTask || undefined} 
+        open={!!editTask} 
+        onOpenChange={(open) => !open && setEditTask(null)}
+      />
     </div>
   );
 }

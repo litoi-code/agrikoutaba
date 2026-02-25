@@ -57,17 +57,24 @@ const itemSchema = z.object({
 });
 
 interface AddItemDialogProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   suppliers: WithId<Supplier>[];
   item?: WithId<Item>;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function AddItemDialog({
   children,
   suppliers,
   item,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: AddItemDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("InventoryPage.AddInventoryItemDialog");
@@ -140,7 +147,7 @@ export function AddItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
