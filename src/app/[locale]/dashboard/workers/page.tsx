@@ -139,12 +139,14 @@ export default function WorkersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <AddWorkerDialog worker={worker}>
-                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>{t('editAction')}</span>
-                              </DropdownMenuItem>
-                            </AddWorkerDialog>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <AddWorkerDialog worker={worker}>
+                                   <div className="flex w-full items-center">
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      <span>{t('editAction')}</span>
+                                   </div>
+                                </AddWorkerDialog>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setDeleteTarget(worker)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>

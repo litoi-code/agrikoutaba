@@ -99,12 +99,14 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <InvestmentFormDialog investment={inv}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>{t('editAction')}</span>
-                    </DropdownMenuItem>
-                </InvestmentFormDialog>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <InvestmentFormDialog investment={inv}>
+                        <div className="flex w-full items-center">
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>{t('editAction')}</span>
+                        </div>
+                    </InvestmentFormDialog>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                     <Trash className="mr-2 h-4 w-4" />
                     <span>{t('deleteAction')}</span>

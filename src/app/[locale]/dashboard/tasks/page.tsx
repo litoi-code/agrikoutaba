@@ -84,12 +84,14 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: Wit
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <TaskFormDialog workers={workers} task={task}>
-                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>{t('editAction')}</span>
-                    </DropdownMenuItem>
-                  </TaskFormDialog>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <TaskFormDialog workers={workers} task={task}>
+                       <div className="flex w-full items-center">
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>{t('editAction')}</span>
+                       </div>
+                    </TaskFormDialog>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
                      <Trash className="mr-2 h-4 w-4" />
                      <span>{t('deleteAction')}</span>
@@ -137,7 +139,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: Wit
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{tForm('cancelButton')}</AlertDialogCancel>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tForm('deleteButton')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

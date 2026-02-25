@@ -147,12 +147,18 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, tGlobal }: 
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <AddContactDialog customer={type === 'customer' ? (contact as WithId<Customer>) : undefined} supplier={type === 'supplier' ? (contact as WithId<Supplier>) : undefined} defaultTab={type}>
-                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  <span>{t('editAction')}</span>
-                              </DropdownMenuItem>
-                            </AddContactDialog>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <AddContactDialog 
+                                  customer={type === 'customer' ? (contact as WithId<Customer>) : undefined} 
+                                  supplier={type === 'supplier' ? (contact as WithId<Supplier>) : undefined} 
+                                  defaultTab={type}
+                                >
+                                   <div className="flex w-full items-center">
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      <span>{t('editAction')}</span>
+                                   </div>
+                                </AddContactDialog>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setDeleteTarget(contact)} className="text-destructive focus:text-destructive">
                                <Trash className="mr-2 h-4 w-4" />
                                <span>{t('deleteAction')}</span>
