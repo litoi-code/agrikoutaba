@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -45,7 +44,7 @@ import type { Worker } from "@/lib/types";
 const workerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email(),
+  email: z.string().min(1, "Email is required"),
   role: z.enum(["Admin", "Manager", "Worker"]),
   contactNumber: z.string().min(1, "Contact number is required"),
 });

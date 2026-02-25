@@ -30,7 +30,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Email is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -90,7 +90,7 @@ function LoginPageContent() {
                       <FormLabel>{t('emailLabel')}</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
+                          type="text"
                           placeholder="m@example.com"
                           {...field}
                         />

@@ -33,7 +33,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 const signupSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -79,6 +79,7 @@ function SignupPageContent() {
         role: 'Worker', // Default role for new signups
         contactNumber: '',
         taskIds: [],
+        createdAt: new Date().toISOString(),
       });
 
       router.push(`/${locale}/dashboard`);
@@ -144,7 +145,7 @@ function SignupPageContent() {
                       <FormLabel>{t('emailLabel')}</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
+                          type="text"
                           placeholder="m@example.com"
                           {...field}
                         />
