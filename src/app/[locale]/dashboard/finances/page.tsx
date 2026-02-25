@@ -44,7 +44,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search, Sparkles, PlusCircle } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionFormDialog } from './add-transaction-dialog';
