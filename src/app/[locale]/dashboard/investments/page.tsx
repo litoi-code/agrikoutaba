@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -37,20 +36,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
+import { cn, isNew } from '@/lib/utils';
 
 const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit, onEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean, onEdit: (inv: WithId<Investment>) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const entryIsNew = isNew(inv.createdAt);
 
   useEffect(() => {
     setFormattedDate(format(new Date(inv.date), 'PPP'));
@@ -70,8 +72,14 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit, onEdit }: { inv: Wit
 
   return (
     <>
-      <TableRow>
-        <TableCell className="font-medium">{inv.investorName}</TableCell>
+      <TableRow className={cn(entryIsNew && "bg-primary/5")}>
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2">
+            {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+            <span className="truncate">{inv.investorName}</span>
+            {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+          </div>
+        </TableCell>
         <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>
         <TableCell className="hidden md:table-cell">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
         <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>

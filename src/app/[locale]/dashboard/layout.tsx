@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
+import { collection } from "firebase/firestore";
+import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import {
   AreaChart,
   ClipboardList,
@@ -26,9 +28,12 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { FirebaseClientProvider } from "@/firebase";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
+import { isNew } from "@/lib/utils";
+import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
 
 function DashboardLayoutInner({
   children,
@@ -39,19 +44,56 @@ function DashboardLayoutInner({
   const tGlobal = useTranslations("Global");
   const { currentWorker } = useCurrentUserRole();
   const [mounted, setMounted] = useState(false);
+  const firestore = useFirestore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Fetch all collections to count "New" entries for sidebar badges
+  const itemsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'items') : null, [firestore]);
+  const { data: items } = useCollection<Item>(itemsQuery);
+
+  const customersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'customers') : null, [firestore]);
+  const { data: customers } = useCollection<Customer>(customersQuery);
+
+  const suppliersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'suppliers') : null, [firestore]);
+  const { data: suppliers } = useCollection<Supplier>(suppliersQuery);
+
+  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks } = useCollection<Task>(tasksQuery);
+
+  const workersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'workers') : null, [firestore]);
+  const { data: workers } = useCollection<Worker>(workersQuery);
+
+  const incomesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'incomes') : null, [firestore]);
+  const { data: incomes } = useCollection<Income>(incomesQuery);
+
+  const expensesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'expenses') : null, [firestore]);
+  const { data: expenses } = useCollection<Expense>(expensesQuery);
+
+  const investmentsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'investments') : null, [firestore]);
+  const { data: investments } = useCollection<Investment>(investmentsQuery);
+
+  const counts = useMemo(() => {
+    return {
+      inventory: (items || []).filter(i => isNew(i.createdAt)).length,
+      contacts: ((customers || []).filter(i => isNew(i.createdAt)).length + (suppliers || []).filter(i => isNew(i.createdAt)).length),
+      tasks: (tasks || []).filter(i => isNew(i.createdAt)).length,
+      workers: (workers || []).filter(i => isNew(i.createdAt)).length,
+      finances: ((incomes || []).filter(i => isNew(i.createdAt)).length + (expenses || []).filter(i => isNew(i.createdAt)).length),
+      investments: (investments || []).filter(i => isNew(i.createdAt)).length,
+    };
+  }, [items, customers, suppliers, tasks, workers, incomes, expenses, investments]);
+
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: t("dashboard") },
-    { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory") },
-    { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts") },
-    { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks") },
-    { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers") },
-    { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances") },
-    { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments") },
+    { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory"), count: counts.inventory },
+    { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts"), count: counts.contacts },
+    { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks"), count: counts.tasks },
+    { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers"), count: counts.workers },
+    { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: counts.finances },
+    { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: counts.investments },
   ];
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
@@ -74,7 +116,12 @@ function DashboardLayoutInner({
                 <SidebarMenuButton asChild tooltip={item.label} className="h-11">
                   <Link href={item.href} className="flex items-center gap-2 w-full">
                     {item.icon}
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {mounted && item.count !== undefined && item.count > 0 && (
+                      <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full">
+                        {item.count}
+                      </Badge>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

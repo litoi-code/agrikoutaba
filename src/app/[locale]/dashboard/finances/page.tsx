@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -43,20 +42,23 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Income, Expense, Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionFormDialog } from './add-transaction-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
+import { cn, isNew } from '@/lib/utils';
 
 const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, canEdit, onEdit }: { transaction: WithId<Income> | WithId<Expense>, type: 'income' | 'expense', tGlobal: any, t: any, tDialog: any, canEdit: boolean, onEdit: (transaction: any) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
+  const entryIsNew = isNew(transaction.createdAt);
 
   useEffect(() => {
     setFormattedDate(format(new Date(transaction.date), 'MMM d, yyyy'));
@@ -79,11 +81,17 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, canEdit, onEdi
 
   return (
     <>
-      <TableRow>
+      <TableRow className={cn(entryIsNew && "bg-primary/5")}>
         <TableCell className="text-xs whitespace-nowrap">
            {formattedDate ? formattedDate : <Skeleton className="h-4 w-16" />}
         </TableCell>
-        <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">{transaction.description}</TableCell>
+        <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">
+          <div className="flex items-center gap-2">
+            {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+            <span className="truncate">{transaction.description}</span>
+            {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+          </div>
+        </TableCell>
         <TableCell className="text-right font-mono text-xs">
           {transaction.amount.toLocaleString('en-US')} {tGlobal('currency')}
         </TableCell>

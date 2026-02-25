@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -39,13 +38,15 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddContactDialog } from './add-contact-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { cn, isNew } from '@/lib/utils';
 
 interface DisplayContact {
   id: string;
@@ -55,7 +56,7 @@ interface DisplayContact {
   transactionCount: number;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, onEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean, onEdit: (contact: any) => void }) => {
+const ContactsTable = ({ data, isLoading, type, t, tDialog, tGlobal, canEdit, onEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, tGlobal: any, canEdit: boolean, onEdit: (contact: any) => void }) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -115,6 +116,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, onEdit }: {
               ) : (
                 data.map((contact) => {
                   const isCustomer = 'firstName' in contact;
+                  const entryIsNew = isNew(contact.createdAt);
                   const displayData: DisplayContact = {
                       id: contact.id,
                       name: isCustomer ? `${contact.firstName} ${contact.lastName}` : contact.contactName,
@@ -123,8 +125,14 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, onEdit }: {
                       transactionCount: isCustomer ? (contact.transactionIds?.length ?? 0) : 0,
                   };
                   return (
-                    <TableRow key={contact.id}>
-                      <TableCell className="font-medium truncate max-w-[150px]">{displayData.name}</TableCell>
+                    <TableRow key={contact.id} className={cn(entryIsNew && "bg-primary/5")}>
+                      <TableCell className="font-medium truncate max-w-[150px]">
+                        <div className="flex items-center gap-2">
+                           {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+                           <span className="truncate">{displayData.name}</span>
+                           {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+                        </div>
+                      </TableCell>
                       <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>
                       <TableCell className="hidden sm:table-cell">{displayData.phone}</TableCell>
                       <TableCell className="text-right">{displayData.transactionCount}</TableCell>
@@ -179,6 +187,7 @@ export default function ContactsPage() {
   const firestore = useFirestore();
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
+  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const [editContact, setEditContact] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
@@ -245,7 +254,8 @@ export default function ContactsPage() {
             isLoading={isLoading} 
             type="customer" 
             t={t} 
-            tDialog={tDialog} 
+            tDialog={tDialog}
+            tGlobal={tGlobal}
             canEdit={canEdit} 
             onEdit={setEditContact}
           />
@@ -256,7 +266,8 @@ export default function ContactsPage() {
             isLoading={isLoading} 
             type="supplier" 
             t={t} 
-            tDialog={tDialog} 
+            tDialog={tDialog}
+            tGlobal={tGlobal}
             canEdit={canEdit} 
             onEdit={setEditContact}
           />

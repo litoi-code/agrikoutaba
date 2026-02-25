@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -35,12 +34,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddItemDialog } from './add-item-dialog';
 import type { Item, Supplier } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { cn, isNew } from '@/lib/utils';
 
 export default function InventoryPage() {
   const firestore = useFirestore();
@@ -151,49 +151,58 @@ export default function InventoryPage() {
                   </TableRow>
                 ))
               ) : (
-                filteredItems?.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium max-w-[120px] truncate">{item.name}</TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <Badge variant="outline" className="font-normal">
-                        {getCategoryLabel(item.category)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell max-w-[200px] truncate text-muted-foreground text-xs">
-                      {item.description}
-                    </TableCell>
-                    <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
-                    <TableCell className="text-right">
-                      {item.stockLevel <= item.reorderLevel ? (
-                        <Badge variant="destructive" className="text-[10px] px-1">{t('statusLowStock')}</Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-[10px] px-1">{t('statusInStock')}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right font-mono text-xs">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
-                    <TableCell className="text-right">
-                      {!isLoading && canEdit && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setEditItem(item)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                <span>{t('editAction')}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
-                               <Trash className="mr-2 h-4 w-4" />
-                               <span>{t('deleteAction')}</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
+                filteredItems?.map((item) => {
+                  const entryIsNew = isNew(item.createdAt);
+                  return (
+                    <TableRow key={item.id} className={cn(entryIsNew && "bg-primary/5")}>
+                      <TableCell className="font-medium max-w-[120px] truncate">
+                        <div className="flex items-center gap-2">
+                          {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+                          <span className="truncate">{item.name}</span>
+                          {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge variant="outline" className="font-normal">
+                          {getCategoryLabel(item.category)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell max-w-[200px] truncate text-muted-foreground text-xs">
+                        {item.description}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">{item.stockLevel}</TableCell>
+                      <TableCell className="text-right">
+                        {item.stockLevel <= item.reorderLevel ? (
+                          <Badge variant="destructive" className="text-[10px] px-1">{t('statusLowStock')}</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-[10px] px-1">{t('statusInStock')}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-right font-mono text-xs">{item.unitPrice.toLocaleString()} {tGlobal('currency')}</TableCell>
+                      <TableCell className="text-right">
+                        {!isLoading && canEdit && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setEditItem(item)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setDeleteTarget(item)} className="text-destructive focus:text-destructive">
+                                 <Trash className="mr-2 h-4 w-4" />
+                                 <span>{t('deleteAction')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

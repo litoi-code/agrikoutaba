@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -29,19 +28,21 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { cn, isNew } from '@/lib/utils';
 
-const TaskCard = ({ task, assignees, workers, t, canEdit, onEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => {
+const TaskCard = ({ task, assignees, workers, t, tGlobal, canEdit, onEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, tGlobal: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const firestore = useFirestore();
   const { toast } = useToast();
   const tForm = useTranslations("TasksPage.TaskFormDialog");
+  const entryIsNew = isNew(task.createdAt);
 
   useEffect(() => {
     if (task.dueDate) {
@@ -62,10 +63,14 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, onEdit }: { task: With
 
   return (
     <>
-      <Card className="flex flex-col">
+      <Card className={cn("flex flex-col", entryIsNew && "bg-primary/5")}>
         <CardContent className="p-4 flex-col flex h-full">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold pr-2">{task.title}</h3>
+            <h3 className="font-semibold pr-2 flex items-center gap-2">
+               {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+               <span className="truncate">{task.title}</span>
+               {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+            </h3>
             {canEdit && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -134,7 +139,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, onEdit }: { task: With
   );
 };
 
-const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, onEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => (
+const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, tGlobal, canEdit, onEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, tGlobal: any, canEdit: boolean, onEdit: (task: WithId<Task>) => void }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
@@ -146,7 +151,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, 
         tasks.map((task) => {
           const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
-            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} onEdit={onEdit} />
+            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} tGlobal={tGlobal} canEdit={canEdit} onEdit={onEdit} />
           )
         })
       )}
@@ -157,6 +162,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, 
 export default function TasksPage() {
   const firestore = useFirestore();
   const t = useTranslations('TasksPage');
+  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const [editTask, setEditTask] = useState<WithId<Task> | null>(null);
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
@@ -220,9 +226,9 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} onEdit={setEditTask} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} tGlobal={tGlobal} canEdit={canEdit} onEdit={setEditTask} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} tGlobal={tGlobal} canEdit={canEdit} onEdit={setEditTask} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} tGlobal={tGlobal} canEdit={canEdit} onEdit={setEditTask} />
       </div>
 
       <TaskFormDialog 

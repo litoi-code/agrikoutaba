@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -33,18 +32,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Edit, Trash, Search } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddWorkerDialog } from './add-worker-dialog';
 import type { Worker } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
+import { cn, isNew } from '@/lib/utils';
 
 export default function WorkersPage() {
   const firestore = useFirestore();
   const t = useTranslations('WorkersPage');
   const tDialog = useTranslations('WorkersPage.AddWorkerDialog');
+  const tGlobal = useTranslations('Global');
   const { toast } = useToast();
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
@@ -54,7 +56,6 @@ export default function WorkersPage() {
 
   const isAdmin = role === 'Admin';
 
-  // Query now runs regardless of auth user
   const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
   
@@ -125,35 +126,44 @@ export default function WorkersPage() {
                     </TableRow>
                   ))
                 ) : (
-                  filteredWorkers?.map((worker) => (
-                    <TableRow key={worker.id}>
-                      <TableCell className="font-medium">{`${worker.firstName} ${worker.lastName}`}</TableCell>
-                      <TableCell>{worker.role}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{worker.contactNumber}</TableCell>
-                      <TableCell className="text-right">{worker.taskIds?.length ?? 0}</TableCell>
-                      <TableCell className="text-right">
-                        {!isLoading && isAdmin && (
-                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setEditWorker(worker)}>
-                               <Edit className="mr-2 h-4 w-4" />
-                               <span>{t('editAction')}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setDeleteTarget(worker)} className="text-destructive focus:text-destructive">
-                               <Trash className="mr-2 h-4 w-4" />
-                               <span>{t('deleteAction')}</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  filteredWorkers?.map((worker) => {
+                    const entryIsNew = isNew(worker.createdAt);
+                    return (
+                      <TableRow key={worker.id} className={cn(entryIsNew && "bg-primary/5")}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                             {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
+                             <span className="truncate">{`${worker.firstName} ${worker.lastName}`}</span>
+                             {entryIsNew && <Badge variant="default" className="text-[9px] px-1 h-3.5 bg-primary text-primary-foreground">{tGlobal('new')}</Badge>}
+                          </div>
+                        </TableCell>
+                        <TableCell>{worker.role}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{worker.contactNumber}</TableCell>
+                        <TableCell className="text-right">{worker.taskIds?.length ?? 0}</TableCell>
+                        <TableCell className="text-right">
+                          {!isLoading && isAdmin && (
+                           <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setEditWorker(worker)}>
+                                 <Edit className="mr-2 h-4 w-4" />
+                                 <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setDeleteTarget(worker)} className="text-destructive focus:text-destructive">
+                                 <Trash className="mr-2 h-4 w-4" />
+                                 <span>{t('deleteAction')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
