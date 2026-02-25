@@ -58,7 +58,7 @@ interface DisplayContact {
   isNew: boolean;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean }) => {
+const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, tGlobal }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean, tGlobal: any }) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -132,7 +132,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (
                         <div className="flex items-center gap-2">
                           {displayData.isNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
                           {displayData.name}
-                          {displayData.isNew && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+                          {displayData.isNew && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>}
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>
@@ -191,6 +191,7 @@ export default function ContactsPage() {
   const firestore = useFirestore();
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
+  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
   
@@ -251,10 +252,10 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} tGlobal={tGlobal} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
+          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} tGlobal={tGlobal} />
         </TabsContent>
       </Tabs>
     </div>

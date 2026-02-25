@@ -78,7 +78,7 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
            <div className="flex items-center gap-2">
              {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
              {inv.investorName}
-             {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+             {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>}
            </div>
         </TableCell>
         <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>

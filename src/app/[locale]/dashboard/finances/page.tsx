@@ -92,7 +92,7 @@ const TransactionRow = ({ transaction, type, tGlobal, t, tDialog, customers, sup
         <TableCell className="font-medium truncate max-w-[120px] md:max-w-none">
           <div className="flex items-center gap-2">
             {transaction.description}
-            {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>}
+            {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>}
           </div>
         </TableCell>
         <TableCell className="text-right font-mono text-xs">

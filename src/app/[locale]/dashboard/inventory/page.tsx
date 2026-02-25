@@ -178,7 +178,7 @@ export default function InventoryPage() {
                             <Badge variant="secondary" className="text-[10px] px-1">{t('statusInStock')}</Badge>
                           )}
                           {isRecentlyAdded && (
-                            <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">New</Badge>
+                            <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>
                           )}
                         </div>
                       </TableCell>

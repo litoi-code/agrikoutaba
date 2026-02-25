@@ -37,7 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { cn, isNew } from '@/lib/utils';
 
-const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean }) => {
+const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean, tGlobal: any }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const firestore = useFirestore();
@@ -67,7 +67,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
       <Card className={cn("flex flex-col relative", isRecentlyAdded && "border-primary/50 bg-primary/10")}>
         {isRecentlyAdded && (
           <div className="absolute -top-2 -right-2">
-            <Badge variant="default" className="text-[8px] uppercase px-1">New</Badge>
+            <Badge variant="default" className="text-[8px] uppercase px-1">{tGlobal('new')}</Badge>
           </div>
         )}
         <CardContent className="p-4 flex-col flex h-full">
@@ -146,7 +146,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>
   );
 };
 
-const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean }) => (
+const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, tGlobal }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean, tGlobal: any }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
@@ -158,7 +158,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }
         tasks.map((task) => {
           const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
-            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} />
+            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} tGlobal={tGlobal} />
           )
         })
       )}
@@ -169,6 +169,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }
 export default function TasksPage() {
   const firestore = useFirestore();
   const t = useTranslations('TasksPage');
+  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
@@ -231,9 +232,9 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
       </div>
     </div>
   );
