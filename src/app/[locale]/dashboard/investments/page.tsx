@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -38,22 +37,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
+import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { InvestmentFormDialog } from './add-investment-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
-import { cn, isNew } from '@/lib/utils';
 
 const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const isRecentlyAdded = isNew(inv.createdAt);
 
   useEffect(() => {
     setFormattedDate(format(new Date(inv.date), 'PPP'));
@@ -73,14 +69,8 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit }: { inv: WithId<Inve
 
   return (
     <>
-      <TableRow className={cn(isRecentlyAdded && "bg-primary/10")}>
-        <TableCell className="font-medium">
-           <div className="flex items-center gap-2">
-             {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
-             {inv.investorName}
-             {isRecentlyAdded && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>}
-           </div>
-        </TableCell>
+      <TableRow>
+        <TableCell className="font-medium">{inv.investorName}</TableCell>
         <TableCell className="hidden sm:table-cell">{inv.description}</TableCell>
         <TableCell className="hidden md:table-cell">{formattedDate ? formattedDate : <Skeleton className="h-4 w-24" />}</TableCell>
         <TableCell>{inv.amount.toLocaleString()} {tGlobal('currency')}</TableCell>

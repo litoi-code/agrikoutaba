@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState, useEffect } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -29,21 +28,19 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Task, Worker } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
-import { cn, isNew } from '@/lib/utils';
 
-const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean, tGlobal: any }) => {
+const TaskCard = ({ task, assignees, workers, t, canEdit }: { task: WithId<Task>, assignees: WithId<Worker>[], workers: WithId<Worker>[], t: any, canEdit: boolean }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const firestore = useFirestore();
   const { toast } = useToast();
   const tForm = useTranslations("TasksPage.TaskFormDialog");
-  const isRecentlyAdded = isNew(task.createdAt);
 
   useEffect(() => {
     if (task.dueDate) {
@@ -64,18 +61,10 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: Wit
 
   return (
     <>
-      <Card className={cn("flex flex-col relative", isRecentlyAdded && "border-primary/50 bg-primary/10")}>
-        {isRecentlyAdded && (
-          <div className="absolute -top-2 -right-2">
-            <Badge variant="default" className="text-[8px] uppercase px-1">{tGlobal('new')}</Badge>
-          </div>
-        )}
+      <Card className="flex flex-col">
         <CardContent className="p-4 flex-col flex h-full">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold pr-2 flex items-center gap-2">
-              {isRecentlyAdded && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
-              {task.title}
-            </h3>
+            <h3 className="font-semibold pr-2">{task.title}</h3>
             {canEdit && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -139,7 +128,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: Wit
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tForm('deleteButton')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -148,7 +137,7 @@ const TaskCard = ({ task, assignees, workers, t, canEdit, tGlobal }: { task: Wit
   );
 };
 
-const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, tGlobal }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean, tGlobal: any }) => (
+const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit }: { title: string; tasks: WithId<Task>[]; workersMap: Map<string, WithId<Worker>>, workers: WithId<Worker>[], isLoading: boolean, t: any, canEdit: boolean }) => (
   <div className="flex flex-col gap-4">
     <h2 className="text-xl font-semibold font-headline">{title}</h2>
     <div className="flex flex-col gap-4">
@@ -160,7 +149,7 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, 
         tasks.map((task) => {
           const assignees = (task.workerIds || []).map(id => workersMap.get(id)).filter(Boolean) as WithId<Worker>[];
           return (
-            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} tGlobal={tGlobal} />
+            <TaskCard key={task.id} task={task} assignees={assignees} workers={workers} t={t} canEdit={canEdit} />
           )
         })
       )}
@@ -171,7 +160,6 @@ const TaskColumn = ({ title, tasks, workersMap, workers, isLoading, t, canEdit, 
 export default function TasksPage() {
   const firestore = useFirestore();
   const t = useTranslations('TasksPage');
-  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
@@ -234,9 +222,9 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
-        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
-        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} tGlobal={tGlobal} />
+        <TaskColumn title={t('columnToDo')} tasks={todoTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnInProgress')} tasks={inProgressTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
+        <TaskColumn title={t('columnDone')} tasks={doneTasks} workersMap={workersMap} workers={allWorkers} isLoading={isLoading} t={t} canEdit={canEdit} />
       </div>
     </div>
   );

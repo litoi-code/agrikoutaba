@@ -1,4 +1,3 @@
-
 "use client";
 import { useMemo, useState } from 'react';
 import { collection, doc } from 'firebase/firestore';
@@ -39,15 +38,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search } from "lucide-react";
 import type { Customer, Supplier } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddContactDialog } from './add-contact-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
-import { cn, isNew } from '@/lib/utils';
 
 interface DisplayContact {
   id: string;
@@ -55,10 +52,9 @@ interface DisplayContact {
   company: string;
   phone: string;
   transactionCount: number;
-  isNew: boolean;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, tGlobal }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean, tGlobal: any }) => {
+const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, canEdit: boolean }) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -124,17 +120,10 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, canEdit, tGlobal }: 
                       company: isCustomer ? '-' : contact.companyName,
                       phone: contact.contactNumber,
                       transactionCount: isCustomer ? (contact.transactionIds?.length ?? 0) : 0,
-                      isNew: isNew(contact.createdAt)
                   };
                   return (
-                    <TableRow key={contact.id} className={cn(displayData.isNew && "bg-primary/10")}>
-                      <TableCell className="font-medium truncate max-w-[150px]">
-                        <div className="flex items-center gap-2">
-                          {displayData.isNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
-                          {displayData.name}
-                          {displayData.isNew && <Badge variant="default" className="text-[8px] px-1 py-0 uppercase">{tGlobal('new')}</Badge>}
-                        </div>
-                      </TableCell>
+                    <TableRow key={contact.id}>
+                      <TableCell className="font-medium truncate max-w-[150px]">{displayData.name}</TableCell>
                       <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>
                       <TableCell className="hidden sm:table-cell">{displayData.phone}</TableCell>
                       <TableCell className="text-right">{displayData.transactionCount}</TableCell>
@@ -197,7 +186,6 @@ export default function ContactsPage() {
   const firestore = useFirestore();
   const t = useTranslations('ContactsPage');
   const tDialog = useTranslations('ContactsPage.AddContactDialog');
-  const tGlobal = useTranslations('Global');
   const [searchTerm, setSearchTerm] = useState('');
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
   
@@ -258,10 +246,10 @@ export default function ContactsPage() {
           <TabsTrigger value="suppliers">{t('suppliersTab')}</TabsTrigger>
         </TabsList>
         <TabsContent value="customers">
-          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} tGlobal={tGlobal} />
+          <ContactsTable data={filteredCustomers ?? []} isLoading={isLoading} type="customer" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
         <TabsContent value="suppliers">
-          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} tGlobal={tGlobal} />
+          <ContactsTable data={filteredSuppliers ?? []} isLoading={isLoading} type="supplier" t={t} tDialog={tDialog} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
