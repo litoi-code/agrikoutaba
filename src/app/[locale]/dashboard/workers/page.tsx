@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddWorkerDialog } from './add-worker-dialog';
-import type { Worker } from '@/lib/types';
+import type { Worker, Task } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { cn, isNew } from '@/lib/utils';
@@ -59,6 +59,19 @@ export default function WorkersPage() {
   const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
   
+  const tasksQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks, isLoading: tasksLoading } = useCollection<Task>(tasksQuery);
+
+  const workerTaskCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    tasks?.forEach(task => {
+      task.workerIds?.forEach(workerId => {
+        counts[workerId] = (counts[workerId] || 0) + 1;
+      });
+    });
+    return counts;
+  }, [tasks]);
+
   const filteredWorkers = useMemo(() => {
     if (!workers) return [];
     return workers.filter(worker =>
@@ -82,7 +95,7 @@ export default function WorkersPage() {
     setDeleteTarget(null);
   };
 
-  const isLoading = workersLoading || isRoleLoading;
+  const isLoading = workersLoading || tasksLoading || isRoleLoading;
 
   return (
     <>
@@ -128,6 +141,7 @@ export default function WorkersPage() {
                 ) : (
                   filteredWorkers?.map((worker) => {
                     const entryIsNew = isNew(worker.createdAt);
+                    const taskCount = workerTaskCounts[worker.id] || 0;
                     return (
                       <TableRow key={worker.id} className={cn(entryIsNew && "bg-primary/5")}>
                         <TableCell className="font-medium">
@@ -139,7 +153,7 @@ export default function WorkersPage() {
                         </TableCell>
                         <TableCell>{worker.role}</TableCell>
                         <TableCell className="hidden sm:table-cell">{worker.contactNumber}</TableCell>
-                        <TableCell className="text-right">{worker.taskIds?.length ?? 0}</TableCell>
+                        <TableCell className="text-right font-mono text-xs">{taskCount}</TableCell>
                         <TableCell className="text-right">
                           {!isLoading && isAdmin && (
                            <DropdownMenu>
