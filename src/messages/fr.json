@@ -85,7 +85,10 @@
     "assigneeColumn": "Assigné à",
     "dueDateColumn": "Date d'échéance",
     "selectYear": "Sélectionner l'année",
-    "allTime": "Tout le temps"
+    "allTime": "Tout le temps",
+    "statusToDo": "À Faire",
+    "statusInProgress": "En Cours",
+    "statusCompleted": "Terminé"
   },
   "ContactsPage": {
     "title": "Contacts",

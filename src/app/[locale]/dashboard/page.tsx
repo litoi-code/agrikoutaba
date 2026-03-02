@@ -52,6 +52,7 @@ const chartConfig = {
 };
 
 const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: string }) => {
+  const t = useTranslations('DashboardPage');
   const [formattedDate, setFormattedDate] = useState('');
   useEffect(() => {
     if (task.dueDate) {
@@ -59,12 +60,21 @@ const RecentTaskRow = ({ task, workerName }: { task: WithId<Task>, workerName: s
     }
   }, [task.dueDate]);
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'To Do': return t('statusToDo');
+      case 'In Progress': return t('statusInProgress');
+      case 'Completed': return t('statusCompleted');
+      default: return status;
+    }
+  };
+
   return (
     <TableRow>
       <TableCell className="font-medium max-w-[150px] md:max-w-none truncate">{task.title || task.description}</TableCell>
       <TableCell>
         <Badge variant={task.status === "Completed" ? "secondary" : "default"} className={task.status === "In Progress" ? "bg-amber-500 text-white text-[10px] px-1.5" : "text-[10px] px-1.5"}>
-          {task.status}
+          {getStatusLabel(task.status)}
         </Badge>
       </TableCell>
       <TableCell className="hidden sm:table-cell">{workerName}</TableCell>

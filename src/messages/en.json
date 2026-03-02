@@ -85,7 +85,10 @@
     "assigneeColumn": "Assignee",
     "dueDateColumn": "Due Date",
     "selectYear": "Select Year",
-    "allTime": "All Time"
+    "allTime": "All Time",
+    "statusToDo": "To Do",
+    "statusInProgress": "In Progress",
+    "statusCompleted": "Completed"
   },
   "ContactsPage": {
     "title": "Contacts",
