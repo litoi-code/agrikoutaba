@@ -41,7 +41,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
-import type { Customer, Supplier } from "@/lib/types";
+import type { Customer, Supplier, Income, Expense } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddContactDialog } from './add-contact-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -56,7 +56,27 @@ interface DisplayContact {
   transactionCount: number;
 }
 
-const ContactsTable = ({ data, isLoading, type, t, tDialog, tGlobal, canEdit, onEdit }: { data: (WithId<Customer> | WithId<Supplier>)[], isLoading: boolean, type: 'customer' | 'supplier', t: any, tDialog: any, tGlobal: any, canEdit: boolean, onEdit: (contact: any) => void }) => {
+const ContactsTable = ({ 
+  data, 
+  isLoading, 
+  type, 
+  t, 
+  tDialog, 
+  tGlobal, 
+  canEdit, 
+  onEdit, 
+  transactionCounts 
+}: { 
+  data: (WithId<Customer> | WithId<Supplier>)[], 
+  isLoading: boolean, 
+  type: 'customer' | 'supplier', 
+  t: any, 
+  tDialog: any, 
+  tGlobal: any, 
+  canEdit: boolean, 
+  onEdit: (contact: any) => void,
+  transactionCounts: Record<string, number>
+}) => {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Customer> | WithId<Supplier> | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -117,12 +137,13 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, tGlobal, canEdit, on
                 data.map((contact) => {
                   const isCustomer = 'firstName' in contact;
                   const entryIsNew = isNew(contact.createdAt);
+                  const name = isCustomer ? `${contact.firstName} ${contact.lastName}` : contact.companyName;
                   const displayData: DisplayContact = {
                       id: contact.id,
                       name: isCustomer ? `${contact.firstName} ${contact.lastName}` : contact.contactName,
                       company: isCustomer ? '-' : contact.companyName,
                       phone: contact.contactNumber,
-                      transactionCount: isCustomer ? (contact.transactionIds?.length ?? 0) : 0,
+                      transactionCount: transactionCounts[name] || 0,
                   };
                   return (
                     <TableRow key={contact.id} className={cn(entryIsNew && "bg-primary/5")}>
@@ -135,7 +156,7 @@ const ContactsTable = ({ data, isLoading, type, t, tDialog, tGlobal, canEdit, on
                       </TableCell>
                       <TableCell className="hidden md:table-cell truncate max-w-[150px]">{displayData.company}</TableCell>
                       <TableCell className="hidden sm:table-cell">{displayData.phone}</TableCell>
-                      <TableCell className="text-right">{displayData.transactionCount}</TableCell>
+                      <TableCell className="text-right font-mono text-xs">{displayData.transactionCount}</TableCell>
                       <TableCell className="text-right">
                         {canEdit && (
                          <DropdownMenu>
@@ -200,6 +221,30 @@ export default function ContactsPage() {
   const suppliersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'suppliers') : null, [firestore]);
   const { data: suppliers, isLoading: suppliersLoading } = useCollection<Supplier>(suppliersQuery);
 
+  const incomesQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'incomes') : null, [firestore]);
+  const { data: incomes } = useCollection<Income>(incomesQuery);
+
+  const expensesQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'expenses') : null, [firestore]);
+  const { data: expenses } = useCollection<Expense>(expensesQuery);
+
+  const customerTransactionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    incomes?.forEach(income => {
+      const name = income.customerName;
+      counts[name] = (counts[name] || 0) + 1;
+    });
+    return counts;
+  }, [incomes]);
+
+  const supplierTransactionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    expenses?.forEach(expense => {
+      const name = expense.supplierName;
+      counts[name] = (counts[name] || 0) + 1;
+    });
+    return counts;
+  }, [expenses]);
+
   const filteredCustomers = useMemo(() => {
     if (!customers) return [];
     return customers.filter(c =>
@@ -258,6 +303,7 @@ export default function ContactsPage() {
             tGlobal={tGlobal}
             canEdit={canEdit} 
             onEdit={setEditContact}
+            transactionCounts={customerTransactionCounts}
           />
         </TabsContent>
         <TabsContent value="suppliers">
@@ -270,6 +316,7 @@ export default function ContactsPage() {
             tGlobal={tGlobal}
             canEdit={canEdit} 
             onEdit={setEditContact}
+            transactionCounts={supplierTransactionCounts}
           />
         </TabsContent>
       </Tabs>
