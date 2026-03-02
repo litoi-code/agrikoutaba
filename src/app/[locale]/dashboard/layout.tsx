@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { FirebaseClientProvider } from "@/firebase";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
-import { isNew } from "@/lib/utils";
+import { cn, isNew } from "@/lib/utils";
 import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
 
 function DashboardLayoutInner({
@@ -112,7 +112,7 @@ function DashboardLayoutInner({
             </h2>
           </Link>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-2">
           <SidebarMenu>
             {navItems.map((item) => {
               const fullHref = `/${locale}${item.href}`;
@@ -123,14 +123,24 @@ function DashboardLayoutInner({
                   <SidebarMenuButton 
                     asChild 
                     tooltip={item.label} 
-                    className="h-11"
+                    className={cn(
+                      "h-11 transition-all duration-200 px-3",
+                      isActive 
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-sm" 
+                        : "hover:bg-sidebar-accent"
+                    )}
                     isActive={isActive}
                   >
-                    <Link href={item.href} className="flex items-center gap-2 w-full">
-                      {item.icon}
+                    <Link href={item.href} className="flex items-center gap-3 w-full">
+                      <span className={cn(isActive ? "text-primary-foreground" : "text-muted-foreground")}>
+                        {item.icon}
+                      </span>
                       <span className="flex-1">{item.label}</span>
                       {mounted && item.count !== undefined && item.count > 0 && (
-                        <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full">
+                        <Badge className={cn(
+                          "text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full",
+                          isActive ? "bg-white text-primary" : "bg-primary text-primary-foreground"
+                        )}>
                           {item.count}
                         </Badge>
                       )}
