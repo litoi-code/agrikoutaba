@@ -1,7 +1,8 @@
 'use client';
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, use, useMemo } from "react";
 import { collection } from "firebase/firestore";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -42,6 +43,8 @@ function DashboardLayoutInner({
 }) {
   const t = useTranslations("Sidebar");
   const tGlobal = useTranslations("Global");
+  const locale = useLocale();
+  const pathname = usePathname();
   const { currentWorker } = useCurrentUserRole();
   const [mounted, setMounted] = useState(false);
   const firestore = useFirestore();
@@ -111,21 +114,31 @@ function DashboardLayoutInner({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton asChild tooltip={item.label} className="h-11">
-                  <Link href={item.href} className="flex items-center gap-2 w-full">
-                    {item.icon}
-                    <span className="flex-1">{item.label}</span>
-                    {mounted && item.count !== undefined && item.count > 0 && (
-                      <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full">
-                        {item.count}
-                      </Badge>
-                    )}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {navItems.map((item) => {
+              const fullHref = `/${locale}${item.href}`;
+              const isActive = pathname === fullHref || (item.href !== "/dashboard" && pathname.startsWith(fullHref));
+
+              return (
+                <SidebarMenuItem key={item.label}>
+                  <SidebarMenuButton 
+                    asChild 
+                    tooltip={item.label} 
+                    className="h-11"
+                    isActive={isActive}
+                  >
+                    <Link href={item.href} className="flex items-center gap-2 w-full">
+                      {item.icon}
+                      <span className="flex-1">{item.label}</span>
+                      {mounted && item.count !== undefined && item.count > 0 && (
+                        <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full">
+                          {item.count}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
