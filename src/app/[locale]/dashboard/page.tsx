@@ -35,6 +35,8 @@ import {
   UsersRound,
   ClipboardCheck,
   DollarSign,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import type { Customer, Supplier, Task, Worker, Income, Expense, FinancialData } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -127,7 +129,39 @@ export default function DashboardPage() {
   }, [income, expenses, hasMounted]);
 
   // Memoized calculations
-  const totalContacts = useMemo(() => (customers?.length ?? 0) + (suppliers?.length ?? 0), [customers, suppliers]);
+  const contactStats = useMemo(() => {
+    if (!customers || !suppliers || !income || !expenses) {
+      return { total: 0, active: 0, inactive: 0 };
+    }
+
+    const total = customers.length + suppliers.length;
+    
+    // Create sets of active names for fast lookup
+    const activeCustomerNames = new Set(income.map(i => i.customerName.toLowerCase()));
+    const activeSupplierNames = new Set(expenses.map(e => e.supplierName.toLowerCase()));
+
+    let activeCount = 0;
+
+    customers.forEach(c => {
+      const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
+      if (activeCustomerNames.has(fullName)) {
+        activeCount++;
+      }
+    });
+
+    suppliers.forEach(s => {
+      if (activeSupplierNames.has(s.companyName.toLowerCase())) {
+        activeCount++;
+      }
+    });
+
+    return {
+      total,
+      active: activeCount,
+      inactive: total - activeCount
+    };
+  }, [customers, suppliers, income, expenses]);
+
   const pendingTasks = useMemo(() => tasks?.filter(task => task.status !== "Completed").length ?? 0, [tasks]);
   
   const netIncome = useMemo(() => {
@@ -222,8 +256,23 @@ export default function DashboardPage() {
             <UsersRound className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{totalContacts}</div>}
-            <p className="text-xs text-muted-foreground mt-1">{t('totalContactsDescription')}</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="flex flex-col gap-2">
+                <div className="text-2xl font-bold">{contactStats.total}</div>
+                <div className="flex items-center gap-4 text-xs font-medium">
+                  <div className="flex items-center gap-1 text-green-600">
+                    <TrendingUp className="h-3 w-3" />
+                    <span>{contactStats.active} {t('activeContacts')}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <TrendingDown className="h-3 w-3" />
+                    <span>{contactStats.inactive} {t('inactiveContacts')}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card className="hover:shadow-md transition-shadow">

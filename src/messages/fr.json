@@ -70,6 +70,8 @@
   "DashboardPage": {
     "title": "Tableau de bord",
     "totalContacts": "Contacts Totaux",
+    "activeContacts": "Actifs",
+    "inactiveContacts": "Inactifs",
     "totalContactsDescription": "Clients & Fournisseurs",
     "pendingTasks": "Tâches en Attente",
     "pendingTasksDescription": "Tâches en cours ou à faire",

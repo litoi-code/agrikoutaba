@@ -70,6 +70,8 @@
   "DashboardPage": {
     "title": "Dashboard",
     "totalContacts": "Total Contacts",
+    "activeContacts": "Active",
+    "inactiveContacts": "Inactive",
     "totalContactsDescription": "Customers & Suppliers",
     "pendingTasks": "Pending Tasks",
     "pendingTasksDescription": "Tasks in progress or to-do",
