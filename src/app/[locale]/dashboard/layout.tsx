@@ -126,7 +126,7 @@ function DashboardLayoutInner({
                     className={cn(
                       "h-11 transition-all duration-200 px-3",
                       isActive 
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-sm" 
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md scale-[1.02]" 
                         : "hover:bg-sidebar-accent"
                     )}
                     isActive={isActive}
@@ -138,8 +138,8 @@ function DashboardLayoutInner({
                       <span className="flex-1">{item.label}</span>
                       {mounted && item.count !== undefined && item.count > 0 && (
                         <Badge className={cn(
-                          "text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full",
-                          isActive ? "bg-white text-primary" : "bg-primary text-primary-foreground"
+                          "text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full transition-colors",
+                          isActive ? "bg-white text-primary font-bold" : "bg-primary text-primary-foreground"
                         )}>
                           {item.count}
                         </Badge>
