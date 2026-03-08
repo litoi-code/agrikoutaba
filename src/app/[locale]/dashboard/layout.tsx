@@ -105,18 +105,21 @@ function DashboardLayoutInner({
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link href="/dashboard" className="flex items-center gap-2 px-2">
-            <Leaf className="h-6 w-6 text-primary" />
-            <h2 className="text-lg font-headline font-bold truncate group-data-[collapsible=icon]:hidden">
+          <Link href="/dashboard" className="flex items-center gap-2 px-2 group">
+            <Leaf className="h-7 w-7 text-primary transition-transform group-hover:rotate-12" />
+            <h2 className="text-xl font-headline font-bold truncate group-data-[collapsible=icon]:hidden">
               {tGlobal("appName")}
             </h2>
           </Link>
         </SidebarHeader>
-        <SidebarContent className="px-2">
+        <SidebarContent className="px-3 gap-1">
           <SidebarMenu>
             {navItems.map((item) => {
               const fullHref = `/${locale}${item.href}`;
-              const isActive = pathname === fullHref || (item.href !== "/dashboard" && pathname.startsWith(fullHref));
+              // Handle exact match for dashboard home, startsWith for others
+              const isActive = item.href === "/dashboard" 
+                ? pathname === fullHref 
+                : pathname.startsWith(fullHref);
 
               return (
                 <SidebarMenuItem key={item.label}>
@@ -124,22 +127,27 @@ function DashboardLayoutInner({
                     asChild 
                     tooltip={item.label} 
                     className={cn(
-                      "h-11 transition-all duration-200 px-3",
+                      "h-12 transition-all duration-300 px-3 relative group/btn",
                       isActive 
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-md scale-[1.02]" 
-                        : "hover:bg-sidebar-accent"
+                        ? "bg-primary text-primary-foreground font-bold shadow-lg scale-[1.02] border-l-4 border-accent ring-1 ring-primary/20" 
+                        : "hover:bg-sidebar-accent text-muted-foreground hover:text-foreground"
                     )}
                     isActive={isActive}
                   >
                     <Link href={item.href} className="flex items-center gap-3 w-full">
-                      <span className={cn(isActive ? "text-primary-foreground" : "text-muted-foreground")}>
+                      <span className={cn(
+                        "transition-colors duration-300",
+                        isActive ? "text-primary-foreground" : "group-hover/btn:text-primary"
+                      )}>
                         {item.icon}
                       </span>
-                      <span className="flex-1">{item.label}</span>
+                      <span className="flex-1 truncate">{item.label}</span>
                       {mounted && item.count !== undefined && item.count > 0 && (
                         <Badge className={cn(
-                          "text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center rounded-full transition-colors",
-                          isActive ? "bg-white text-primary font-bold" : "bg-primary text-primary-foreground"
+                          "text-[10px] px-1.5 h-4.5 min-w-4.5 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm",
+                          isActive 
+                            ? "bg-accent text-accent-foreground font-bold ring-2 ring-primary-foreground/20" 
+                            : "bg-primary text-primary-foreground"
                         )}>
                           {item.count}
                         </Badge>
@@ -151,17 +159,17 @@ function DashboardLayoutInner({
             })}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-center gap-3 p-3">
-            <Avatar className="h-8 w-8 shrink-0">
+        <SidebarFooter className="mt-auto border-t bg-sidebar-accent/30">
+          <div className="flex items-center gap-3 p-4">
+            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/10">
               {mounted && currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
-              <AvatarFallback>{mounted ? userInitial : ''}</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-bold">{mounted ? userInitial : ''}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
-              <span className="text-sm font-semibold truncate leading-none mb-1">
+            <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden flex-1">
+              <span className="text-sm font-bold truncate leading-none mb-1">
                 {mounted ? `${currentWorker?.firstName} ${currentWorker?.lastName}` : '...'}
               </span>
-              <span className="text-xs text-muted-foreground truncate leading-none">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider truncate leading-none">
                 {mounted ? currentWorker?.role : '...'}
               </span>
             </div>
@@ -173,9 +181,9 @@ function DashboardLayoutInner({
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 shadow-sm">
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger className="-ml-1 hover:bg-primary/5 text-primary" />
           <div className="flex-1">
-             <h1 className="text-lg font-semibold md:hidden truncate">{tGlobal("appName")}</h1>
+             <h1 className="text-lg font-bold md:hidden text-primary truncate">{tGlobal("appName")}</h1>
           </div>
           <div className="flex items-center gap-2 md:hidden">
              {mounted && <LanguageSwitcher />}
@@ -184,7 +192,7 @@ function DashboardLayoutInner({
         <main className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
           {!mounted ? (
              <div className="flex h-full w-full items-center justify-center py-20">
-                <Leaf className="h-10 w-10 text-primary animate-pulse" />
+                <Leaf className="h-12 w-12 text-primary animate-bounce" />
              </div>
           ) : children}
         </main>
