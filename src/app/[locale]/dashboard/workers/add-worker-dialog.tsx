@@ -1,14 +1,14 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { doc } from "firebase/firestore";
+import { doc, collection } from "firebase/firestore";
 import {
   useFirestore,
   updateDocumentNonBlocking,
+  addDocumentNonBlocking,
   type WithId,
 } from "@/firebase";
 import { useTranslations } from "next-intl";
@@ -50,14 +50,14 @@ const workerSchema = z.object({
   contactNumber: z.string().min(1, "Contact number is required"),
 });
 
-interface EditWorkerDialogProps {
+interface AddWorkerDialogProps {
   children?: React.ReactNode;
   worker: WithId<Worker> | null;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpenChange: setControlledOpen }: EditWorkerDialogProps) {
+export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpenChange: setControlledOpen }: AddWorkerDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
@@ -65,6 +65,7 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("WorkersPage.AddWorkerDialog");
+  const isEditMode = !!worker;
 
   const form = useForm<z.infer<typeof workerSchema>>({
     resolver: zodResolver(workerSchema),
@@ -78,29 +79,55 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
   });
 
   useEffect(() => {
-    if (open && worker) {
-      form.reset({
-        firstName: worker.firstName || "",
-        lastName: worker.lastName || "",
-        email: worker.email || "",
-        role: worker.role || "Worker",
-        contactNumber: worker.contactNumber || "",
-      });
+    if (open) {
+      if (worker) {
+        form.reset({
+          firstName: worker.firstName || "",
+          lastName: worker.lastName || "",
+          email: worker.email || "",
+          role: worker.role || "Worker",
+          contactNumber: worker.contactNumber || "",
+        });
+      } else {
+        form.reset({
+          firstName: "",
+          lastName: "",
+          email: "",
+          role: "Worker",
+          contactNumber: "",
+        });
+      }
     }
   }, [open, worker, form]);
 
   const onSubmit = (values: z.infer<typeof workerSchema>) => {
-    if (!firestore || !worker) return;
+    if (!firestore) return;
 
-    const workerRef = doc(firestore, "workers", worker.id);
-    updateDocumentNonBlocking(workerRef, values);
-    toast({
-      title: t("toastUpdateTitle"),
-      description: t("toastDescription", {
-        firstName: values.firstName,
-        lastName: values.lastName,
-      }),
-    });
+    if (isEditMode && worker) {
+      const workerRef = doc(firestore, "workers", worker.id);
+      updateDocumentNonBlocking(workerRef, values);
+      toast({
+        title: t("toastUpdateTitle"),
+        description: t("toastDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    } else {
+      const workersRef = collection(firestore, "workers");
+      addDocumentNonBlocking(workersRef, {
+        ...values,
+        createdAt: new Date().toISOString(),
+        taskIds: [],
+      });
+      toast({
+        title: t("toastTitle"),
+        description: t("toastDescription", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+        }),
+      });
+    }
     setOpen(false);
   };
 
@@ -109,9 +136,9 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("editTitle")}</DialogTitle>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
           <DialogDescription>
-            {t("editDescription")}
+            {isEditMode ? t("editDescription") : t("description")}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -154,7 +181,7 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
                 <FormItem>
                   <FormLabel>{t("emailLabel")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="john.doe@example.com" {...field} disabled />
+                    <Input placeholder="john.doe@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,7 +226,7 @@ export function AddWorkerDialog({ children, worker, open: controlledOpen, onOpen
               )}
             />
             <DialogFooter>
-              <Button type="submit">{t("saveButton")}</Button>
+              <Button type="submit">{isEditMode ? t("saveButton") : t("addButton")}</Button>
             </DialogFooter>
           </form>
         </Form>

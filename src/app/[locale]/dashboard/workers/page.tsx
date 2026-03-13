@@ -34,7 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, Search, Sparkles, PlusCircle } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddWorkerDialog } from './add-worker-dialog';
 import type { Worker, Task } from '@/lib/types';
@@ -112,6 +112,14 @@ export default function WorkersPage() {
                 className="pl-10 w-64"
               />
             </div>
+            {!isLoading && isAdmin && (
+              <AddWorkerDialog worker={null}>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  {t('addNew')}
+                </Button>
+              </AddWorkerDialog>
+            )}
           </div>
         </div>
         
