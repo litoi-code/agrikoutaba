@@ -82,6 +82,7 @@ export function InvestmentFormDialog({
       description: "",
       amount: "" as any,
       equityDetails: "",
+      date: new Date(),
     },
   });
 
@@ -89,7 +90,10 @@ export function InvestmentFormDialog({
     if (open) {
       if (investment) {
         form.reset({
-          ...investment,
+          investorName: investment.investorName,
+          description: investment.description,
+          amount: investment.amount,
+          equityDetails: investment.equityDetails,
           date: new Date(investment.date),
         });
       } else {
@@ -140,9 +144,7 @@ export function InvestmentFormDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
-      <DialogContent
-        className="sm:max-w-[425px]"
-      >
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
           <DialogDescription>
@@ -180,19 +182,62 @@ export function InvestmentFormDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("amountLabel")}</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="1000000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("amountLabel")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="1000000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>{t("dateLabel")}</FormLabel>
+                    <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(field.value, "PP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setCalendarOpen(false);
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="equityDetails"
@@ -205,46 +250,6 @@ export function InvestmentFormDialog({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>{t("dateLabel")}</FormLabel>
-                  <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => {
-                          field.onChange(date);
-                          setCalendarOpen(false);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
