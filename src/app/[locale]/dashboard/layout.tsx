@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, use, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { collection } from "firebase/firestore";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import {
@@ -30,13 +30,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { FirebaseClientProvider } from "@/firebase";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
 import { cn, isNew } from "@/lib/utils";
 import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
 
-function DashboardLayoutInner({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -105,7 +104,7 @@ function DashboardLayoutInner({
     <SidebarProvider defaultOpen={true}>
       <Sidebar collapsible="icon">
         <SidebarHeader className="p-4">
-          <Link href="/dashboard" className="flex items-center gap-2 px-2 group">
+          <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 px-2 group">
             <Leaf className="h-7 w-7 text-primary transition-transform group-hover:rotate-12" />
             <h2 className="text-xl font-headline font-bold truncate group-data-[collapsible=icon]:hidden">
               {tGlobal("appName")}
@@ -116,7 +115,6 @@ function DashboardLayoutInner({
           <SidebarMenu>
             {navItems.map((item) => {
               const fullHref = `/${locale}${item.href}`;
-              // Handle exact match for dashboard home, startsWith for others
               const isActive = item.href === "/dashboard" 
                 ? pathname === fullHref 
                 : pathname.startsWith(fullHref);
@@ -134,7 +132,7 @@ function DashboardLayoutInner({
                     )}
                     isActive={isActive}
                   >
-                    <Link href={item.href} className="flex items-center gap-3 w-full">
+                    <Link href={fullHref} className="flex items-center gap-3 w-full">
                       <span className={cn(
                         "transition-colors duration-300",
                         isActive ? "text-primary-foreground" : "group-hover/btn:text-primary"
@@ -198,23 +196,5 @@ function DashboardLayoutInner({
         </main>
       </SidebarInset>
     </SidebarProvider>
-  );
-}
-
-export default function DashboardLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = use(params);
-
-  return (
-    <FirebaseClientProvider>
-      <DashboardLayoutInner>
-        {children}
-      </DashboardLayoutInner>
-    </FirebaseClientProvider>
   );
 }

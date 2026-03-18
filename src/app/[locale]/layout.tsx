@@ -1,6 +1,7 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages, getTranslations} from 'next-intl/server';
 import { Toaster } from "@/components/ui/toaster";
+import { FirebaseClientProvider } from "@/firebase";
 import '../globals.css';
 
 export async function generateMetadata({params: {locale}}: {params: {locale: string}}): Promise<{title: string, description: string}> {
@@ -30,7 +31,9 @@ export default async function LocaleLayout({
       </head>
       <body className="font-body antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <FirebaseClientProvider>
+            {children}
+          </FirebaseClientProvider>
         </NextIntlClientProvider>
         <Toaster />
       </body>

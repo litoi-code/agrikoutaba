@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   const t = useTranslations('HomePage');
+  const locale = useLocale();
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-primary">
@@ -19,7 +20,7 @@ export function HeroSection() {
                     {t('subtitle')}
                 </p>
                 <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-lg transition-transform hover:scale-105">
-                    <Link href="/dashboard">{t('getStarted')}</Link>
+                    <Link href={`/${locale}/dashboard`}>{t('getStarted')}</Link>
                 </Button>
             </div>
         </div>

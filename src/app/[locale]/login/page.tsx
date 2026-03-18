@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FirebaseClientProvider, useAuth } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf } from 'lucide-react';
@@ -34,7 +34,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-function LoginPageContent() {
+export default function LoginPage() {
   const auth = useAuth();
   const router = useRouter();
   const locale = useLocale();
@@ -123,7 +123,7 @@ function LoginPageContent() {
             </Form>
             <div className="mt-4 text-center text-sm">
               {t('noAccount')}{' '}
-              <Link href="/signup" className="underline">
+              <Link href={`/${locale}/signup`} className="underline">
                 {t('signUpLink')}
               </Link>
             </div>
@@ -132,12 +132,4 @@ function LoginPageContent() {
       </div>
     </div>
   );
-}
-
-export default function LoginPage() {
-    return (
-        <FirebaseClientProvider>
-            <LoginPageContent />
-        </FirebaseClientProvider>
-    )
 }

@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { FirebaseClientProvider, useAuth, useFirestore } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf } from 'lucide-react';
@@ -37,7 +37,7 @@ const signupSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-function SignupPageContent() {
+export default function SignupPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
@@ -177,8 +177,8 @@ function SignupPageContent() {
               </form>
             </Form>
             <div className="mt-4 text-center text-sm">
-              {t('hasAccount')}{' '}
-              <Link href="/login" className="underline">
+              {t('hasAccount')}{}
+              <Link href={`/${locale}/login`} className="underline">
                 {t('logInLink')}
               </Link>
             </div>
@@ -187,13 +187,4 @@ function SignupPageContent() {
       </div>
     </div>
   );
-}
-
-
-export default function SignupPage() {
-    return (
-        <FirebaseClientProvider>
-            <SignupPageContent />
-        </FirebaseClientProvider>
-    )
 }
