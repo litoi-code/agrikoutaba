@@ -147,7 +147,7 @@ export default function InvestmentsPage() {
 
   const filteredInvestments = useMemo(() => {
     if (!investments) return [];
-    return investments.filter(inv => {
+    const filtered = investments.filter(inv => {
         const matchesSearch = inv.investorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             inv.description.toLowerCase().includes(searchTerm.toLowerCase());
         
@@ -159,6 +159,9 @@ export default function InvestmentsPage() {
 
         return matchesSearch && itemDate >= from && itemDate <= to;
     });
+
+    // Sort by date descending (newest first)
+    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [investments, searchTerm, dateRange]);
 
   const totalInvested = useMemo(() => filteredInvestments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [filteredInvestments]);
