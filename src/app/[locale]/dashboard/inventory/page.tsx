@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddItemDialog } from './add-item-dialog';
@@ -53,6 +54,8 @@ export default function InventoryPage() {
   const [deleteTarget, setDeleteTarget] = useState<WithId<Item> | null>(null);
   const [editItem, setEditItem] = useState<WithId<Item> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -85,6 +88,37 @@ export default function InventoryPage() {
     setDeleteTarget(null);
   };
 
+  const handleBulkDelete = () => {
+    if (!firestore || selectedIds.length === 0) return;
+    
+    selectedIds.forEach(id => {
+      const docRef = doc(firestore, 'items', id);
+      deleteDocumentNonBlocking(docRef);
+    });
+
+    toast({
+      title: tDialog("toastDeleteTitle"),
+      description: `${selectedIds.length} items have been removed.`,
+    });
+    
+    setSelectedIds([]);
+    setIsBulkDeleteDialogOpen(false);
+  };
+
+  const handleSelectChange = (id: string, selected: boolean) => {
+    setSelectedIds(prev => 
+      selected ? [...prev, id] : prev.filter(i => i !== id)
+    );
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedIds(filteredItems.map(item => item.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case 'Input': return t('categoryInput');
@@ -112,13 +146,21 @@ export default function InventoryPage() {
             />
           </div>
           {!isLoading && canEdit && (
-            <AddItemDialog suppliers={allSuppliers}>
-              <Button size="sm">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">{t('addNew')}</span>
-                <span className="sm:hidden">{t('addNew').split(' ')[0]}</span>
-              </Button>
-            </AddItemDialog>
+            <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => setIsBulkDeleteDialogOpen(true)}>
+                  <Trash className="mr-2 h-4 w-4" />
+                  {selectedIds.length}
+                </Button>
+              )}
+              <AddItemDialog suppliers={allSuppliers}>
+                <Button size="sm">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">{t('addNew')}</span>
+                  <span className="sm:hidden">{t('addNew').split(' ')[0]}</span>
+                </Button>
+              </AddItemDialog>
+            </div>
           )}
         </div>
       </div>
@@ -128,6 +170,13 @@ export default function InventoryPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]">
+                  <Checkbox 
+                    checked={filteredItems.length > 0 && selectedIds.length === filteredItems.length}
+                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                    aria-label="Select all items"
+                  />
+                </TableHead>
                 <TableHead>{t('nameColumn')}</TableHead>
                 <TableHead className="hidden lg:table-cell">{t('categoryColumn')}</TableHead>
                 <TableHead className="hidden md:table-cell">{t('descriptionLabel')}</TableHead>
@@ -141,6 +190,7 @@ export default function InventoryPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-4" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
                     <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
@@ -153,8 +203,16 @@ export default function InventoryPage() {
               ) : (
                 filteredItems?.map((item) => {
                   const entryIsNew = isNew(item.createdAt);
+                  const isSelected = selectedIds.includes(item.id);
                   return (
-                    <TableRow key={item.id} className={cn(entryIsNew && "bg-primary/5")}>
+                    <TableRow key={item.id} className={cn(entryIsNew && "bg-primary/5", isSelected && "bg-muted/50")}>
+                      <TableCell className="w-[40px]">
+                        <Checkbox 
+                          checked={isSelected} 
+                          onCheckedChange={(checked) => handleSelectChange(item.id, !!checked)}
+                          aria-label={`Select ${item.name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium max-w-[120px] truncate">
                         <div className="flex items-center gap-2">
                           {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
@@ -226,6 +284,23 @@ export default function InventoryPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{tDialog('deleteButton')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tDialog('deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.length} selected items? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
+              {tDialog('deleteButton')}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

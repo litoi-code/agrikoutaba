@@ -38,6 +38,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PlusCircle, Wallet, FileText, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
 import type { Investment } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -47,7 +48,25 @@ import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 import { DatePickerWithRange } from '@/components/date-range-picker';
 import { cn, isNew } from '@/lib/utils';
 
-const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit, onEdit }: { inv: WithId<Investment>, tGlobal: any, t: any, tDialog: any, canEdit: boolean, onEdit: (inv: WithId<Investment>) => void }) => {
+const InvestmentRow = ({ 
+  inv, 
+  tGlobal, 
+  t, 
+  tDialog, 
+  canEdit, 
+  onEdit,
+  isSelected,
+  onSelectChange
+}: { 
+  inv: WithId<Investment>, 
+  tGlobal: any, 
+  t: any, 
+  tDialog: any, 
+  canEdit: boolean, 
+  onEdit: (inv: WithId<Investment>) => void,
+  isSelected: boolean,
+  onSelectChange: (selected: boolean) => void
+}) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -72,7 +91,14 @@ const InvestmentRow = ({ inv, tGlobal, t, tDialog, canEdit, onEdit }: { inv: Wit
 
   return (
     <>
-      <TableRow className={cn(entryIsNew && "bg-primary/5")}>
+      <TableRow className={cn(entryIsNew && "bg-primary/5", isSelected && "bg-muted/50")}>
+        <TableCell className="w-[40px]">
+          <Checkbox 
+            checked={isSelected} 
+            onCheckedChange={(checked) => onSelectChange(!!checked)}
+            aria-label={`Select investment from ${inv.investorName}`}
+          />
+        </TableCell>
         <TableCell className="font-medium">
           <div className="flex items-center gap-2">
             {entryIsNew && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
@@ -135,9 +161,14 @@ export default function InvestmentsPage() {
   const t = useTranslations('InvestmentsPage');
   const tDialog = useTranslations('InvestmentsPage.AddInvestmentDialog');
   const tGlobal = useTranslations('Global');
+  const { toast } = useToast();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [editInvestment, setEditInvestment] = useState<WithId<Investment> | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
+  
   const { role, isLoading: isRoleLoading } = useCurrentUserRole();
 
   const canEdit = role === 'Admin' || role === 'Manager';
@@ -160,13 +191,43 @@ export default function InvestmentsPage() {
         return matchesSearch && itemDate >= from && itemDate <= to;
     });
 
-    // Sort by date descending (newest first)
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [investments, searchTerm, dateRange]);
 
   const totalInvested = useMemo(() => filteredInvestments?.reduce((sum, inv) => sum + inv.amount, 0) ?? 0, [filteredInvestments]);
 
   const isLoading = investmentsLoading || isRoleLoading;
+
+  const handleSelectChange = (id: string, selected: boolean) => {
+    setSelectedIds(prev => 
+      selected ? [...prev, id] : prev.filter(i => i !== id)
+    );
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedIds(filteredInvestments.map(inv => inv.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (!firestore || selectedIds.length === 0) return;
+    
+    selectedIds.forEach(id => {
+      const docRef = doc(firestore, 'investments', id);
+      deleteDocumentNonBlocking(docRef);
+    });
+
+    toast({
+      title: tDialog("toastDeleteTitle"),
+      description: `${selectedIds.length} records have been deleted.`,
+    });
+    
+    setSelectedIds([]);
+    setIsBulkDeleteDialogOpen(false);
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -184,12 +245,20 @@ export default function InvestmentsPage() {
           </div>
           <DatePickerWithRange date={dateRange} setDate={setDateRange} className="w-full sm:w-auto" />
           {!isLoading && canEdit && (
-            <InvestmentFormDialog>
-              <Button className="w-full sm:w-auto">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {t('addNew')}
-              </Button>
-            </InvestmentFormDialog>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+               {selectedIds.length > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => setIsBulkDeleteDialogOpen(true)}>
+                  <Trash className="mr-2 h-4 w-4" />
+                  {t('deleteAction')} ({selectedIds.length})
+                </Button>
+              )}
+              <InvestmentFormDialog>
+                <Button className="flex-1 sm:flex-none">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  {t('addNew')}
+                </Button>
+              </InvestmentFormDialog>
+            </div>
           )}
         </div>
       </div>
@@ -214,6 +283,13 @@ export default function InvestmentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px]">
+                  <Checkbox 
+                    checked={filteredInvestments.length > 0 && selectedIds.length === filteredInvestments.length}
+                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                    aria-label="Select all investments"
+                  />
+                </TableHead>
                 <TableHead>{t('investorColumn')}</TableHead>
                 <TableHead className="hidden sm:table-cell">{t('descriptionColumn')}</TableHead>
                 <TableHead className="hidden md:table-cell">{t('dateColumn')}</TableHead>
@@ -226,6 +302,7 @@ export default function InvestmentsPage() {
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-4" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
@@ -236,7 +313,17 @@ export default function InvestmentsPage() {
                 ))
               ) : (
                 filteredInvestments?.map((inv) => (
-                  <InvestmentRow key={inv.id} inv={inv} tGlobal={tGlobal} t={t} tDialog={tDialog} canEdit={canEdit} onEdit={setEditInvestment} />
+                  <InvestmentRow 
+                    key={inv.id} 
+                    inv={inv} 
+                    tGlobal={tGlobal} 
+                    t={t} 
+                    tDialog={tDialog} 
+                    canEdit={canEdit} 
+                    onEdit={setEditInvestment}
+                    isSelected={selectedIds.includes(inv.id)}
+                    onSelectChange={(selected) => handleSelectChange(inv.id, selected)}
+                  />
                 ))
               )}
             </TableBody>
@@ -249,6 +336,23 @@ export default function InvestmentsPage() {
         open={!!editInvestment} 
         onOpenChange={(open) => !open && setEditInvestment(null)} 
       />
+
+      <AlertDialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tDialog('deleteTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.length} selected records? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tDialog('cancelButton')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
+              {tDialog('deleteButton')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
