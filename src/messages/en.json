@@ -1,4 +1,3 @@
-
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -343,16 +342,26 @@
   "SettingsPage": {
     "title": "Settings",
     "backupTitle": "Data Backup & Recovery",
-    "backupDescription": "Export all your farm data to a JSON file for safety, or restore it from a previous backup.",
-    "exportButton": "Export All Data (JSON)",
-    "importButton": "Import Data from JSON",
-    "importDescription": "Select a valid AgriKoutaba backup file to restore your data.",
+    "backupDescription": "Export all your farm data for safety, or restore it from a previous backup.",
+    "exportButton": "Export All Data",
+    "importButton": "Restore from File",
+    "restoreTitle": "Restore Data",
+    "exportTargetLabel": "Export Destination",
+    "selectExportTarget": "Choose where to save",
+    "targetLocal": "Local Device (JSON)",
+    "targetDrive": "Google Drive",
+    "driveSetupTitle": "Google Drive Integration",
+    "driveSetupDescription": "Direct Google Drive export requires Google API configuration. Please use the Local JSON option for now.",
+    "driveSetupInstructions": "To enable Google Drive, you must configure a Google Cloud Console project with the Drive API enabled and provide your Client ID in the application settings.",
+    "importantNote": "Important",
+    "backupWarning": "Restoring data will overwrite existing records with matching IDs. Always ensure you have a recent backup before importing a new data set.",
     "toastExportTitle": "Backup Created",
     "toastExportDescription": "Your data has been successfully exported.",
     "toastImportTitle": "Data Restored",
     "toastImportDescription": "All records have been successfully imported into your dashboard.",
-    "toastImportError": "Failed to restore data. Please check if the file is valid.",
+    "toastImportError": "Failed to process data. Please check if the file is valid.",
     "confirmImportTitle": "Confirm Data Restore",
-    "confirmImportDescription": "This will import all data from the backup file. Existing records with the same IDs will be updated. Do you want to proceed?"
+    "confirmImportDescription": "This will import all data from the backup file. Existing records with the same IDs will be updated. Do you want to proceed?",
+    "cancelButton": "Cancel"
   }
 }

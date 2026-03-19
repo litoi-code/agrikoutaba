@@ -1,16 +1,15 @@
-
 'use client';
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useFirestore } from '@/firebase';
-import { collection, getDocs, doc, setDoc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Download, Upload, ShieldCheck, Loader2, AlertTriangle } from 'lucide-react';
+import { Download, Upload, ShieldCheck, Loader2, AlertTriangle, Cloud, Laptop, Info } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +20,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const COLLECTIONS = [
   'items',
@@ -41,9 +47,20 @@ export default function SettingsPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [importData, setImportData] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [exportTarget, setExportTarget] = useState<'local' | 'drive'>('local');
 
   const handleExport = async () => {
     if (!firestore) return;
+
+    if (exportTarget === 'drive') {
+      toast({
+        title: t('driveSetupTitle'),
+        description: t('driveSetupDescription'),
+        variant: "default",
+      });
+      return;
+    }
+
     setIsExporting(true);
 
     try {
@@ -73,6 +90,11 @@ export default function SettingsPage() {
       });
     } catch (error) {
       console.error('Export failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Export Error",
+        description: t('toastImportError'),
+      });
     } finally {
       setIsExporting(false);
     }
@@ -97,7 +119,6 @@ export default function SettingsPage() {
       }
     };
     reader.readAsText(file);
-    // Reset input
     event.target.value = '';
   };
 
@@ -107,15 +128,12 @@ export default function SettingsPage() {
     setIsConfirmOpen(false);
 
     try {
-      // We process collection by collection
       for (const collectionName of Object.keys(importData)) {
         if (!COLLECTIONS.includes(collectionName)) continue;
         
         const dataList = importData[collectionName];
         if (!Array.isArray(dataList)) continue;
 
-        // Use batches for efficiency where possible, but for simplicity in MVP we use setDoc
-        // as workers might have specific UIDs from Auth
         for (const entry of dataList) {
           const { id, ...data } = entry;
           if (id) {
@@ -156,46 +174,84 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={handleExport} 
-              disabled={isExporting}
-              variant="outline"
-              className="flex-1"
-            >
-              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-              {t('exportButton')}
-            </Button>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>{t('exportTargetLabel')}</Label>
+                <Select value={exportTarget} onValueChange={(v: any) => setExportTarget(v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t('selectExportTarget')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="local">
+                      <div className="flex items-center gap-2">
+                        <Laptop className="h-4 w-4" />
+                        <span>{t('targetLocal')}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="drive">
+                      <div className="flex items-center gap-2">
+                        <Cloud className="h-4 w-4" />
+                        <span>{t('targetDrive')}</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex-1">
-              <Label htmlFor="import-file" className="sr-only">
-                {t('importButton')}
-              </Label>
-              <Input
-                id="import-file"
-                type="file"
-                accept=".json"
-                onChange={handleFileChange}
-                className="hidden"
-              />
               <Button 
-                asChild
-                disabled={isImporting}
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                onClick={handleExport} 
+                disabled={isExporting}
+                className="w-full"
               >
-                <label htmlFor="import-file" className="cursor-pointer">
-                  {isImporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                  {t('importButton')}
-                </label>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                {t('exportButton')}
               </Button>
             </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>{t('restoreTitle')}</Label>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="import-file" className="sr-only">
+                    {t('importButton')}
+                  </Label>
+                  <Input
+                    id="import-file"
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button 
+                    asChild
+                    disabled={isImporting}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    <label htmlFor="import-file" className="cursor-pointer">
+                      {isImporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                      {t('importButton')}
+                    </label>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {exportTarget === 'drive' && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3 border border-blue-200 dark:border-blue-800">
+              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
+                <strong>{t('driveSetupTitle')}:</strong> {t('driveSetupInstructions')}
+              </div>
+            </div>
+          )}
 
           <div className="bg-muted/50 p-4 rounded-lg flex items-start gap-3 border border-yellow-200/50">
             <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
             <div className="text-xs text-muted-foreground leading-relaxed">
-              <strong>Important:</strong> Restoring data will overwrite existing records with matching IDs. 
-              Always ensure you have a recent backup before importing a new data set.
+              <strong>{t('importantNote')}:</strong> {t('backupWarning')}
             </div>
           </div>
         </CardContent>
