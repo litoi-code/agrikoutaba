@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -15,6 +16,7 @@ import {
   UsersRound,
   Users,
   Boxes,
+  Settings,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -96,6 +98,7 @@ export default function DashboardLayout({
     { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers"), count: counts.workers },
     { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: counts.finances },
     { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: counts.investments },
+    { href: "/dashboard/settings", icon: <Settings className="h-4 w-4" />, label: t("settings") },
   ];
   
   const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';

@@ -13,7 +13,6 @@
     "workers": "Workers",
     "finances": "Finances",
     "investments": "Investments",
-    "farmOwner": "Farm Owner",
     "settings": "Settings",
     "changeLanguage": "Change language",
     "logout": "Logout"
@@ -340,5 +339,20 @@
       "deleteButton": "Delete",
       "cancelButton": "Cancel"
     }
+  },
+  "SettingsPage": {
+    "title": "Settings",
+    "backupTitle": "Data Backup & Recovery",
+    "backupDescription": "Export all your farm data to a JSON file for safety, or restore it from a previous backup.",
+    "exportButton": "Export All Data (JSON)",
+    "importButton": "Import Data from JSON",
+    "importDescription": "Select a valid AgriKoutaba backup file to restore your data.",
+    "toastExportTitle": "Backup Created",
+    "toastExportDescription": "Your data has been successfully exported.",
+    "toastImportTitle": "Data Restored",
+    "toastImportDescription": "All records have been successfully imported into your dashboard.",
+    "toastImportError": "Failed to restore data. Please check if the file is valid.",
+    "confirmImportTitle": "Confirm Data Restore",
+    "confirmImportDescription": "This will import all data from the backup file. Existing records with the same IDs will be updated. Do you want to proceed?"
   }
 }

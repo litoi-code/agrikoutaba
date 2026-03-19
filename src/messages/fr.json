@@ -13,7 +13,6 @@
     "workers": "Ouvriers",
     "finances": "Finances",
     "investments": "Investissements",
-    "farmOwner": "Propriétaire",
     "settings": "Paramètres",
     "changeLanguage": "Changer de langue",
     "logout": "Déconnexion"
@@ -340,5 +339,20 @@
       "deleteButton": "Supprimer",
       "cancelButton": "Annuler"
     }
+  },
+  "SettingsPage": {
+    "title": "Paramètres",
+    "backupTitle": "Sauvegarde et Récupération des Données",
+    "backupDescription": "Exportez toutes vos données d'exploitation vers un fichier JSON pour la sécurité, ou restaurez-les à partir d'une sauvegarde précédente.",
+    "exportButton": "Exporter toutes les données (JSON)",
+    "importButton": "Importer des données depuis JSON",
+    "importDescription": "Sélectionnez un fichier de sauvegarde AgriKoutaba valide pour restaurer vos données.",
+    "toastExportTitle": "Sauvegarde Créée",
+    "toastExportDescription": "Vos données ont été exportées avec succès.",
+    "toastImportTitle": "Données Restaurées",
+    "toastImportDescription": "Tous les enregistrements ont été importés avec succès dans votre tableau de bord.",
+    "toastImportError": "Échec de la restauration des données. Veuillez vérifier si le fichier est valide.",
+    "confirmImportTitle": "Confirmer la Restauration des Données",
+    "confirmImportDescription": "Ceci importera toutes les données du fichier de sauvegarde. Les enregistrements existants avec les mêmes identifiants seront mis à jour. Voulez-vous continuer ?"
   }
 }
