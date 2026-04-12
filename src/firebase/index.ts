@@ -4,11 +4,11 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, Firestore, terminate } from 'firebase/firestore';
 
 /**
  * Singleton-style references to ensure we don't re-initialize 
- * SDKs unnecessarily during hot reloads.
+ * SDKs unnecessarily during hot reloads or route transitions.
  */
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
@@ -19,6 +19,14 @@ let db: Firestore | undefined;
  * Enforces long-polling for maximum compatibility in all network environments.
  */
 export function initializeFirebase() {
+  if (typeof window === 'undefined') {
+    return {
+      firebaseApp: null as any,
+      auth: null as any,
+      firestore: null as any,
+    };
+  }
+
   if (!app) {
     app = getApps().length === 0 
       ? initializeApp(firebaseConfig) 
@@ -32,11 +40,12 @@ export function initializeFirebase() {
   if (!db) {
     try {
       // Force long polling to avoid gRPC/connection issues in restricted environments.
+      // This is the recommended setting for maximum compatibility in cloud-based IDEs.
       db = initializeFirestore(app, {
         experimentalForceLongPolling: true,
       });
     } catch (e) {
-      // Fallback if already initialized
+      // Fallback if already initialized (e.g. during HMR)
       db = getFirestore(app);
     }
   }

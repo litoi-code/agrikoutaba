@@ -4,7 +4,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from "@/firebase";
 import '../globals.css';
 
-export async function generateMetadata({params: {locale}}: {params: {locale: string}}): Promise<{title: string, description: string}> {
+type Params = Promise<{ locale: string }>;
+
+export async function generateMetadata({params}: {params: Params}): Promise<{title: string, description: string}> {
+  const { locale } = await params;
   const t = await getTranslations({locale, namespace: 'HomePage'});
 
   return {
@@ -15,11 +18,12 @@ export async function generateMetadata({params: {locale}}: {params: {locale: str
 
 export default async function LocaleLayout({
   children,
-  params: {locale}
+  params
 }: Readonly<{
   children: React.ReactNode;
-  params: {locale: string};
+  params: Params;
 }>) {
+  const { locale } = await params;
   const messages = await getMessages({locale});
 
   return (
