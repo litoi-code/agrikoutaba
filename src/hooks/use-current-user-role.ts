@@ -1,25 +1,33 @@
-
 'use client';
+
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import type { Worker } from '@/lib/types';
 
 /**
- * Mocked hook to provide full Admin access to all users.
- * Authentication and specific worker lookups are removed.
+ * Hook to provide real role-based access control by fetching the current 
+ * worker's profile from Firestore.
  */
 export function useCurrentUserRole() {
-  const currentWorker: Worker = {
-    id: 'admin-user',
-    firstName: 'Agri',
-    lastName: 'Admin',
-    email: 'admin@agrikoutaba.com',
-    role: 'Admin',
-    contactNumber: 'N/A',
-    taskIds: [],
-  };
+  const { user, isUserLoading: isAuthLoading } = useUser();
+  const firestore = useFirestore();
+
+  // Create a memoized reference to the worker document
+  const workerDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'workers', user.uid);
+  }, [firestore, user]);
+
+  // Subscribe to the worker document in real-time
+  const { data: currentWorker, isLoading: isDocLoading } = useDoc<Worker>(workerDocRef);
+
+  // If no document exists or we are loading, we default to minimal permissions
+  const role = currentWorker?.role || 'Worker';
+  const isLoading = isAuthLoading || isDocLoading;
 
   return { 
-    role: 'Admin' as const, 
-    isLoading: false, 
-    currentWorker 
+    role: role as 'Admin' | 'Manager' | 'Worker', 
+    isLoading, 
+    currentWorker: currentWorker || null 
   };
 }

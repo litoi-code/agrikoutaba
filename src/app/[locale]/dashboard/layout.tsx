@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from "next/link";
@@ -46,7 +45,7 @@ export default function DashboardLayout({
   const tGlobal = useTranslations("Global");
   const locale = useLocale();
   const pathname = usePathname();
-  const { currentWorker } = useCurrentUserRole();
+  const { currentWorker, isLoading: isUserLoading } = useCurrentUserRole();
   const [mounted, setMounted] = useState(false);
   const firestore = useFirestore();
 
@@ -191,7 +190,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
-          {!mounted ? (
+          {!mounted || isUserLoading ? (
              <div className="flex h-full w-full items-center justify-center py-20">
                 <Leaf className="h-12 w-12 text-primary animate-bounce" />
              </div>
