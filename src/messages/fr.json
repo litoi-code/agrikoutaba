@@ -1,3 +1,4 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -341,6 +342,16 @@
   },
   "SettingsPage": {
     "title": "Paramètres",
+    "tabProfile": "Mon Profil",
+    "tabTeam": "Gestion d'Équipe",
+    "tabBackup": "Sauvegarde",
+    "profileTitle": "Informations du Profil",
+    "profileDescription": "Mettez à jour vos informations personnelles.",
+    "teamTitle": "Gérer Votre Équipe",
+    "teamDescription": "En tant qu'administrateur, vous pouvez modifier les rôles.",
+    "saveProfile": "Mettre à jour le Profil",
+    "toastProfileUpdate": "Profil mis à jour avec succès.",
+    "toastRoleUpdate": "Rôle mis à jour pour {name}.",
     "backupTitle": "Sauvegarde et Récupération des Données",
     "backupDescription": "Exportez toutes vos données d'exploitation pour la sécurité, ou restaurez-les à partir d'une sauvegarde précédente.",
     "exportButton": "Exporter toutes les données",

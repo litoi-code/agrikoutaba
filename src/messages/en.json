@@ -1,3 +1,4 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -341,6 +342,16 @@
   },
   "SettingsPage": {
     "title": "Settings",
+    "tabProfile": "My Profile",
+    "tabTeam": "Team Management",
+    "tabBackup": "Backup & Recovery",
+    "profileTitle": "Profile Information",
+    "profileDescription": "Update your personal details and contact info.",
+    "teamTitle": "Manage Your Team",
+    "teamDescription": "As an Admin, you can update user roles and permissions.",
+    "saveProfile": "Update Profile",
+    "toastProfileUpdate": "Profile updated successfully.",
+    "toastRoleUpdate": "Role updated for {name}.",
     "backupTitle": "Data Backup & Recovery",
     "backupDescription": "Export all your farm data for safety, or restore it from a previous backup.",
     "exportButton": "Export All Data",
