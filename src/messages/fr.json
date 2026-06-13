@@ -1,4 +1,3 @@
-
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -267,7 +266,7 @@
     "investorColumn": "Investisseur",
     "descriptionColumn": "Description",
     "dateColumn": "Date",
-    "amountColumn": "Amount",
+    "amountColumn": "Montant",
     "equityDetailsColumn": "Détails des Capitaux Propres",
     "actionsColumn": "Actions",
     "editAction": "Modifier",
@@ -363,7 +362,7 @@
     "targetDrive": "Google Drive",
     "driveSetupTitle": "Intégration Google Drive",
     "driveSetupDescription": "L'exportation directe vers Google Drive nécessite une configuration de l'API Google. Veuillez utiliser l'option JSON local pour le moment.",
-    "driveSetupInstructions": "Pour activer Google Drive, vous devez configurer un projet Google Cloud Console avec l'API Drive activée et fournir votre ID client dans les paramètres de l'application.",
+    "driveSetupInstructions": "Pour activer Google Drive, vous devez configurer un projet Google Cloud Console with l'API Drive activée et fournir votre ID client dans les paramètres de l'application.",
     "importantNote": "Important",
     "backupWarning": "La restauration des données écrasera les enregistrements existants avec les mêmes identifiants. Assurez-vous toujours d'avoir une sauvegarde récente avant d'importer un nouvel ensemble de données.",
     "toastExportTitle": "Sauvegarde Créée",
