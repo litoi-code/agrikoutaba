@@ -5,6 +5,13 @@ AgriKoutaba is a specialized farm management system designed to empower small-sc
 ## Purpose
 The primary purpose of AgriKoutaba is to digitize the "paper and pencil" records common in Cameroonian agriculture. By centralizing operations into a mobile-friendly dashboard, it provides farmers with real-time insights into their business health, moving them from subsistence farming to data-driven agribusiness.
 
+## Administrative Setup
+To access all features (including Team Management and Data Editing), you must have an **Admin** role.
+1. Go to the **Sign Up** page.
+2. Enter your details and select **Admin** as your role.
+3. Once signed in, you will have full control over the platform.
+4. You can manage other users' roles under **Settings > Team Management**.
+
 ## How it helps a small farm in Cameroon
 1.  **Financial Control (FCFA)**: Manage all transactions in the local currency. Track income from harvests versus expenses on seeds and fertilizers to understand actual profit.
 2.  **Inventory Optimization**: Log farm inputs (planning phase) and produce (harvest phase). Avoid "stock-outs" of critical fertilizers or over-ordering seeds.
@@ -37,9 +44,3 @@ Vercel is the creator of Next.js and offers an excellent free tier for personal 
 3.  Import your GitHub repo.
 4.  Add your Firebase Environment Variables (from `src/firebase/config.ts`) in the Vercel dashboard.
 5.  Click **Deploy**.
-
-### 3. Netlify
-Similar to Vercel:
-1.  Connect your GitHub repo to Netlify.
-2.  Configure the build command as `next build`.
-3.  The app will be published on a `.netlify.app` subdomain for free.

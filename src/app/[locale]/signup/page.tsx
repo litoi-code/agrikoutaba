@@ -27,6 +27,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -35,6 +42,7 @@ const signupSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['Admin', 'Manager', 'Worker']),
 });
 
 export default function SignupPage() {
@@ -53,6 +61,7 @@ export default function SignupPage() {
       lastName: '',
       email: '',
       password: '',
+      role: 'Worker',
     },
   });
 
@@ -76,7 +85,7 @@ export default function SignupPage() {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        role: 'Worker', // Default role for new signups
+        role: values.role,
         contactNumber: '',
         taskIds: [],
         createdAt: new Date().toISOString(),
@@ -167,6 +176,28 @@ export default function SignupPage() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('roleLabel')}</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Admin">{t('roleAdmin')}</SelectItem>
+                          <SelectItem value="Manager">{t('roleManager')}</SelectItem>
+                          <SelectItem value="Worker">{t('roleWorker')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Button
                   type="submit"
                   className="w-full"
@@ -177,7 +208,7 @@ export default function SignupPage() {
               </form>
             </Form>
             <div className="mt-4 text-center text-sm">
-              {t('hasAccount')}{}
+              {t('hasAccount')}{' '}
               <Link href={`/${locale}/login`} className="underline">
                 {t('logInLink')}
               </Link>

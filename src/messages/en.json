@@ -1,4 +1,3 @@
-
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -102,6 +101,10 @@
     "lastNameLabel": "Last Name",
     "emailLabel": "Email",
     "passwordLabel": "Password",
+    "roleLabel": "Initial Role",
+    "roleAdmin": "Admin (Full Access)",
+    "roleManager": "Manager (Operations)",
+    "roleWorker": "Worker (View Only)",
     "submitButton": "Create Account",
     "submitting": "Creating Account...",
     "hasAccount": "Already have an account?",
@@ -384,6 +387,16 @@
   },
   "SettingsPage": {
     "title": "Settings",
+    "tabProfile": "My Profile",
+    "tabTeam": "Team Management",
+    "tabBackup": "Backup",
+    "profileTitle": "Profile Information",
+    "profileDescription": "Update your personal information.",
+    "teamTitle": "Manage Your Team",
+    "teamDescription": "As an administrator, you can modify roles.",
+    "saveProfile": "Update Profile",
+    "toastProfileUpdate": "Profile updated successfully.",
+    "toastRoleUpdate": "Role updated for {name}.",
     "backupTitle": "Data Backup & Recovery",
     "backupDescription": "Export all your farm data for safety, or restore it from a previous backup.",
     "exportButton": "Export All Data",

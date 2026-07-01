@@ -1,4 +1,3 @@
-
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -102,6 +101,10 @@
     "lastNameLabel": "Nom de famille",
     "emailLabel": "Email",
     "passwordLabel": "Mot de passe",
+    "roleLabel": "Rôle Initial",
+    "roleAdmin": "Administrateur (Accès Total)",
+    "roleManager": "Manager (Opérations)",
+    "roleWorker": "Ouvrier (Consultation Seule)",
     "submitButton": "Créer un Compte",
     "submitting": "Création du Compte...",
     "hasAccount": "Vous avez déjà un compte?",
