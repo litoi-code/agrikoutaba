@@ -27,13 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -42,7 +35,6 @@ const signupSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['Admin', 'Manager', 'Worker']),
 });
 
 export default function SignupPage() {
@@ -61,7 +53,6 @@ export default function SignupPage() {
       lastName: '',
       email: '',
       password: '',
-      role: 'Worker',
     },
   });
 
@@ -79,10 +70,10 @@ export default function SignupPage() {
       );
       const user = userCredential.user;
 
-      // Force Admin role if the email matches the owner email
+      // Force Admin role if the email matches the owner email, default others to Worker
       const assignedRole = values.email.toLowerCase() === 'mbongmebiang@gmail.com' 
         ? 'Admin' 
-        : values.role;
+        : 'Worker';
 
       // Create a corresponding document in the 'workers' collection
       await setDoc(doc(firestore, 'workers', user.uid), {
@@ -177,28 +168,6 @@ export default function SignupPage() {
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('roleLabel')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Admin">{t('roleAdmin')}</SelectItem>
-                          <SelectItem value="Manager">{t('roleManager')}</SelectItem>
-                          <SelectItem value="Worker">{t('roleWorker')}</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
