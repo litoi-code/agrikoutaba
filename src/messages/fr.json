@@ -1,3 +1,4 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -13,8 +14,50 @@
     "finances": "Finances",
     "investments": "Investissements",
     "settings": "Paramètres",
+    "production": "Production & Cycles",
     "changeLanguage": "Changer de langue",
     "logout": "Déconnexion"
+  },
+  "ProductionPage": {
+    "title": "Suivi de Production",
+    "plotsTab": "Parcelles",
+    "cyclesTab": "Cycles de Culture",
+    "harvestsTab": "Récoltes",
+    "addNewPlot": "Nouvelle Parcelle",
+    "addNewCycle": "Nouveau Cycle",
+    "addNewHarvest": "Nouvelle Récolte",
+    "plotName": "Nom de la parcelle",
+    "area": "Superficie (Ha)",
+    "cropType": "Type de culture",
+    "startDate": "Début",
+    "status": "Statut",
+    "cost": "Coût de revient",
+    "revenue": "Ventes",
+    "profit": "Marge",
+    "quantity": "Quantité",
+    "unit": "Unité",
+    "AddPlot": {
+      "title": "Enregistrer une Parcelle",
+      "nameLabel": "Nom du terrain",
+      "areaLabel": "Superficie (Hectares)",
+      "locationLabel": "Localisation",
+      "soilLabel": "Type de sol"
+    },
+    "AddCycle": {
+      "title": "Lancer un Cycle de Culture",
+      "plotLabel": "Parcelle",
+      "cropLabel": "Culture (ex: Maïs, Cacao)",
+      "startDateLabel": "Date de plantation",
+      "endDateLabel": "Date de récolte estimée"
+    },
+    "AddHarvest": {
+      "title": "Enregistrer une Récolte",
+      "cycleLabel": "Cycle de culture",
+      "dateLabel": "Date de récolte",
+      "quantityLabel": "Quantité récoltée",
+      "unitLabel": "Unité (Kg, Tonnes, Sacs)",
+      "valueLabel": "Valeur totale des ventes (FCFA)"
+    }
   },
   "HomePage": {
     "title": "Le Futur de l'Agriculture au Cameroun est Là",
@@ -37,7 +80,7 @@
     "whyAgriFuturePoint2": "Gestion des finances en FCFA",
     "whyAgriFuturePoint3": "Connexion avec les fournisseurs régionaux",
     "ctaTitle": "Prêt à Cultiver le Succès ?",
-    "ctaSubtitle": "Passez à l'étape suivante dans la modernisation de votre ferme. C'est simple, puissant et conçu pour vous.",
+    "ctaSubtitle": "Passer à l'étape suivante dans la modernisation de votre ferme. C'est simple, puissant et conçu pour vous.",
     "goToDashboard": "Aller à Votre Tableau de Bord",
     "footer": "© {year} AgriKoutaba. Propulser l'Agriculture Camerounaise."
   },

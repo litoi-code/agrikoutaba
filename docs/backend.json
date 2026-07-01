@@ -1,6 +1,50 @@
 
 {
   "entities": {
+    "Plot": {
+      "title": "Plot",
+      "description": "Represents a physical plot of land on the farm.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "area": { "type": "number", "description": "Area in hectares" },
+        "location": { "type": "string" },
+        "soilType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "area"]
+    },
+    "CropCycle": {
+      "title": "Crop Cycle",
+      "description": "Represents a production cycle for a specific crop on a plot.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "plotId": { "type": "string" },
+        "cropType": { "type": "string" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "estimatedEndDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Planned", "Ongoing", "Harvested", "Cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "plotId", "cropType", "startDate", "status"]
+    },
+    "Harvest": {
+      "title": "Harvest",
+      "description": "Represents a harvest event from a crop cycle.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cycleId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "description": "Kg, Tons, Bags, etc." },
+        "salesValue": { "type": "number", "description": "Revenue in FCFA" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "cycleId", "date", "quantity", "unit", "salesValue"]
+    },
     "Customer": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Customer",
@@ -157,7 +201,8 @@
         "customerName": {
           "type": "string",
           "description": "The name of the customer."
-        }
+        },
+        "cropCycleId": { "type": "string", "description": "Link to a crop cycle for sales tracking." }
       },
       "required": [
         "id",
@@ -193,7 +238,8 @@
         "supplierName": {
           "type": "string",
           "description": "The name of the supplier."
-        }
+        },
+        "cropCycleId": { "type": "string", "description": "Link to a crop cycle for cost tracking." }
       },
       "required": [
         "id",
@@ -378,6 +424,9 @@
   },
   "firestore": {
     "structure": [
+      { "path": "/plots/{plotId}", "definition": { "entityName": "Plot" } },
+      { "path": "/cropCycles/{cycleId}", "definition": { "entityName": "CropCycle" } },
+      { "path": "/harvests/{harvestId}", "definition": { "entityName": "Harvest" } },
       {
         "path": "/customers/{customerId}",
         "definition": {

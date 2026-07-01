@@ -1,3 +1,4 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
@@ -13,8 +14,50 @@
     "finances": "Finances",
     "investments": "Investments",
     "settings": "Settings",
+    "production": "Production & Cycles",
     "changeLanguage": "Change language",
     "logout": "Logout"
+  },
+  "ProductionPage": {
+    "title": "Production Tracking",
+    "plotsTab": "Plots",
+    "cyclesTab": "Crop Cycles",
+    "harvestsTab": "Harvests",
+    "addNewPlot": "New Plot",
+    "addNewCycle": "New Cycle",
+    "addNewHarvest": "New Harvest",
+    "plotName": "Plot Name",
+    "area": "Area (Ha)",
+    "cropType": "Crop Type",
+    "startDate": "Start",
+    "status": "Status",
+    "cost": "Cost Price",
+    "revenue": "Sales",
+    "profit": "Profit",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "AddPlot": {
+      "title": "Register a Plot",
+      "nameLabel": "Plot Name",
+      "areaLabel": "Area (Hectares)",
+      "locationLabel": "Location",
+      "soilLabel": "Soil Type"
+    },
+    "AddCycle": {
+      "title": "Start a Crop Cycle",
+      "plotLabel": "Plot",
+      "cropLabel": "Crop (e.g., Maize, Cocoa)",
+      "startDateLabel": "Planting Date",
+      "endDateLabel": "Estimated Harvest Date"
+    },
+    "AddHarvest": {
+      "title": "Record a Harvest",
+      "cycleLabel": "Crop Cycle",
+      "dateLabel": "Harvest Date",
+      "quantityLabel": "Harvested Quantity",
+      "unitLabel": "Unit (Kg, Tons, Bags)",
+      "valueLabel": "Total Sales Value (FCFA)"
+    }
   },
   "HomePage": {
     "title": "The Future of Farming in Cameroon is Here",
@@ -341,16 +384,6 @@
   },
   "SettingsPage": {
     "title": "Settings",
-    "tabProfile": "My Profile",
-    "tabTeam": "Team Management",
-    "tabBackup": "Backup & Recovery",
-    "profileTitle": "Profile Information",
-    "profileDescription": "Update your personal details and contact info.",
-    "teamTitle": "Manage Your Team",
-    "teamDescription": "As an Admin, you can update user roles and permissions.",
-    "saveProfile": "Update Profile",
-    "toastProfileUpdate": "Profile updated successfully.",
-    "toastRoleUpdate": "Role updated for {name}.",
     "backupTitle": "Data Backup & Recovery",
     "backupDescription": "Export all your farm data for safety, or restore it from a previous backup.",
     "exportButton": "Export All Data",

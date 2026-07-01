@@ -39,6 +39,7 @@ export interface Income {
   description: string;
   amount: number;
   customerName: string;
+  cropCycleId?: string;
   createdAt?: string;
 }
 
@@ -48,6 +49,7 @@ export interface Expense {
   description: string;
   amount: number;
   supplierName: string;
+  cropCycleId?: string;
   createdAt?: string;
 }
 
@@ -83,6 +85,34 @@ export interface Investment {
   createdAt?: string;
 }
 
+export interface Plot {
+  id: string;
+  name: string;
+  area: number;
+  location?: string;
+  soilType?: string;
+  createdAt?: string;
+}
+
+export interface CropCycle {
+  id: string;
+  plotId: string;
+  cropType: string;
+  startDate: string;
+  estimatedEndDate?: string;
+  status: 'Planned' | 'Ongoing' | 'Harvested' | 'Cancelled';
+  createdAt?: string;
+}
+
+export interface Harvest {
+  id: string;
+  cycleId: string;
+  date: string;
+  quantity: number;
+  unit: string;
+  salesValue: number;
+  createdAt?: string;
+}
 
 export type FinancialData = {
   month: string;

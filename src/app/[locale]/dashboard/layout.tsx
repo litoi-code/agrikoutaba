@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -16,6 +17,7 @@ import {
   Users,
   Boxes,
   Settings,
+  Sprout,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -91,6 +93,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: t("dashboard") },
+    { href: "/dashboard/production", icon: <Sprout className="h-4 w-4" />, label: t("production") },
     { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory"), count: counts.inventory },
     { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts"), count: counts.contacts },
     { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks"), count: counts.tasks },
