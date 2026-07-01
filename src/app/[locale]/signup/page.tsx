@@ -79,13 +79,18 @@ export default function SignupPage() {
       );
       const user = userCredential.user;
 
+      // Force Admin role if the email matches the owner email
+      const assignedRole = values.email.toLowerCase() === 'mbongmebiang@gmail.com' 
+        ? 'Admin' 
+        : values.role;
+
       // Create a corresponding document in the 'workers' collection
       await setDoc(doc(firestore, 'workers', user.uid), {
         id: user.uid,
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        role: values.role,
+        role: assignedRole,
         contactNumber: '',
         taskIds: [],
         createdAt: new Date().toISOString(),

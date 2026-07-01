@@ -7,6 +7,8 @@ import type { Worker } from '@/lib/types';
 /**
  * Hook to provide real role-based access control by fetching the current 
  * worker's profile from Firestore.
+ * 
+ * SPECIAL OVERRIDE: mbongmebiang@gmail.com is always an Admin.
  */
 export function useCurrentUserRole() {
   const { user, isUserLoading: isAuthLoading } = useUser();
@@ -21,8 +23,14 @@ export function useCurrentUserRole() {
   // Subscribe to the worker document in real-time
   const { data: currentWorker, isLoading: isDocLoading } = useDoc<Worker>(workerDocRef);
 
-  // If no document exists or we are loading, we default to minimal permissions
-  const role = currentWorker?.role || 'Worker';
+  // Default role logic
+  let role = currentWorker?.role || 'Worker';
+
+  // Administrative override for the owner email
+  if (user?.email === 'mbongmebiang@gmail.com') {
+    role = 'Admin';
+  }
+
   const isLoading = isAuthLoading || isDocLoading;
 
   return { 
