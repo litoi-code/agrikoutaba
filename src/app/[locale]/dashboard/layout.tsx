@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { collection } from "firebase/firestore";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -18,6 +18,7 @@ import {
   Boxes,
   Settings,
   Sprout,
+  LogOut,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -37,6 +38,8 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
 import { cn, isNew } from "@/lib/utils";
 import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 export default function DashboardLayout({
   children,
@@ -47,13 +50,23 @@ export default function DashboardLayout({
   const tGlobal = useTranslations("Global");
   const locale = useLocale();
   const pathname = usePathname();
-  const { currentWorker, isLoading: isUserLoading } = useCurrentUserRole();
+  const router = useRouter();
+  const auth = useAuth();
+  
+  const { user, currentWorker, isLoading: isUserLoading, isAuthLoading } = useCurrentUserRole();
   const [mounted, setMounted] = useState(false);
   const firestore = useFirestore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (mounted && !isAuthLoading && !user) {
+      router.push(`/${locale}/login`);
+    }
+  }, [user, isAuthLoading, mounted, locale, router]);
 
   // Fetch all collections to count "New" entries for sidebar badges
   const itemsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'items') : null, [firestore]);
@@ -103,7 +116,28 @@ export default function DashboardLayout({
     { href: "/dashboard/settings", icon: <Settings className="h-4 w-4" />, label: t("settings") },
   ];
   
-  const userInitial = currentWorker ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` : '';
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push(`/${locale}/login`);
+    }
+  };
+
+  const userInitial = currentWorker 
+    ? `${currentWorker.firstName.charAt(0)}${currentWorker.lastName.charAt(0)}` 
+    : (user?.email?.charAt(0).toUpperCase() || '?');
+
+  const userFullName = currentWorker 
+    ? `${currentWorker.firstName} ${currentWorker.lastName}` 
+    : (user?.email || 'User');
+
+  if (!mounted || isAuthLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Leaf className="h-12 w-12 text-primary animate-bounce" />
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -160,20 +194,29 @@ export default function DashboardLayout({
                 </SidebarMenuItem>
               );
             })}
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                onClick={handleLogout}
+                className="h-12 transition-all duration-300 px-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>{t("logout")}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="mt-auto border-t bg-sidebar-accent/30">
           <div className="flex items-center gap-3 p-4">
             <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/10">
               {mounted && currentWorker?.avatarUrl && <AvatarImage src={currentWorker.avatarUrl} alt="User Avatar" />}
-              <AvatarFallback className="bg-primary/10 text-primary font-bold">{mounted ? userInitial : ''}</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-bold">{userInitial}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden flex-1">
               <span className="text-sm font-bold truncate leading-none mb-1">
-                {mounted ? `${currentWorker?.firstName} ${currentWorker?.lastName}` : '...'}
+                {userFullName}
               </span>
               <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider truncate leading-none">
-                {mounted ? currentWorker?.role : '...'}
+                {currentWorker?.role || 'Guest'}
               </span>
             </div>
             <div className="ml-auto group-data-[collapsible=icon]:hidden">
@@ -193,7 +236,7 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
-          {!mounted || isUserLoading ? (
+          {isUserLoading ? (
              <div className="flex h-full w-full items-center justify-center py-20">
                 <Leaf className="h-12 w-12 text-primary animate-bounce" />
              </div>

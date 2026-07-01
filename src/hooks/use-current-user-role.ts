@@ -27,7 +27,9 @@ export function useCurrentUserRole() {
 
   return { 
     role: role as 'Admin' | 'Manager' | 'Worker', 
-    isLoading, 
+    isLoading,
+    user: user || null,
+    isAuthLoading,
     currentWorker: currentWorker || null 
   };
 }

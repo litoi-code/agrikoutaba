@@ -72,10 +72,18 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     const unsubscribe = onAuthStateChanged(
       auth,
       (firebaseUser) => {
-        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
+        setUserAuthState({ 
+          user: firebaseUser, 
+          isUserLoading: false, 
+          userError: null 
+        });
       },
       (error) => {
-        setUserAuthState({ user: null, isUserLoading: false, userError: error });
+        setUserAuthState({ 
+          user: null, 
+          isUserLoading: false, 
+          userError: error 
+        });
       }
     );
     return () => unsubscribe();
@@ -105,13 +113,18 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 export const useFirebase = (): FirebaseServicesAndUser => {
   const context = useContext(FirebaseContext);
   
-  // If context is undefined, the hook is used outside the provider
+  // Return empty state if context is not available yet (e.g. during SSR initialization)
   if (context === undefined) {
-    throw new Error('useFirebase must be used within a FirebaseProvider.');
+    return {
+      firebaseApp: null,
+      firestore: null,
+      auth: null,
+      user: null,
+      isUserLoading: true,
+      userError: null,
+    };
   }
 
-  // During SSR or initial load, services might be null.
-  // We return them as null instead of throwing to allow server-side rendering to proceed.
   return {
     firebaseApp: context.firebaseApp,
     firestore: context.firestore,
