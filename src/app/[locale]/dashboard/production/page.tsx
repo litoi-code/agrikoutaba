@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo } from 'react';
@@ -20,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -28,8 +27,7 @@ import {
   LandPlot, 
   Sprout, 
   Users, 
-  MoreHorizontal,
-  ChevronRight
+  MoreHorizontal
 } from "lucide-react";
 import {
   DropdownMenu,
