@@ -54,7 +54,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const auth = useAuth();
   
-  const { user, currentWorker, isLoading: isUserLoading, isAuthLoading } = useCurrentUserRole();
+  const { user, currentWorker, role, isLoading: isUserLoading, isAuthLoading } = useCurrentUserRole();
   const [mounted, setMounted] = useState(false);
   const firestore = useFirestore();
 
@@ -105,18 +105,26 @@ export default function DashboardLayout({
     };
   }, [items, customers, suppliers, tasks, workers, incomes, expenses, investments]);
 
-  const navItems = [
-    { href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: t("dashboard") },
-    { href: "/dashboard/production", icon: <Sprout className="h-4 w-4" />, label: t("production") },
-    { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory"), count: counts.inventory },
-    { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts"), count: counts.contacts },
-    { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks"), count: counts.tasks },
-    { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers"), count: counts.workers },
-    { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: counts.finances },
-    { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: counts.investments },
-    { href: "/dashboard/settings", icon: <Settings className="h-4 w-4" />, label: t("settings") },
-    { href: "/dashboard/manual", icon: <BookOpen className="h-4 w-4" />, label: t("manual") },
-  ];
+  const navItems = useMemo(() => {
+    const items = [
+      { href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, label: t("dashboard") },
+      { href: "/dashboard/production", icon: <Sprout className="h-4 w-4" />, label: t("production") },
+      { href: "/dashboard/inventory", icon: <Boxes className="h-4 w-4" />, label: t("inventory"), count: counts.inventory },
+      { href: "/dashboard/contacts", icon: <UsersRound className="h-4 w-4" />, label: t("contacts"), count: counts.contacts },
+      { href: "/dashboard/tasks", icon: <ClipboardList className="h-4 w-4" />, label: t("tasks"), count: counts.tasks },
+      { href: "/dashboard/workers", icon: <Users className="h-4 w-4" />, label: t("workers"), count: counts.workers },
+      { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: counts.finances },
+      { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: counts.investments },
+      { href: "/dashboard/settings", icon: <Settings className="h-4 w-4" />, label: t("settings") },
+    ];
+
+    // Only add Manual for Admin
+    if (role === 'Admin') {
+      items.push({ href: "/dashboard/manual", icon: <BookOpen className="h-4 w-4" />, label: t("manual") });
+    }
+
+    return items;
+  }, [t, counts, role]);
   
   const handleLogout = async () => {
     if (auth) {
@@ -181,7 +189,7 @@ export default function DashboardLayout({
                         {item.icon}
                       </span>
                       <span className="flex-1 truncate">{item.label}</span>
-                      {mounted && item.count !== undefined && item.count > 0 && (
+                      {mounted && 'count' in item && item.count !== undefined && item.count > 0 && (
                         <Badge className={cn(
                           "text-[10px] px-1.5 h-4.5 min-w-4.5 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm",
                           isActive 
@@ -218,7 +226,7 @@ export default function DashboardLayout({
                 {userFullName}
               </span>
               <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider truncate leading-none">
-                {currentWorker?.role || 'Guest'}
+                {role || 'Guest'}
               </span>
             </div>
             <div className="ml-auto group-data-[collapsible=icon]:hidden">

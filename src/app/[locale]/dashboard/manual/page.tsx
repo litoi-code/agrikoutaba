@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { 
   Accordion, 
@@ -15,11 +17,30 @@ import {
   Users, 
   Landmark, 
   ShieldAlert,
-  HelpCircle 
+  HelpCircle,
+  Leaf
 } from 'lucide-react';
+import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
 export default function ManualPage() {
   const t = useTranslations('ManualPage');
+  const { role, isLoading } = useCurrentUserRole();
+  const router = useRouter();
+  const locale = useLocale();
+
+  useEffect(() => {
+    if (!isLoading && role !== 'Admin') {
+      router.push(`/${locale}/dashboard`);
+    }
+  }, [role, isLoading, router, locale]);
+
+  if (isLoading || role !== 'Admin') {
+    return (
+      <div className="flex h-full w-full items-center justify-center py-20">
+        <Leaf className="h-12 w-12 text-primary animate-bounce" />
+      </div>
+    );
+  }
 
   const manualSections = [
     {
