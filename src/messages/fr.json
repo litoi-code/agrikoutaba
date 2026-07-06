@@ -1,8 +1,11 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
     "currency": "FCFA",
-    "new": "Nouveau"
+    "new": "Nouveau",
+    "unknown": "Inconnu",
+    "none": "Aucun"
   },
   "Sidebar": {
     "dashboard": "Tableau de bord",
@@ -35,6 +38,8 @@
     "profit": "Marge",
     "quantity": "Quantité",
     "unit": "Unité",
+    "labor": "Main d'œuvre",
+    "assignWorkerAction": "Assigner un ouvrier",
     "AddPlot": {
       "title": "Enregistrer une Parcelle",
       "nameLabel": "Nom du terrain",
@@ -56,6 +61,15 @@
       "quantityLabel": "Quantité récoltée",
       "unitLabel": "Unité (Kg, Tonnes, Sacs)",
       "valueLabel": "Valeur totale des ventes (FCFA)"
+    },
+    "AssignWorker": {
+      "title": "Assigner un ouvrier à {crop}",
+      "workerLabel": "Choisir l'ouvrier",
+      "salaryLabel": "Salaire/Prime pour ce cycle (FCFA)",
+      "selectWorkerPlaceholder": "Choisir un membre de l'équipe",
+      "assignButton": "Assigner & Enregistrer Salaire",
+      "toastTitle": "Ouvrier Assigné",
+      "toastDescription": "{name} a été assigné à la production de {crop}."
     }
   },
   "HomePage": {

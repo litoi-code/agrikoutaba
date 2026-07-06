@@ -30,6 +30,19 @@
       },
       "required": ["id", "plotId", "cropType", "startDate", "status"]
     },
+    "CycleWorker": {
+      "title": "Cycle Worker",
+      "description": "Represents a worker assigned to a specific crop cycle with their wage.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cycleId": { "type": "string" },
+        "workerId": { "type": "string" },
+        "salary": { "type": "number", "description": "Salary or wage for this cycle in FCFA" },
+        "assignedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "cycleId", "workerId", "salary"]
+    },
     "Harvest": {
       "title": "Harvest",
       "description": "Represents a harvest event from a crop cycle.",
@@ -51,39 +64,14 @@
       "type": "object",
       "description": "Represents a customer of the AgriCentral business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the customer entity."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "First name of the customer."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "Last name of the customer."
-        },
-        "contactNumber": {
-          "type": "string",
-          "description": "Contact number of the customer."
-        },
-        "address": {
-          "type": "string",
-          "description": "Address of the customer."
-        },
-        "transactionIds": {
-          "type": "array",
-          "description": "References to Transactions. (Relationship: Customer 1:N Transaction)",
-          "items": {
-            "type": "string"
-          }
-        }
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "firstName",
-        "lastName"
-      ]
+      "required": ["id", "firstName", "lastName"]
     },
     "Supplier": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -91,38 +79,14 @@
       "type": "object",
       "description": "Represents a supplier to the AgriCentral business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the supplier entity."
-        },
-        "companyName": {
-          "type": "string",
-          "description": "Company name of the supplier."
-        },
-        "contactName": {
-          "type": "string",
-          "description": "Contact name at the supplier company."
-        },
-        "contactNumber": {
-          "type": "string",
-          "description": "Contact number for the supplier."
-        },
-        "address": {
-          "type": "string",
-          "description": "Address of the supplier."
-        },
-        "itemIds": {
-          "type": "array",
-          "description": "References to Items supplied. (Relationship: Supplier 1:N Item)",
-          "items": {
-            "type": "string"
-          }
-        }
+        "id": { "type": "string" },
+        "companyName": { "type": "string" },
+        "contactName": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "companyName"
-      ]
+      "required": ["id", "companyName"]
     },
     "Item": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -130,50 +94,17 @@
       "type": "object",
       "description": "Represents an item in the inventory, such as seeds, fertilizers, or equipment.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the item entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the item."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the item."
-        },
-        "category": {
-          "type": "string",
-          "enum": ["Input", "Produce", "Equipment"],
-          "description": "The category of the item (e.g., Seeds for planning, Crops for harvesting)."
-        },
-        "unitPrice": {
-          "type": "number",
-          "description": "Unit price of the item."
-        },
-        "stockLevel": {
-          "type": "number",
-          "description": "Current stock level of the item."
-        },
-        "reorderLevel": {
-          "type": "number",
-          "description": "Reorder level for the item."
-        },
-        "supplierId": {
-          "type": "string",
-          "description": "Reference to Supplier. (Relationship: Supplier 1:N Item)"
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["Input", "Produce", "Equipment"] },
+        "unitPrice": { "type": "number" },
+        "stockLevel": { "type": "number" },
+        "reorderLevel": { "type": "number" },
+        "supplierId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "name",
-        "description",
-        "category",
-        "unitPrice",
-        "stockLevel",
-        "reorderLevel",
-        "supplierId"
-      ]
+      "required": ["id", "name", "category", "unitPrice", "stockLevel", "reorderLevel", "supplierId"]
     },
     "Income": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -181,36 +112,15 @@
       "type": "object",
       "description": "Represents a record of income for the business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the income record."
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the income.",
-          "format": "date-time"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the income."
-        },
-        "amount": {
-          "type": "number",
-          "description": "Amount of the income."
-        },
-        "customerName": {
-          "type": "string",
-          "description": "The name of the customer."
-        },
-        "cropCycleId": { "type": "string", "description": "Link to a crop cycle for sales tracking." }
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "customerName": { "type": "string" },
+        "cropCycleId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "date",
-        "description",
-        "amount",
-        "customerName"
-      ]
+      "required": ["id", "date", "description", "amount", "customerName"]
     },
     "Expense": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -218,36 +128,15 @@
       "type": "object",
       "description": "Represents a record of expenses for the business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the expense record."
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the expense.",
-          "format": "date-time"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the expense."
-        },
-        "amount": {
-          "type": "number",
-          "description": "Amount of the expense."
-        },
-        "supplierName": {
-          "type": "string",
-          "description": "The name of the supplier."
-        },
-        "cropCycleId": { "type": "string", "description": "Link to a crop cycle for cost tracking." }
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "supplierName": { "type": "string" },
+        "cropCycleId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "date",
-        "description",
-        "amount",
-        "supplierName"
-      ]
+      "required": ["id", "date", "description", "amount", "supplierName"]
     },
     "Task": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -255,43 +144,15 @@
       "type": "object",
       "description": "Represents a task assigned to a worker.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the task entity."
-        },
-        "title": {
-          "type": "string",
-          "description": "Title of the task."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the task."
-        },
-        "dueDate": {
-          "type": "string",
-          "description": "Due date of the task.",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "Status of the task (e.g., To Do, In Progress, Completed)."
-        },
-        "workerIds": {
-          "type": "array",
-          "description": "References to Workers. (Relationship: Worker M:N Task)",
-          "items": {
-            "type": "string"
-          }
-        }
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "workerIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "title",
-        "description",
-        "dueDate",
-        "status",
-        "workerIds"
-      ]
+      "required": ["id", "title", "description", "dueDate", "status", "workerIds"]
     },
     "Worker": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -299,45 +160,15 @@
       "type": "object",
       "description": "Represents a worker/user in the AgriCentral business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the worker entity, matches Firebase Auth UID."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "First name of the worker."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "Last name of the worker."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email address of the worker, used for login."
-        },
-        "role": {
-          "type": "string",
-          "description": "Role of the worker (e.g., Worker, Manager, Admin)."
-        },
-        "contactNumber": {
-          "type": "string",
-          "description": "Contact number of the worker."
-        },
-        "taskIds": {
-          "type": "array",
-          "description": "References to Tasks assigned. (Relationship: Worker M:N Task)",
-          "items": {
-            "type": "string"
-          }
-        }
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "email",
-        "role"
-      ]
+      "required": ["id", "firstName", "lastName", "email", "role"]
     },
     "Investment": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -345,233 +176,34 @@
       "type": "object",
       "description": "Represents an investment record for the business.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the investment record."
-        },
-        "investorName": {
-          "type": "string",
-          "description": "Name of the individual or entity making the investment."
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the investment.",
-          "format": "date-time"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the investment."
-        },
-        "amount": {
-          "type": "number",
-          "description": "Amount of the investment."
-        },
-        "equityDetails": {
-          "type": "string",
-          "description": "Details of the equity associated with the investment."
-        }
+        "id": { "type": "string" },
+        "investorName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "equityDetails": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "investorName",
-        "date",
-        "description",
-        "amount",
-        "equityDetails"
-      ]
-    },
-    "Transaction": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Transaction",
-      "type": "object",
-      "description": "Represents a transaction record.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the transaction record."
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the transaction.",
-          "format": "date-time"
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the transaction."
-        },
-        "amount": {
-          "type": "number",
-          "description": "Amount of the transaction."
-        },
-        "customerId": {
-          "type": "string",
-          "description": "Reference to Customer. (Relationship: Customer 1:N Transaction)"
-        }
-      },
-      "required": [
-        "id",
-        "date",
-        "description",
-        "amount",
-        "customerId"
-      ]
+      "required": ["id", "investorName", "date", "description", "amount", "equityDetails"]
     }
   },
   "auth": {
-    "providers": [
-      "password"
-    ]
+    "providers": ["password"]
   },
   "firestore": {
     "structure": [
       { "path": "/plots/{plotId}", "definition": { "entityName": "Plot" } },
       { "path": "/cropCycles/{cycleId}", "definition": { "entityName": "CropCycle" } },
+      { "path": "/cycleWorkers/{assignmentId}", "definition": { "entityName": "CycleWorker" } },
       { "path": "/harvests/{harvestId}", "definition": { "entityName": "Harvest" } },
-      {
-        "path": "/customers/{customerId}",
-        "definition": {
-          "entityName": "Customer",
-          "schema": {
-            "$ref": "#/backend/entities/Customer"
-          },
-          "description": "Stores customer profiles. Includes customerId as a parameter for individual customer access.",
-          "params": [
-            {
-              "name": "customerId",
-              "description": "The unique identifier for the customer."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/suppliers/{supplierId}",
-        "definition": {
-          "entityName": "Supplier",
-          "schema": {
-            "$ref": "#/backend/entities/Supplier"
-          },
-          "description": "Stores supplier profiles. Includes supplierId as a parameter for individual supplier access.",
-          "params": [
-            {
-              "name": "supplierId",
-              "description": "The unique identifier for the supplier."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/items/{itemId}",
-        "definition": {
-          "entityName": "Item",
-          "schema": {
-            "$ref": "#/backend/entities/Item"
-          },
-          "description": "Stores inventory items. Includes itemId as a parameter for individual item access.",
-          "params": [
-            {
-              "name": "itemId",
-              "description": "The unique identifier for the item."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/incomes/{incomeId}",
-        "definition": {
-          "entityName": "Income",
-          "schema": {
-            "$ref": "#/backend/entities/Income"
-          },
-          "description": "Stores income records. Includes incomeId as a parameter for individual income record access.",
-          "params": [
-            {
-              "name": "incomeId",
-              "description": "The unique identifier for the income record."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/expenses/{expenseId}",
-        "definition": {
-          "entityName": "Expense",
-          "schema": {
-            "$ref": "#/backend/entities/Expense"
-          },
-          "description": "Stores expense records. Includes expenseId as a parameter for individual expense record access.",
-          "params": [
-            {
-              "name": "expenseId",
-              "description": "The unique identifier for the expense record."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/tasks/{taskId}",
-        "definition": {
-          "entityName": "Task",
-          "schema": {
-            "$ref": "#/backend/entities/Task"
-          },
-          "description": "Stores task assignments. Includes taskId as a parameter for individual task access.",
-          "params": [
-            {
-              "name": "taskId",
-              "description": "The unique identifier for the task."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/workers/{workerId}",
-        "definition": {
-          "entityName": "Worker",
-          "schema": {
-            "$ref": "#/backend/entities/Worker"
-          },
-          "description": "Stores worker profiles, which also represent application users. The document ID matches the Firebase Auth UID.",
-          "params": [
-            {
-              "name": "workerId",
-              "description": "The unique identifier for the worker, matching their Auth UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/investments/{investmentId}",
-        "definition": {
-          "entityName": "Investment",
-          "schema": {
-            "$ref": "#/backend/entities/Investment"
-          },
-          "description": "Stores investment records. Includes investmentId as a parameter for individual investment record access.",
-          "params": [
-            {
-              "name": "investmentId",
-              "description": "The unique identifier for the investment."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/transactions/{transactionId}",
-        "definition": {
-          "entityName": "Transaction",
-          "schema": {
-            "$ref": "#/backend/entities/Transaction"
-          },
-          "description": "Stores transaction records. Includes transactionId as a parameter for individual transaction access.",
-          "params": [
-            {
-              "name": "transactionId",
-              "description": "The unique identifier for the transaction."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to manage entities for the AgriCentral application. It focuses on clarity, security, and scalability. Authorization Independence is achieved through path-based ownership for user-specific data and membership maps for collaborative data, eliminating the need for `get()` calls in security rules. Structural Segregation ensures that each collection has a homogeneous security posture.  For example, Customers, Suppliers, Workers, and Items are stored in top-level collections. Relationships between entities are managed through document references, as seen in the `customerId` field in the `incomes` and `transactions` collections, and `supplierId` in the `items` collection. This direct reference approach simplifies queries and maintains data integrity. To facilitate real-time data fetching from APIs, consider a server-side function triggered by Firestore writes to update an external cache or trigger downstream API calls based on the changes. This provides real-time updates and can be scaled with the application needs."
+      { "path": "/customers/{customerId}", "definition": { "entityName": "Customer" } },
+      { "path": "/suppliers/{supplierId}", "definition": { "entityName": "Supplier" } },
+      { "path": "/items/{itemId}", "definition": { "entityName": "Item" } },
+      { "path": "/incomes/{incomeId}", "definition": { "entityName": "Income" } },
+      { "path": "/expenses/{expenseId}", "definition": { "entityName": "Expense" } },
+      { "path": "/tasks/{taskId}", "definition": { "entityName": "Task" } },
+      { "path": "/workers/{workerId}", "definition": { "entityName": "Worker" } },
+      { "path": "/investments/{investmentId}", "definition": { "entityName": "Investment" } }
+    ]
   }
 }

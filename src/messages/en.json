@@ -1,8 +1,11 @@
+
 {
   "Global": {
     "appName": "AgriKoutaba",
     "currency": "FCFA",
-    "new": "New"
+    "new": "New",
+    "unknown": "Unknown",
+    "none": "None"
   },
   "Sidebar": {
     "dashboard": "Dashboard",
@@ -30,11 +33,13 @@
     "cropType": "Crop Type",
     "startDate": "Start",
     "status": "Status",
-    "cost": "Cost Price",
+    "cost": "Total Cost",
     "revenue": "Sales",
-    "profit": "Profit",
+    "profit": "Net Profit",
     "quantity": "Quantity",
     "unit": "Unit",
+    "labor": "Labor",
+    "assignWorkerAction": "Assign Worker",
     "AddPlot": {
       "title": "Register a Plot",
       "nameLabel": "Plot Name",
@@ -56,6 +61,15 @@
       "quantityLabel": "Harvested Quantity",
       "unitLabel": "Unit (Kg, Tons, Bags)",
       "valueLabel": "Total Sales Value (FCFA)"
+    },
+    "AssignWorker": {
+      "title": "Assign Worker to {crop}",
+      "workerLabel": "Select Worker",
+      "salaryLabel": "Cycle Wage/Salary (FCFA)",
+      "selectWorkerPlaceholder": "Choose a team member",
+      "assignButton": "Assign & Record Wage",
+      "toastTitle": "Worker Assigned",
+      "toastDescription": "{name} has been assigned to {crop} production."
     }
   },
   "HomePage": {

@@ -104,6 +104,14 @@ export interface CropCycle {
   createdAt?: string;
 }
 
+export interface CycleWorker {
+  id: string;
+  cycleId: string;
+  workerId: string;
+  salary: number;
+  assignedAt: string;
+}
+
 export interface Harvest {
   id: string;
   cycleId: string;
