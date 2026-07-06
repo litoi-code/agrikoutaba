@@ -21,6 +21,14 @@ To access all features (including Team Management and Data Editing), you must be
 5.  **Worker Coordination**: Assign tasks to field workers and track completion. This is vital during high-intensity periods like clearing, planting, or harvesting.
 6.  **Investor Readiness**: Track micro-investments and equity. Having a digital record of growth and finances makes a farm much more likely to secure loans or investments.
 
+## Labor Management Workflow
+In the **Production & Cycles** management page:
+1. Navigate to **Production & Cycles** in the sidebar.
+2. In the **Crop Cycles** tab, find an active cycle (e.g., "Maize").
+3. Click the **three dots (...)** menu and select **Assign Worker**.
+4. Choose a worker and enter the **Wage/Salary** in **FCFA**.
+5. Click **Assign & Record Wage**. The system automatically creates a financial **Expense** linked to that crop, ensuring your production costs are perfectly tracked.
+
 ## Tech Stack
 -   **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 -   **Frontend**: [React](https://react.dev/) & [Tailwind CSS](https://tailwindcss.com/)
@@ -28,6 +36,19 @@ To access all features (including Team Management and Data Editing), you must be
 -   **Backend/Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore)
 -   **Authentication**: [Firebase Auth](https://firebase.google.com/docs/auth)
 -   **Internationalization**: [next-intl](https://next-intl-docs.vercel.app/) (English/French)
+
+## How to Push to GitHub
+1. Create a new empty repository on [GitHub](https://github.com/new).
+2. Open your terminal in the project root directory.
+3. Run the following commands:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit: AgriKoutaba Farm Management Platform"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   git push -u origin main
+   ```
 
 ## How to Publish Online for Free
 
