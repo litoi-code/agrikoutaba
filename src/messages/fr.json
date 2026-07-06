@@ -396,7 +396,7 @@
       "deleteTitle": "Confirm Deletion",
       "deleteDescription": "Are you sure you want to remove this item?",
       "deleteButton": "Delete",
-      "cancelButton": "Cancel"
+      "cancelButton": "Annuler"
     }
   },
   "SettingsPage": {
