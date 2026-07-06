@@ -17,6 +17,7 @@
     "investments": "Investissements",
     "settings": "Paramètres",
     "production": "Production & Cycles",
+    "manual": "Manuel d'Utilisation",
     "changeLanguage": "Changer de langue",
     "logout": "Déconnexion"
   },
@@ -71,6 +72,21 @@
       "toastTitle": "Ouvrier Assigné",
       "toastDescription": "{name} a été assigné à la production de {crop}."
     }
+  },
+  "ManualPage": {
+    "title": "Manuel d'Utilisation",
+    "subtitle": "Maîtrisez AgriKoutaba pour votre exploitation au Cameroun.",
+    "introTitle": "Premiers Pas",
+    "introContent": "AgriKoutaba est conçu pour digitaliser les registres traditionnels papier des fermes camerounaises. En centralisant vos opérations, vous obtenez une vision en temps réel de votre santé financière et de l'efficacité de votre production.",
+    "productionTitle": "Production & Cycles",
+    "productionContent": "C'est le cœur du système. D'abord, enregistrez vos 'Parcelles'. Ensuite, lancez un 'Cycle de Culture' (ex: Maïs, Cacao). À la fin, enregistrez une 'Récolte' pour calculer automatiquement votre profit et loguer les ventes.",
+    "laborTitle": "Main d'œuvre & Salaires",
+    "laborContent": "Dans l'onglet 'Cycles de Culture', utilisez le menu pour assigner des ouvriers. En enregistrant un salaire, le système crée automatiquement une dépense financière. Cela garantit que vos coûts de production sont exacts.",
+    "financeTitle": "Gestion Financière",
+    "financeContent": "Toutes les transactions sont suivies en FCFA. La page Finances permet de noter chaque revenu et dépense. Le Tableau de Bord offre un aperçu visuel de vos bénéfices nets.",
+    "rolesTitle": "Rôles & Sécurité",
+    "rolesContent": "Pour garantir l'intégrité des données, AgriKoutaba utilise trois rôles : Administrateur (Contrôle total), Manager (Peut modifier les données), et Ouvrier (Lecture seule).",
+    "moreInfo": "Pour plus d'assistance, contactez le support."
   },
   "HomePage": {
     "title": "Le Futur de l'Agriculture au Cameroun est Là",

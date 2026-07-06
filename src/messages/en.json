@@ -17,6 +17,7 @@
     "investments": "Investments",
     "settings": "Settings",
     "production": "Production & Cycles",
+    "manual": "User Manual",
     "changeLanguage": "Change language",
     "logout": "Logout"
   },
@@ -71,6 +72,20 @@
       "toastTitle": "Worker Assigned",
       "toastDescription": "{name} has been assigned to {crop} production."
     }
+  },
+  "ManualPage": {
+    "title": "User Manual",
+    "subtitle": "Master AgriKoutaba for your Cameroonian agribusiness.",
+    "introTitle": "Getting Started",
+    "introContent": "AgriKoutaba is designed to digitize the traditional 'paper and pencil' records of Cameroonian farms. By centralizing your operations, you gain real-time insights into your financial health and production efficiency.",
+    "productionTitle": "Production & Cycles",
+    "productionContent": "The core of the system. First, register your 'Plots' in the Production section. Once a plot is registered, you can start a 'Crop Cycle' (e.g., Maize, Cocoa). When the crop is ready, record a 'Harvest' to automatically calculate your profit and log sales income.",
+    "laborTitle": "Labor & Wages",
+    "laborContent": "In the 'Crop Cycles' tab, use the menu (three dots) to assign workers to a cycle. When you record a wage, the system automatically creates a financial Expense. This ensures your production costs are accurate.",
+    "financeTitle": "Financial Management",
+    "financeContent": "All transactions are tracked in FCFA. The Finances page allows you to log every income and expense. The Dashboard provides a visual overview of your net income, helping you make data-driven decisions.",
+    "rolesTitle": "Roles & Security",
+    "rolesContent": "To ensure data integrity, AgriKoutaba uses three roles: Admin (Full control), Manager (Can edit data), and Worker (View-only). The owner email (mbongmebiang@gmail.com) is always an Admin."
   },
   "HomePage": {
     "title": "The Future of Farming in Cameroon is Here",

@@ -19,6 +19,7 @@ import {
   Settings,
   Sprout,
   LogOut,
+  BookOpen,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -114,6 +115,7 @@ export default function DashboardLayout({
     { href: "/dashboard/finances", icon: <Landmark className="h-4 w-4" />, label: t("finances"), count: counts.finances },
     { href: "/dashboard/investments", icon: <AreaChart className="h-4 w-4" />, label: t("investments"), count: counts.investments },
     { href: "/dashboard/settings", icon: <Settings className="h-4 w-4" />, label: t("settings") },
+    { href: "/dashboard/manual", icon: <BookOpen className="h-4 w-4" />, label: t("manual") },
   ];
   
   const handleLogout = async () => {
