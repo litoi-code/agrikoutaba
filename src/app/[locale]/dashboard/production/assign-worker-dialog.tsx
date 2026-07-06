@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,13 +45,20 @@ const assignmentSchema = z.object({
 export function AssignWorkerDialog({ 
   children, 
   cycle, 
-  workers 
+  workers,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
 }: { 
-  children: React.ReactNode, 
-  cycle: WithId<CropCycle>,
-  workers: WithId<Worker>[]
+  children?: React.ReactNode, 
+  cycle: WithId<CropCycle> | null,
+  workers: WithId<Worker>[],
+  open?: boolean,
+  onOpenChange?: (open: boolean) => void
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("ProductionPage.AssignWorker");
@@ -64,8 +71,14 @@ export function AssignWorkerDialog({
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({ workerId: "", salary: 0 });
+    }
+  }, [open, form]);
+
   const onSubmit = (values: z.infer<typeof assignmentSchema>) => {
-    if (!firestore) return;
+    if (!firestore || !cycle) return;
     
     const worker = workers.find(w => w.id === values.workerId);
     const workerName = worker ? `${worker.firstName} ${worker.lastName}` : "Worker";
@@ -95,16 +108,15 @@ export function AssignWorkerDialog({
       description: t("toastDescription", { name: workerName, crop: cycle.cropType }) 
     });
     
-    form.reset();
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("title", { crop: cycle.cropType })}</DialogTitle>
+          <DialogTitle>{t("title", { crop: cycle?.cropType || "..." })}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -114,7 +126,7 @@ export function AssignWorkerDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("workerLabel")}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={t("selectWorkerPlaceholder")} />

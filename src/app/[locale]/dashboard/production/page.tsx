@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useTranslations } from 'next-intl';
@@ -50,6 +51,8 @@ export default function ProductionPage() {
   const tGlobal = useTranslations('Global');
   const { role } = useCurrentUserRole();
   const canEdit = role === 'Admin' || role === 'Manager';
+
+  const [assignCycle, setAssignCycle] = useState<WithId<CropCycle> | null>(null);
 
   const plotsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'plots') : null, [firestore]);
   const { data: plots, isLoading: plotsLoading } = useCollection<Plot>(plotsQuery);
@@ -187,12 +190,10 @@ export default function ProductionPage() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <AssignWorkerDialog cycle={cycle} workers={workers || []}>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <Users className="mr-2 h-4 w-4" />
-                                    <span>{t('assignWorkerAction')}</span>
-                                  </DropdownMenuItem>
-                                </AssignWorkerDialog>
+                                <DropdownMenuItem onSelect={() => setAssignCycle(cycle)}>
+                                  <Users className="mr-2 h-4 w-4" />
+                                  <span>{t('assignWorkerAction')}</span>
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           )}
@@ -266,6 +267,13 @@ export default function ProductionPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AssignWorkerDialog 
+        cycle={assignCycle} 
+        workers={workers || []} 
+        open={!!assignCycle}
+        onOpenChange={(open) => !open && setAssignCycle(null)}
+      />
     </div>
   );
 }

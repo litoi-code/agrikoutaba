@@ -1,3 +1,4 @@
+
 # AgriKoutaba: Agricultural Management Platform
 
 AgriKoutaba is a specialized farm management system designed to empower small-scale farmers in Cameroon with professional-grade tools for inventory, finance, and operations.
@@ -14,10 +15,11 @@ To access all features (including Team Management and Data Editing), you must be
 
 ## How it helps a small farm in Cameroon
 1.  **Production Tracking**: Map your land into plots and launch specific crop cycles. Calculate your actual cost of production versus your sales income to see your true profit per crop.
-2.  **Financial Control (FCFA)**: Manage all transactions in the local currency. Track income from harvests versus expenses on seeds and fertilizers.
-3.  **Inventory Optimization**: Log farm inputs (planning phase) and produce (harvest phase). Avoid "stock-outs" of critical fertilizers or over-ordering seeds.
-4.  **Worker Coordination**: Assign tasks to field workers and track completion. This is vital during high-intensity periods like clearing, planting, or harvesting.
-5.  **Investor Readiness**: Track micro-investments and equity. Having a digital record of growth and finances makes a farm much more likely to secure loans or investments.
+2.  **Labor Management**: Assign workers to specific crop cycles and record their wages in FCFA. The system automatically logs these as expenses against the production cycle, ensuring accurate profit calculation.
+3.  **Financial Control (FCFA)**: Manage all transactions in the local currency. Track income from harvests versus expenses on seeds and fertilizers.
+4.  **Inventory Optimization**: Log farm inputs (planning phase) and produce (harvest phase). Avoid "stock-outs" of critical fertilizers or over-ordering seeds.
+5.  **Worker Coordination**: Assign tasks to field workers and track completion. This is vital during high-intensity periods like clearing, planting, or harvesting.
+6.  **Investor Readiness**: Track micro-investments and equity. Having a digital record of growth and finances makes a farm much more likely to secure loans or investments.
 
 ## Tech Stack
 -   **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
