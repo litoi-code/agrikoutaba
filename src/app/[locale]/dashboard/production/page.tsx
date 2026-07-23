@@ -41,7 +41,7 @@ import type { Plot, CropCycle, Harvest, Expense, Income, Worker, CycleWorker } f
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
-import { AddHarvestDialog } from './add-harvest-dialog';
+import AddHarvestDialog from './add-harvest-dialog';
 import { EditCycleDialog } from './edit-cycle-dialog';
 import { AssignWorkerDialog } from './assign-worker-dialog';
 import { cn } from '@/lib/utils';
