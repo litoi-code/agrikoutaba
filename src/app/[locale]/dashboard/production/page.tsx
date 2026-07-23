@@ -41,7 +41,7 @@ import type { Plot, CropCycle, Harvest, Expense, Income, Worker, CycleWorker } f
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
-import { AddHarvestDialog } from './add-harvest-dialog';
+import { AddHarvestDialog as HarvestDialog } from './add-harvest-dialog';
 import { EditCycleDialog } from './edit-cycle-dialog';
 import { AssignWorkerDialog } from './assign-worker-dialog';
 import { cn } from '@/lib/utils';
@@ -128,7 +128,7 @@ export default function ProductionPage() {
             <>
               <AddPlotDialog><Button variant="outline" size="sm"><LandPlot className="mr-2 h-4 w-4" />{t('addNewPlot')}</Button></AddPlotDialog>
               <AddCycleDialog plots={plots || []}><Button size="sm"><Sprout className="mr-2 h-4 w-4" />{t('addNewCycle')}</Button></AddCycleDialog>
-              <AddHarvestDialog cycles={cycles || []}><Button variant="secondary" size="sm"><PlusCircle className="mr-2 h-4 w-4" />{t('addNewHarvest')}</Button></AddHarvestDialog>
+              <HarvestDialog cycles={cycles || []}><Button variant="secondary" size="sm"><PlusCircle className="mr-2 h-4 w-4" />{t('addNewHarvest')}</Button></HarvestDialog>
             </>
           )}
         </div>
