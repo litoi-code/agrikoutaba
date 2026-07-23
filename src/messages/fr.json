@@ -41,8 +41,11 @@
     "unit": "Unité",
     "labor": "Main d'œuvre",
     "assignWorkerAction": "Assigner un ouvrier",
+<<<<<<< HEAD
     "editAction": "Modifier",
     "deleteAction": "Supprimer",
+=======
+>>>>>>> 7e2206444d2dba893c8887813ccd6fba1c7af068
     "AddPlot": {
       "title": "Enregistrer une Parcelle",
       "nameLabel": "Nom du terrain",

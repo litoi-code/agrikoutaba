@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useMemo, useState } from 'react';
 import { collection, deleteDoc, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import {
@@ -43,6 +42,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
 import { EditCycleDialog } from './edit-cycle-dialog';
+import { AddHarvestDialog } from './add-harvest-dialog';
 import { AssignWorkerDialog } from './assign-worker-dialog';
 import { cn } from '@/lib/utils';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
