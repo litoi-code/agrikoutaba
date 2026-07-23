@@ -51,6 +51,7 @@ const harvestSchema = z.object({
 });
 
 export function AddHarvestDialog({ children, cycles }: { children: React.ReactNode, cycles: WithId<CropCycle>[] }) {
+  // Trigger re-build
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
