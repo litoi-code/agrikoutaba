@@ -1,0 +1,426 @@
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { collection, doc } from "firebase/firestore";
+import {
+  useFirestore,
+  addDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  type WithId,
+} from "@/firebase";
+import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import type { Income, Expense, Customer, Supplier } from "@/lib/types";
+
+const incomeSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.coerce.number().positive("Amount must be positive"),
+  date: z.date({ required_error: "Please select a date." }),
+  customerName: z.string().min(1, "Customer name is required"),
+});
+
+const expenseSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.coerce.number().positive("Amount must be positive"),
+  date: z.date({ required_error: "Please select a date." }),
+  supplierName: z.string().min(1, "Supplier name is required"),
+});
+
+interface TransactionFormDialogProps {
+  children?: React.ReactNode;
+  income?: WithId<Income>;
+  expense?: WithId<Expense>;
+  defaultTab?: 'income' | 'expense';
+  customers: WithId<Customer>[];
+  suppliers: WithId<Supplier>[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function TransactionFormDialog({
+  children,
+  income,
+  expense,
+  defaultTab = 'income',
+  customers,
+  suppliers,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+}: TransactionFormDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const { toast } = useToast();
+  const firestore = useFirestore();
+  const t = useTranslations("FinancesPage.AddTransactionDialog");
+  const isEditMode = !!(income || expense);
+
+  const incomeForm = useForm<z.infer<typeof incomeSchema>>({
+    resolver: zodResolver(incomeSchema),
+    defaultValues: {
+      description: "",
+      amount: "" as any,
+      customerName: "",
+    },
+  });
+
+  const expenseForm = useForm<z.infer<typeof expenseSchema>>({
+    resolver: zodResolver(expenseSchema),
+    defaultValues: {
+      description: "",
+      amount: "" as any,
+      supplierName: "",
+    },
+  });
+
+  useEffect(() => {
+    if (open) {
+        if (income) {
+            incomeForm.reset({ ...(income as any), date: new Date(income.date), customerName: income.customerName || "" });
+        } else {
+            incomeForm.reset({ description: "", amount: "" as any, customerName: "", date: new Date() });
+        }
+        if (expense) {
+            expenseForm.reset({ ...(expense as any), date: new Date(expense.date), supplierName: expense.supplierName || "" });
+        } else {
+            expenseForm.reset({ description: "", amount: "" as any, supplierName: "", date: new Date() });
+        }
+    }
+  }, [open, income, expense, incomeForm, expenseForm]);
+
+
+  const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
+    if (!firestore) return;
+    
+    const customerName = values.customerName.trim();
+    if (customerName) {
+      const existingCustomer = customers.find(
+        (c) =>
+          `${c.firstName} ${c.lastName}`.toLowerCase() ===
+          customerName.toLowerCase()
+      );
+
+      if (!existingCustomer) {
+        const nameParts = customerName.split(' ').filter(Boolean);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ');
+        if (firstName) {
+          const customersRef = collection(firestore, "customers");
+          addDocumentNonBlocking(customersRef, {
+            firstName,
+            lastName,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+    }
+
+    const data = { ...values, date: values.date.toISOString() };
+    if (income) {
+        const incomeRef = doc(firestore, "incomes", income.id);
+        updateDocumentNonBlocking(incomeRef, data);
+        toast({
+            title: t("toastIncomeUpdateTitle"),
+            description: t("toastIncomeDescription", { amount: values.amount }),
+        });
+    } else {
+        const incomesRef = collection(firestore, "incomes");
+        addDocumentNonBlocking(incomesRef, {
+            ...data,
+            createdAt: new Date().toISOString(),
+        });
+        toast({
+            title: t("toastIncomeTitle"),
+            description: t("toastIncomeDescription", { amount: values.amount }),
+        });
+    }
+    setOpen(false);
+  };
+
+  const onExpenseSubmit = (values: z.infer<typeof expenseSchema>) => {
+    if (!firestore) return;
+
+    const supplierName = values.supplierName.trim();
+    if (supplierName) {
+        const existingSupplier = suppliers.find(
+            (s) => s.companyName.toLowerCase() === supplierName.toLowerCase()
+        );
+
+        if (!existingSupplier) {
+            const suppliersRef = collection(firestore, "suppliers");
+            addDocumentNonBlocking(suppliersRef, {
+                companyName: supplierName,
+                createdAt: new Date().toISOString(),
+            });
+        }
+    }
+
+    const data = { ...values, date: values.date.toISOString() };
+
+    if (expense) {
+        const expenseRef = doc(firestore, "expenses", expense.id);
+        updateDocumentNonBlocking(expenseRef, data);
+        toast({
+            title: t("toastExpenseUpdateTitle"),
+            description: t("toastExpenseDescription", { amount: values.amount }),
+        });
+    } else {
+        const expensesRef = collection(firestore, "expenses");
+        addDocumentNonBlocking(expensesRef, {
+            ...data,
+            createdAt: new Date().toISOString(),
+        });
+        toast({
+            title: t("toastExpenseTitle"),
+            description: t("toastExpenseDescription", { amount: values.amount }),
+        });
+    }
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+      <DialogContent
+        className="sm:max-w-[425px]"
+      >
+        <DialogHeader>
+          <DialogTitle>{isEditMode ? t("editTitle") : t("title")}</DialogTitle>
+          <DialogDescription>{isEditMode ? t("editDescription") : t("description")}</DialogDescription>
+        </DialogHeader>
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="income" disabled={isEditMode && !!expense}>{t("incomeTab")}</TabsTrigger>
+            <TabsTrigger value="expense" disabled={isEditMode && !!income}>{t("expenseTab")}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="income">
+            <Form {...incomeForm}>
+              <form
+                onSubmit={incomeForm.handleSubmit(onIncomeSubmit)}
+                className="space-y-4 py-4"
+              >
+                <FormField
+                  control={incomeForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("descriptionLabel")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Sale of produce" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={incomeForm.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("amountLabel")}</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="10000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={incomeForm.control}
+                  name="customerName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("customerLabel")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={incomeForm.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>{t("dateLabel")}</FormLabel>
+                      <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setCalendarOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addIncomeButton")}</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </TabsContent>
+          <TabsContent value="expense">
+            <Form {...expenseForm}>
+              <form
+                onSubmit={expenseForm.handleSubmit(onExpenseSubmit)}
+                className="space-y-4 py-4"
+              >
+                <FormField
+                  control={expenseForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("descriptionLabel")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. Purchase of seeds"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={expenseForm.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("amountLabel")}</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="5000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={expenseForm.control}
+                  name="supplierName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("supplierLabel")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Global Seeds Inc." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={expenseForm.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>{t("dateLabel")}</FormLabel>
+                      <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              setCalendarOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit">{isEditMode ? t('saveButton') : t("addExpenseButton")}</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}

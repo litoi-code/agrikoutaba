@@ -1,0 +1,209 @@
+
+{
+  "entities": {
+    "Plot": {
+      "title": "Plot",
+      "description": "Represents a physical plot of land on the farm.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "area": { "type": "number", "description": "Area in hectares" },
+        "location": { "type": "string" },
+        "soilType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "area"]
+    },
+    "CropCycle": {
+      "title": "Crop Cycle",
+      "description": "Represents a production cycle for a specific crop on a plot.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "plotId": { "type": "string" },
+        "cropType": { "type": "string" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "estimatedEndDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Planned", "Ongoing", "Harvested", "Cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "plotId", "cropType", "startDate", "status"]
+    },
+    "CycleWorker": {
+      "title": "Cycle Worker",
+      "description": "Represents a worker assigned to a specific crop cycle with their wage.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cycleId": { "type": "string" },
+        "workerId": { "type": "string" },
+        "salary": { "type": "number", "description": "Salary or wage for this cycle in FCFA" },
+        "assignedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "cycleId", "workerId", "salary"]
+    },
+    "Harvest": {
+      "title": "Harvest",
+      "description": "Represents a harvest event from a crop cycle.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cycleId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "description": "Kg, Tons, Bags, etc." },
+        "salesValue": { "type": "number", "description": "Revenue in FCFA" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "cycleId", "date", "quantity", "unit", "salesValue"]
+    },
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer of the AgriCentral business.",
+      "properties": {
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "firstName", "lastName"]
+    },
+    "Supplier": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Supplier",
+      "type": "object",
+      "description": "Represents a supplier to the AgriCentral business.",
+      "properties": {
+        "id": { "type": "string" },
+        "companyName": { "type": "string" },
+        "contactName": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "companyName"]
+    },
+    "Item": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Item",
+      "type": "object",
+      "description": "Represents an item in the inventory, such as seeds, fertilizers, or equipment.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["Input", "Produce", "Equipment"] },
+        "unitPrice": { "type": "number" },
+        "stockLevel": { "type": "number" },
+        "reorderLevel": { "type": "number" },
+        "supplierId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "category", "unitPrice", "stockLevel", "reorderLevel", "supplierId"]
+    },
+    "Income": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Income",
+      "type": "object",
+      "description": "Represents a record of income for the business.",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "customerName": { "type": "string" },
+        "cropCycleId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "date", "description", "amount", "customerName"]
+    },
+    "Expense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expense",
+      "type": "object",
+      "description": "Represents a record of expenses for the business.",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "supplierName": { "type": "string" },
+        "cropCycleId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "date", "description", "amount", "supplierName"]
+    },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a task assigned to a worker.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "workerIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "description", "dueDate", "status", "workerIds"]
+    },
+    "Worker": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Worker",
+      "type": "object",
+      "description": "Represents a worker/user in the AgriCentral business.",
+      "properties": {
+        "id": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "contactNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "firstName", "lastName", "email", "role"]
+    },
+    "Investment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Investment",
+      "type": "object",
+      "description": "Represents an investment record for the business.",
+      "properties": {
+        "id": { "type": "string" },
+        "investorName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "equityDetails": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "investorName", "date", "description", "amount", "equityDetails"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "structure": [
+      { "path": "/plots/{plotId}", "definition": { "entityName": "Plot" } },
+      { "path": "/cropCycles/{cycleId}", "definition": { "entityName": "CropCycle" } },
+      { "path": "/cycleWorkers/{assignmentId}", "definition": { "entityName": "CycleWorker" } },
+      { "path": "/harvests/{harvestId}", "definition": { "entityName": "Harvest" } },
+      { "path": "/customers/{customerId}", "definition": { "entityName": "Customer" } },
+      { "path": "/suppliers/{supplierId}", "definition": { "entityName": "Supplier" } },
+      { "path": "/items/{itemId}", "definition": { "entityName": "Item" } },
+      { "path": "/incomes/{incomeId}", "definition": { "entityName": "Income" } },
+      { "path": "/expenses/{expenseId}", "definition": { "entityName": "Expense" } },
+      { "path": "/tasks/{taskId}", "definition": { "entityName": "Task" } },
+      { "path": "/workers/{workerId}", "definition": { "entityName": "Worker" } },
+      { "path": "/investments/{investmentId}", "definition": { "entityName": "Investment" } }
+    ]
+  }
+}
