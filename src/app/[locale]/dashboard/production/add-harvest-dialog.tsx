@@ -50,7 +50,7 @@ const harvestSchema = z.object({
   salesValue: z.coerce.number().min(0),
 });
 
-export default function AddHarvestDialog({ children, cycles }: { children: React.ReactNode, cycles: WithId<CropCycle>[] }) {
+export function HarvestFormDialog({ children, cycles }: { children: React.ReactNode, cycles: WithId<CropCycle>[] }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
