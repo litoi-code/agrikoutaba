@@ -52,6 +52,7 @@ const harvestSchema = z.object({
 
 export function HarvestFormDialog({ children, cycles }: { children: React.ReactNode, cycles: WithId<CropCycle>[] }) {
   const [open, setOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("ProductionPage.AddHarvest");
@@ -164,7 +165,7 @@ export function HarvestFormDialog({ children, cycles }: { children: React.ReactN
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("dateLabel")}</FormLabel>
-                  <Popover>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -174,7 +175,7 @@ export function HarvestFormDialog({ children, cycles }: { children: React.ReactN
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setCalendarOpen(false); }} initialFocus />
                     </PopoverContent>
                   </Popover>
                   <FormMessage />

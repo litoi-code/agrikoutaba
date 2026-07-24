@@ -59,6 +59,7 @@ export function EditCycleDialog({
   open: boolean, 
   onOpenChange: (open: boolean) => void 
 }) {
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const t = useTranslations("ProductionPage.AddCycle");
@@ -138,7 +139,7 @@ export function EditCycleDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("startDateLabel")}</FormLabel>
-                  <Popover>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -148,7 +149,7 @@ export function EditCycleDialog({
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setCalendarOpen(false); }} initialFocus />
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
