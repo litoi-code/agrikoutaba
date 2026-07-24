@@ -245,13 +245,13 @@ export default function DashboardLayout({
              {mounted && <LanguageSwitcher />}
           </div>
         </header>
-        <main key={pathname} className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
+        <section key={pathname} className="flex-1 flex-col bg-background p-4 md:p-8 overflow-x-hidden">
           {isUserLoading ? (
              <div className="flex h-full w-full items-center justify-center py-20">
                 <Leaf className="h-12 w-12 text-primary animate-bounce" />
              </div>
           ) : children}
-        </main>
+        </section>
       </SidebarInset>
     </SidebarProvider>
   );
