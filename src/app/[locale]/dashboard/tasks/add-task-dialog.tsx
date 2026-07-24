@@ -57,11 +57,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import type { Worker, Task } from "@/lib/types";
+import type { Worker, Task, CropCycle } from "@/lib/types";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  cropCycleId: z.string().optional(),
   workerIds: z
     .array(z.string())
     .min(1, "At least one worker must be assigned."),
@@ -72,6 +73,7 @@ const taskSchema = z.object({
 interface TaskFormDialogProps {
   children?: React.ReactNode;
   workers: WithId<Worker>[];
+  cycles?: WithId<CropCycle>[];
   task?: WithId<Task>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -80,6 +82,7 @@ interface TaskFormDialogProps {
 export function TaskFormDialog({
   children,
   workers,
+  cycles,
   task,
   open: controlledOpen,
   onOpenChange: setControlledOpen,
@@ -109,6 +112,7 @@ export function TaskFormDialog({
         if (isEditMode && task) {
             form.reset({
                 ...task,
+                cropCycleId: task.cropCycleId || undefined,
                 dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
                 workerIds: task.workerIds || [],
             });
@@ -116,6 +120,7 @@ export function TaskFormDialog({
             form.reset({
                 title: "",
                 description: "",
+                cropCycleId: undefined,
                 workerIds: [],
                 status: "To Do",
                 dueDate: new Date(),
@@ -197,15 +202,37 @@ export function TaskFormDialog({
                     <Textarea
                       placeholder="Detailed description of the task."
                       {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="workerIds"
+/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="cropCycleId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Crop Cycle (optional)</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ""}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Link to a crop cycle" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {cycles?.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.cropType} — {c.status}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="workerIds"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("assigneesLabel")}</FormLabel>

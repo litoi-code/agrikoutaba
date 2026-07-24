@@ -60,6 +60,9 @@ export interface Task {
   status: 'To Do' | 'In Progress' | 'Completed';
   workerIds: string[];
   title: string;
+  cropCycleId?: string;
+  plotId?: string;
+  harvestId?: string;
   createdAt?: string;
 }
 

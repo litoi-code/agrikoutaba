@@ -29,7 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { PlusCircle, MoreHorizontal, Edit, Trash, Search, Sparkles } from "lucide-react";
-import type { Task, Worker } from "@/lib/types";
+import type { Task, Worker, CropCycle } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskFormDialog } from './add-task-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -175,6 +175,9 @@ export default function TasksPage() {
   const workersQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'workers') : null, [firestore]);
   const { data: workers, isLoading: workersLoading } = useCollection<Worker>(workersQuery);
 
+  const cyclesQuery = useMemoFirebase(() => (firestore) ? collection(firestore, 'cropCycles') : null, [firestore]);
+  const { data: cycles, isLoading: cyclesLoading } = useCollection<CropCycle>(cyclesQuery);
+
   const filteredTasks = useMemo(() => {
     if (!tasks) return [];
     return tasks.filter(task =>
@@ -197,8 +200,9 @@ export default function TasksPage() {
   const inProgressTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'In Progress') ?? [], [sortedTasks]);
   const doneTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'Completed') ?? [], [sortedTasks]);
   const allWorkers = useMemo(() => workers ?? [], [workers]);
+  const allCycles = useMemo(() => cycles ?? [], [cycles]);
 
-  const isLoading = tasksLoading || workersLoading || isRoleLoading;
+  const isLoading = tasksLoading || workersLoading || cyclesLoading || isRoleLoading;
 
   return (
     <div className="flex flex-col gap-8">
@@ -215,7 +219,7 @@ export default function TasksPage() {
             />
           </div>
           {!isLoading && canEdit && (
-            <TaskFormDialog workers={allWorkers}>
+            <TaskFormDialog workers={allWorkers} cycles={allCycles}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 {t('addNew')}
@@ -233,6 +237,7 @@ export default function TasksPage() {
 
       <TaskFormDialog 
         workers={allWorkers} 
+        cycles={allCycles}
         task={editTask || undefined} 
         open={!!editTask} 
         onOpenChange={(open) => !open && setEditTask(null)}

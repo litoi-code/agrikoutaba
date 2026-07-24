@@ -40,6 +40,7 @@
     "quantity": "Quantité",
     "unit": "Unité",
     "labor": "Main d'œuvre",
+    "tasks": "Tâches",
     "assignWorkerAction": "Assigner un ouvrier",
     "editAction": "Modifier",
     "deleteAction": "Supprimer",

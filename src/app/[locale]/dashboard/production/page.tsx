@@ -37,7 +37,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Plot, CropCycle, Harvest, Expense, Income, Worker, CycleWorker } from "@/lib/types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import type { Plot, CropCycle, Harvest, Expense, Income, Worker, CycleWorker, Task } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
@@ -97,6 +102,9 @@ export default function ProductionPage() {
   const cycleWorkersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'cycleWorkers') : null, [firestore]);
   const { data: cycleWorkers } = useCollection<CycleWorker>(cycleWorkersQuery);
 
+  const tasksQuery = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+  const { data: tasks } = useCollection<Task>(tasksQuery);
+
   const cycleFinancials = useMemo(() => {
     if (!cycles || !expenses || !incomes) return {};
     const stats: Record<string, { costs: number, sales: number }> = {};
@@ -130,6 +138,18 @@ export default function ProductionPage() {
     
     return mapping;
   }, [cycleWorkers, workers]);
+
+  const cycleTasks = useMemo(() => {
+    if (!tasks) return {};
+    const mapping: Record<string, WithId<Task>[]> = {};
+    tasks.forEach(task => {
+      if (task.cropCycleId) {
+        if (!mapping[task.cropCycleId]) mapping[task.cropCycleId] = [];
+        mapping[task.cropCycleId].push(task);
+      }
+    });
+    return mapping;
+  }, [tasks]);
 
   const isLoading = plotsLoading || cyclesLoading || harvestsLoading;
 
@@ -167,6 +187,7 @@ export default function ProductionPage() {
                     <TableHead className="hidden md:table-cell">{t('startDate')}</TableHead>
                     <TableHead>{t('status')}</TableHead>
                     <TableHead className="hidden lg:table-cell">{t('labor')}</TableHead>
+                    <TableHead className="text-center">{t('tasks')}</TableHead>
                     <TableHead className="text-right">{t('cost')}</TableHead>
                     <TableHead className="text-right">{t('revenue')}</TableHead>
                     <TableHead className="text-right">{t('profit')}</TableHead>
@@ -175,7 +196,7 @@ export default function ProductionPage() {
                 </TableHeader>
                 <TableBody>
                   {isLoading ? Array.from({length: 3}).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={9}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
                   )) : cycles?.map(cycle => {
                     const financials = cycleFinancials[cycle.id] || { costs: 0, sales: 0 };
                     const profit = financials.sales - financials.costs;
@@ -194,9 +215,38 @@ export default function ProductionPage() {
                              <div className="flex flex-col text-[10px] text-muted-foreground">
                                {assignedNames.map(name => <span key={name}>{name}</span>)}
                              </div>
-                           ) : (
-                             <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>
+) : (
+                              <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>
                            )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {(() => {
+                            const linkedTasks = cycleTasks[cycle.id] || [];
+                            if (linkedTasks.length === 0) {
+                              return <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>;
+                            }
+                            return (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs font-mono">
+                                    {linkedTasks.length}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2" align="center">
+                                  <div className="text-xs space-y-1">
+                                    {linkedTasks.map(task => (
+                                      <div key={task.id} className="flex items-center justify-between gap-2">
+                                        <span className="truncate">{task.title}</span>
+                                        <Badge variant={task.status === 'Completed' ? 'secondary' : 'default'} className="text-[9px] px-1 h-4 shrink-0">
+                                          {task.status === 'To Do' ? 'TODO' : task.status === 'In Progress' ? 'WIP' : 'DONE'}
+                                        </Badge>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell className="text-right font-mono text-xs">{financials.costs.toLocaleString()} {tGlobal('currency')}</TableCell>
                         <TableCell className="text-right font-mono text-xs">{financials.sales.toLocaleString()} {tGlobal('currency')}</TableCell>
