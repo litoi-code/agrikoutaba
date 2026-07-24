@@ -41,11 +41,8 @@
     "unit": "Unit",
     "labor": "Labor",
     "assignWorkerAction": "Assign Worker",
-<<<<<<< HEAD
     "editAction": "Edit",
     "deleteAction": "Delete",
-=======
->>>>>>> 7e2206444d2dba893c8887813ccd6fba1c7af068
     "AddPlot": {
       "title": "Register a Plot",
       "nameLabel": "Plot Name",
