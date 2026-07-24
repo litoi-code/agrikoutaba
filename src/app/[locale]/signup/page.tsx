@@ -10,7 +10,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { useAuth, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Leaf } from 'lucide-react';
+import { Leaf, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -45,6 +45,7 @@ export default function SignupPage() {
   const t = useTranslations('SignupPage');
   const tGlobal = useTranslations('Global');
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -166,7 +167,18 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>{t('passwordLabel')}</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} {...field} />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
