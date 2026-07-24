@@ -18,7 +18,8 @@ import {
   Landmark, 
   ShieldAlert,
   HelpCircle,
-  Leaf
+  Leaf,
+  ListChecks
 } from 'lucide-react';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
 
@@ -63,12 +64,18 @@ export default function ManualPage() {
     },
     {
       id: 'item-4',
+      icon: <ListChecks className="h-5 w-5 text-primary" />,
+      title: t('tasksTitle'),
+      content: t('tasksContent'),
+    },
+    {
+      id: 'item-5',
       icon: <Landmark className="h-5 w-5 text-primary" />,
       title: t('financeTitle'),
       content: t('financeContent'),
     },
     {
-      id: 'item-5',
+      id: 'item-6',
       icon: <ShieldAlert className="h-5 w-5 text-primary" />,
       title: t('rolesTitle'),
       content: t('rolesContent'),
