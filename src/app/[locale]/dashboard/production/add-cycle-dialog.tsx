@@ -124,7 +124,7 @@ export function AddCycleDialog({ children, plots }: { children: React.ReactNode,
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>{t("startDateLabel")}</FormLabel>
-                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <Popover modal={true} open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
