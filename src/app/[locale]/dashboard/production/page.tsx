@@ -43,6 +43,8 @@ import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
 import { HarvestFormDialog } from './add-harvest-dialog';
 import { EditCycleDialog } from './edit-cycle-dialog';
+import { EditPlotDialog } from './edit-plot-dialog';
+import { EditHarvestDialog } from './edit-harvest-dialog';
 import { AssignWorkerDialog } from './assign-worker-dialog';
 import { cn } from '@/lib/utils';
 import { useCurrentUserRole } from '@/hooks/use-current-user-role';
@@ -56,10 +58,22 @@ export default function ProductionPage() {
 
   const [assignCycle, setAssignCycle] = useState<WithId<CropCycle> | null>(null);
   const [editCycle, setEditCycle] = useState<WithId<CropCycle> | null>(null);
+  const [editPlot, setEditPlot] = useState<WithId<Plot> | null>(null);
+  const [editHarvest, setEditHarvest] = useState<WithId<Harvest> | null>(null);
 
-  const handleDelete = async (cycleId: string) => {
+  const handleDeleteCycle = async (cycleId: string) => {
     if (!firestore) return;
     await deleteDoc(doc(firestore, "cropCycles", cycleId));
+  };
+
+  const handleDeletePlot = async (plotId: string) => {
+    if (!firestore) return;
+    await deleteDoc(doc(firestore, "plots", plotId));
+  };
+
+  const handleDeleteHarvest = async (harvestId: string) => {
+    if (!firestore) return;
+    await deleteDoc(doc(firestore, "harvests", harvestId));
   };
 
   const plotsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'plots') : null, [firestore]);
@@ -206,7 +220,7 @@ export default function ProductionPage() {
                                   <Pencil className="mr-2 h-4 w-4" />
                                   <span>{t('editAction')}</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={() => handleDelete(cycle.id)} className="text-destructive">
+                                <DropdownMenuItem onSelect={() => handleDeleteCycle(cycle.id)} className="text-destructive">
                                   <Trash2 className="mr-2 h-4 w-4" />
                                   <span>{t('deleteAction')}</span>
                                 </DropdownMenuItem>
@@ -234,17 +248,39 @@ export default function ProductionPage() {
                     <TableHead>{t('area')}</TableHead>
                     <TableHead>{t('AddPlot.locationLabel')}</TableHead>
                     <TableHead>{t('AddPlot.soilLabel')}</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? Array.from({length: 2}).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={4}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
                   )) : plots?.map(plot => (
                     <TableRow key={plot.id}>
                       <TableCell className="font-bold">{plot.name}</TableCell>
                       <TableCell>{plot.area} Ha</TableCell>
                       <TableCell>{plot.location}</TableCell>
                       <TableCell>{plot.soilType}</TableCell>
+                      <TableCell>
+                        {canEdit && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => setEditPlot(plot)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleDeletePlot(plot.id)} className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{t('deleteAction')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -264,17 +300,39 @@ export default function ProductionPage() {
                     <TableHead>{t('cropType')}</TableHead>
                     <TableHead className="text-right">{t('quantity')}</TableHead>
                     <TableHead className="text-right">{t('revenue')}</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? Array.from({length: 3}).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={4}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow key={i}><TableCell colSpan={5}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
                   )) : harvests?.map(h => (
                     <TableRow key={h.id}>
                       <TableCell>{format(new Date(h.date), 'PP')}</TableCell>
                       <TableCell className="font-bold">{cycles?.find(c => c.id === h.cycleId)?.cropType || tGlobal('unknown')}</TableCell>
                       <TableCell className="text-right">{h.quantity} {h.unit}</TableCell>
                       <TableCell className="text-right font-mono text-xs">{h.salesValue.toLocaleString()} {tGlobal('currency')}</TableCell>
+                      <TableCell>
+                        {canEdit && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => setEditHarvest(h)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>{t('editAction')}</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onSelect={() => handleDeleteHarvest(h.id)} className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{t('deleteAction')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -295,6 +353,16 @@ export default function ProductionPage() {
         plots={plots || []} 
         open={!!editCycle}
         onOpenChange={(open) => !open && setEditCycle(null)}
+      />
+      <EditPlotDialog 
+        plot={editPlot} 
+        open={!!editPlot}
+        onOpenChange={(open) => !open && setEditPlot(null)}
+      />
+      <EditHarvestDialog 
+        harvest={editHarvest} 
+        open={!!editHarvest}
+        onOpenChange={(open) => !open && setEditHarvest(null)}
       />
     </div>
   );
