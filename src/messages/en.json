@@ -87,7 +87,8 @@
     "financeTitle": "Financial Management",
     "financeContent": "All transactions are tracked in FCFA. The Finances page allows you to log every income and expense. The Dashboard provides a visual overview of your net income, helping you make data-driven decisions.",
     "rolesTitle": "Roles & Security",
-    "rolesContent": "To ensure data integrity, AgriKoutaba uses three roles: Admin (Full control), Manager (Can edit data), and Worker (View-only). The owner email (mbongmebiang@gmail.com) is always an Admin."
+    "rolesContent": "To ensure data integrity, AgriKoutaba uses three roles: Admin (Full control), Manager (Can edit data), and Worker (View-only). The owner email (mbongmebiang@gmail.com) is always an Admin.",
+    "moreInfo": "For more assistance, please contact support."
   },
   "HomePage": {
     "title": "The Future of Farming in Cameroon is Here",
