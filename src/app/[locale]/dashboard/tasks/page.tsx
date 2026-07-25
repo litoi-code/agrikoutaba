@@ -193,7 +193,7 @@ export default function TasksPage() {
 
   const sortedTasks = useMemo(() => {
     if (!filteredTasks) return [];
-    return [...filteredTasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    return [...filteredTasks].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
   }, [filteredTasks]);
 
   const todoTasks = useMemo(() => sortedTasks?.filter(t => t.status === 'To Do') ?? [], [sortedTasks]);
