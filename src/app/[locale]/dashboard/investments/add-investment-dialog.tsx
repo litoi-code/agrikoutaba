@@ -138,6 +138,7 @@ export function InvestmentFormDialog({
       });
     }
 
+    setCalendarOpen(false);
     setOpen(false);
   };
 

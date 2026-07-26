@@ -156,6 +156,7 @@ export function TaskFormDialog({
     }
 
     form.reset();
+    setCalendarOpen(false);
     setOpen(false);
   };
 

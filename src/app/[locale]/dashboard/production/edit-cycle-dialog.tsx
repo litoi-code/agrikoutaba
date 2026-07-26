@@ -93,6 +93,7 @@ export function EditCycleDialog({
       estimatedEndDate: values.estimatedEndDate?.toISOString() || null,
     });
     toast({ title: "Cycle Updated", description: `Production of ${values.cropType} has been updated.` });
+    setCalendarOpen(false);
     onOpenChange(false);
   };
 

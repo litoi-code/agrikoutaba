@@ -175,6 +175,7 @@ export function TransactionFormDialog({
             description: t("toastIncomeDescription", { amount: values.amount }),
         });
     }
+    setCalendarOpen(false);
     setOpen(false);
   };
 
@@ -216,6 +217,7 @@ export function TransactionFormDialog({
             description: t("toastExpenseDescription", { amount: values.amount }),
         });
     }
+    setCalendarOpen(false);
     setOpen(false);
   };
 

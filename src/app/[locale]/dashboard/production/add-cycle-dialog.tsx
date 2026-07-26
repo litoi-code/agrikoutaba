@@ -77,6 +77,7 @@ export function AddCycleDialog({ children, plots }: { children: React.ReactNode,
     });
     toast({ title: "Cycle Started", description: `Production of ${values.cropType} has begun.` });
     form.reset();
+    setCalendarOpen(false);
     setOpen(false);
   };
 

@@ -83,6 +83,7 @@ export function EditHarvestDialog({
       date: values.date.toISOString(),
     });
     toast({ title: "Harvest Updated", description: "Harvest record has been updated." });
+    setCalendarOpen(false);
     onOpenChange(false);
   };
 

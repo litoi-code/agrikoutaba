@@ -94,6 +94,7 @@ export function HarvestFormDialog({ children, cycles }: { children: React.ReactN
 
     toast({ title: "Harvest Recorded", description: "Harvest and sales income logged successfully." });
     form.reset();
+    setCalendarOpen(false);
     setOpen(false);
   };
 
