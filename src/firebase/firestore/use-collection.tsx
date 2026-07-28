@@ -9,7 +9,6 @@ import {
   QuerySnapshot,
   CollectionReference,
 } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 /** Utility type to add an 'id' field to a given type T. */
@@ -36,8 +35,6 @@ export interface InternalQuery extends Query<DocumentData> {
     }
   }
 }
-
-const FATAL_ERROR_CODES = new Set(['permission-denied']);
 
 /**
  * React hook to subscribe to a Firestore collection or query in real-time.
@@ -93,7 +90,7 @@ export function useCollection<T = any>(
             ? (memoizedTargetRefOrQuery as CollectionReference).path
             : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
 
-        if (FATAL_ERROR_CODES.has(error.code)) {
+        if (error.code === 'permission-denied') {
           const contextualError = new FirestorePermissionError({
             operation: 'list',
             path,
@@ -101,7 +98,6 @@ export function useCollection<T = any>(
           setError(contextualError)
           setData(null)
           setIsLoading(false)
-          errorEmitter.emit('permission-error', contextualError)
         } else {
           setError(null)
           setIsLoading(false)

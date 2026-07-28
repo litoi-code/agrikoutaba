@@ -8,7 +8,6 @@ import {
   FirestoreError,
   DocumentSnapshot,
 } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 const FATAL_ERROR_CODES = new Set(['permission-denied']);
@@ -82,7 +81,6 @@ export function useDoc<T = any>(
           setError(contextualError)
           setData(null)
           setIsLoading(false)
-          errorEmitter.emit('permission-error', contextualError)
         } else {
           setError(null)
           setIsLoading(false)
