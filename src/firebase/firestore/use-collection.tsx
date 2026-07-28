@@ -37,15 +37,17 @@ export interface InternalQuery extends Query<DocumentData> {
   }
 }
 
+const FATAL_ERROR_CODES = new Set(['permission-denied']);
+
 /**
  * React hook to subscribe to a Firestore collection or query in real-time.
  * Handles nullable references/queries.
- * 
+ *
  *
  * IMPORTANT! YOU MUST MEMOIZE the inputted memoizedTargetRefOrQuery or BAD THINGS WILL HAPPEN
  * use useMemo to memoize it per React guidence.  Also make sure that it's dependencies are stable
  * references
- *  
+ *
  * @template T Optional type for document data. Defaults to any.
  * @param {CollectionReference<DocumentData> | Query<DocumentData> | null | undefined} targetRefOrQuery -
  * The Firestore CollectionReference or Query. Waits if null/undefined.
@@ -84,25 +86,14 @@ export function useCollection<T = any>(
         setError(null);
         setIsLoading(false);
       },
-const TRANSIENT_ERROR_CODES = new Set([
-  'unavailable',
-  'internal',
-  'cancelled',
-  'deadline-exceeded',
-]);
-
-const PERMISSION_ERROR_CODES = new Set([
-  'permission-denied',
-  'unauthenticated',
-]);
-
-    (error: FirestoreError) => {
+      (error: FirestoreError) => {
+        // This logic extracts the path from either a ref or a query
         const path: string =
           memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
             : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
 
-        if (PERMISSION_ERROR_CODES.has(error.code)) {
+        if (FATAL_ERROR_CODES.has(error.code)) {
           const contextualError = new FirestorePermissionError({
             operation: 'list',
             path,
@@ -111,18 +102,9 @@ const PERMISSION_ERROR_CODES = new Set([
           setData(null)
           setIsLoading(false)
           errorEmitter.emit('permission-error', contextualError)
-        } else if (TRANSIENT_ERROR_CODES.has(error.code)) {
+        } else {
           setError(null)
           setIsLoading(false)
-        } else {
-          const contextualError = new FirestorePermissionError({
-            operation: 'list',
-            path,
-          })
-          setError(contextualError)
-          setData(null)
-          setIsLoading(false)
-          errorEmitter.emit('permission-error', contextualError)
         }
       }
     );
