@@ -129,7 +129,7 @@ export default function ProductionPage() {
 
   const cycleWorkerTasks = useMemo(() => {
     if (!cycleWorkers || !workers || !tasks) return {};
-    const mapping: Record<string, { workerName: string; completedTasks: WithId<Task>[] }[]> = {};
+    const mapping: Record<string, { workerName: string; salary: number; completedTasks: WithId<Task>[] }[]> = {};
 
     cycleWorkers.forEach(cw => {
       const worker = workers.find(w => w.id === cw.workerId);
@@ -139,7 +139,7 @@ export default function ProductionPage() {
         t => t.cropCycleId === cw.cycleId && t.workerIds.includes(cw.workerId) && t.status === 'Completed'
       );
       if (!mapping[cw.cycleId]) mapping[cw.cycleId] = [];
-      mapping[cw.cycleId].push({ workerName, completedTasks: completed });
+      mapping[cw.cycleId].push({ workerName, salary: cw.salary, completedTasks: completed });
     });
 
     return mapping;
@@ -203,12 +203,13 @@ export default function ProductionPage() {
                         <TableCell>
                           <Badge variant={cycle.status === 'Harvested' ? 'secondary' : 'default'}>{cycle.status}</Badge>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
+                         <TableCell className="hidden lg:table-cell">
                            {workerTaskData.length > 0 ? (
                              <div className="flex flex-col gap-1 text-[10px]">
-                               {workerTaskData.map(({ workerName, completedTasks }) => (
+                               {workerTaskData.map(({ workerName, salary, completedTasks }) => (
                                  <div key={workerName} className="flex items-center gap-2">
                                    <span className="font-medium text-muted-foreground shrink-0">{workerName}</span>
+                                   <span className="text-muted-foreground/60 shrink-0">({salary.toLocaleString()} {tGlobal('currency')})</span>
                                    {completedTasks.length > 0 ? (
                                      <Popover>
                                        <PopoverTrigger asChild>
