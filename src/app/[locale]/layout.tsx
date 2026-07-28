@@ -1,7 +1,7 @@
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages, getTranslations} from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { Toaster } from "@/components/ui/toaster";
-import { FirebaseClientProvider } from "@/firebase";
+import { SupabaseProvider } from "@/supabase/provider";
 import '../globals.css';
 
 type Params = Promise<{ locale: string }>;
@@ -35,9 +35,9 @@ export default async function LocaleLayout({
       </head>
       <body className="font-body antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <FirebaseClientProvider>
+          <SupabaseProvider>
             {children}
-          </FirebaseClientProvider>
+          </SupabaseProvider>
         </NextIntlClientProvider>
         <Toaster />
       </body>
