@@ -1,6 +1,6 @@
 'use client';
-     
-import { useState, useEffect } from 'react';
+      
+import { useState, useEffect, useRef } from 'react';
 import {
   DocumentReference,
   onSnapshot,
@@ -47,8 +47,15 @@ export function useDoc<T = any>(
   const [data, setData] = useState<StateDataType>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+
     if (!memoizedDocRef) {
       setData(null);
       setIsLoading(false);
@@ -63,6 +70,10 @@ export function useDoc<T = any>(
     const unsubscribe = onSnapshot(
       memoizedDocRef,
       (snapshot: DocumentSnapshot<DocumentData>) => {
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
         if (snapshot.exists()) {
           setData({ ...(snapshot.data() as T), id: snapshot.id });
         } else {
@@ -73,6 +84,11 @@ export function useDoc<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
+
         if (FATAL_ERROR_CODES.has(error.code)) {
           const contextualError = new FirestorePermissionError({
             operation: 'get',
@@ -84,12 +100,21 @@ export function useDoc<T = any>(
         } else {
           setError(null)
           setIsLoading(false)
+          retryTimeoutRef.current = setTimeout(() => {
+            setRetryCount(c => c + 1);
+          }, 1000);
         }
       }
     );
 
-    return () => unsubscribe();
-  }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
+    return () => {
+      unsubscribe();
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
+  }, [memoizedDocRef, retryCount]); // Re-run if the memoizedDocRef changes or we need to retry.
 
   return { data, isLoading, error };
 }
