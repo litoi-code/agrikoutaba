@@ -126,30 +126,23 @@ export default function ProductionPage() {
     return stats;
   }, [cycles, expenses, incomes]);
 
-  const cycleAssignedWorkers = useMemo(() => {
-    if (!cycleWorkers || !workers) return {};
-    const mapping: Record<string, string[]> = {};
-    
-    cycleWorkers.forEach(cw => {
-      if (!mapping[cw.cycleId]) mapping[cw.cycleId] = [];
-      const w = workers.find(worker => worker.id === cw.workerId);
-      if (w) mapping[cw.cycleId].push(`${w.firstName} ${w.lastName}`);
-    });
-    
-    return mapping;
-  }, [cycleWorkers, workers]);
+  const cycleWorkerTasks = useMemo(() => {
+    if (!cycleWorkers || !workers || !tasks) return {};
+    const mapping: Record<string, { workerName: string; completedTasks: WithId<Task>[] }[]> = {};
 
-  const cycleTasks = useMemo(() => {
-    if (!tasks) return {};
-    const mapping: Record<string, WithId<Task>[]> = {};
-    tasks.forEach(task => {
-      if (task.cropCycleId) {
-        if (!mapping[task.cropCycleId]) mapping[task.cropCycleId] = [];
-        mapping[task.cropCycleId].push(task);
-      }
+    cycleWorkers.forEach(cw => {
+      const worker = workers.find(w => w.id === cw.workerId);
+      if (!worker) return;
+      const workerName = `${worker.firstName} ${worker.lastName}`;
+      const completed = tasks.filter(
+        t => t.cropCycleId === cw.cycleId && t.workerIds.includes(cw.workerId) && t.status === 'Completed'
+      );
+      if (!mapping[cw.cycleId]) mapping[cw.cycleId] = [];
+      mapping[cw.cycleId].push({ workerName, completedTasks: completed });
     });
+
     return mapping;
-  }, [tasks]);
+  }, [cycleWorkers, workers, tasks]);
 
   const isLoading = plotsLoading || cyclesLoading || harvestsLoading;
 
@@ -186,8 +179,7 @@ export default function ProductionPage() {
                     <TableHead>{t('plotName')}</TableHead>
                     <TableHead className="hidden md:table-cell">{t('startDate')}</TableHead>
                     <TableHead>{t('status')}</TableHead>
-                    <TableHead className="hidden lg:table-cell">{t('labor')}</TableHead>
-                    <TableHead className="text-center">{t('tasks')}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{t('workersTasks')}</TableHead>
                     <TableHead className="text-right">{t('cost')}</TableHead>
                     <TableHead className="text-right">{t('revenue')}</TableHead>
                     <TableHead className="text-right">{t('profit')}</TableHead>
@@ -196,11 +188,11 @@ export default function ProductionPage() {
                 </TableHeader>
                 <TableBody>
                   {isLoading ? Array.from({length: 3}).map((_, i) => (
-                    <TableRow key={i}><TableCell colSpan={10}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
+                    <TableRow key={i}><TableCell colSpan={9}><Skeleton className="h-10 w-full" /></TableCell></TableRow>
                   )) : cycles?.map(cycle => {
                     const financials = cycleFinancials[cycle.id] || { costs: 0, sales: 0 };
                     const profit = financials.sales - financials.costs;
-                    const assignedNames = cycleAssignedWorkers[cycle.id] || [];
+                    const workerTaskData = cycleWorkerTasks[cycle.id] || [];
                     
                     return (
                       <TableRow key={cycle.id}>
@@ -211,43 +203,41 @@ export default function ProductionPage() {
                           <Badge variant={cycle.status === 'Harvested' ? 'secondary' : 'default'}>{cycle.status}</Badge>
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                           {assignedNames.length > 0 ? (
-                             <div className="flex flex-col text-[10px] text-muted-foreground">
-                               {assignedNames.map(name => <span key={name}>{name}</span>)}
+                           {workerTaskData.length > 0 ? (
+                             <div className="flex flex-col gap-1 text-[10px]">
+                               {workerTaskData.map(({ workerName, completedTasks }) => (
+                                 <div key={workerName} className="flex items-center gap-2">
+                                   <span className="font-medium text-muted-foreground shrink-0">{workerName}</span>
+                                   {completedTasks.length > 0 ? (
+                                     <Popover>
+                                       <PopoverTrigger asChild>
+                                         <Button variant="ghost" size="sm" className="h-4 px-1 text-[9px] font-mono text-green-600">
+                                           {completedTasks.length}
+                                         </Button>
+                                       </PopoverTrigger>
+                                       <PopoverContent className="w-56 p-2" align="start">
+                                         <div className="text-[10px] space-y-1">
+                                           {completedTasks.map(task => (
+                                             <div key={task.id} className="flex items-center justify-between gap-2">
+                                               <span className="truncate">{task.title}</span>
+                                               <Badge variant="secondary" className="text-[8px] px-1 h-3 shrink-0">
+                                                 {t('taskDone')}
+                                               </Badge>
+                                             </div>
+                                           ))}
+                                         </div>
+                                       </PopoverContent>
+                                     </Popover>
+                                   ) : (
+                                     <span className="italic text-muted-foreground">{tGlobal('none')}</span>
+                                   )}
+                                 </div>
+                               ))}
                              </div>
-) : (
-                              <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>
+                           ) : (
+                             <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>
                            )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {(() => {
-                            const linkedTasks = cycleTasks[cycle.id] || [];
-                            if (linkedTasks.length === 0) {
-                              return <span className="text-[10px] italic text-muted-foreground">{tGlobal('none')}</span>;
-                            }
-                            return (
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs font-mono">
-                                    {linkedTasks.length}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64 p-2" align="center">
-                                  <div className="text-xs space-y-1">
-                                    {linkedTasks.map(task => (
-                                      <div key={task.id} className="flex items-center justify-between gap-2">
-                                        <span className="truncate">{task.title}</span>
-                                        <Badge variant={task.status === 'Completed' ? 'secondary' : 'default'} className="text-[9px] px-1 h-4 shrink-0">
-                                          {task.status === 'To Do' ? 'TODO' : task.status === 'In Progress' ? 'WIP' : 'DONE'}
-                                        </Badge>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                            );
-                          })()}
-                        </TableCell>
+                         </TableCell>
                         <TableCell className="text-right font-mono text-xs">{financials.costs.toLocaleString()} {tGlobal('currency')}</TableCell>
                         <TableCell className="text-right font-mono text-xs">{financials.sales.toLocaleString()} {tGlobal('currency')}</TableCell>
                         <TableCell className={cn("text-right font-bold text-xs", profit >= 0 ? "text-green-600" : "text-red-600")}>
