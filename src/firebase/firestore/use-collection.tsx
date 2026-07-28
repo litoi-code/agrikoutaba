@@ -84,24 +84,46 @@ export function useCollection<T = any>(
         setError(null);
         setIsLoading(false);
       },
-      (error: FirestoreError) => {
-        // This logic extracts the path from either a ref or a query
+const TRANSIENT_ERROR_CODES = new Set([
+  'unavailable',
+  'internal',
+  'cancelled',
+  'deadline-exceeded',
+]);
+
+const PERMISSION_ERROR_CODES = new Set([
+  'permission-denied',
+  'unauthenticated',
+]);
+
+    (error: FirestoreError) => {
         const path: string =
           memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
             : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
 
-        const contextualError = new FirestorePermissionError({
-          operation: 'list',
-          path,
-        })
-
-        setError(contextualError)
-        setData(null)
-        setIsLoading(false)
-
-        // trigger global error propagation
-        errorEmitter.emit('permission-error', contextualError);
+        if (PERMISSION_ERROR_CODES.has(error.code)) {
+          const contextualError = new FirestorePermissionError({
+            operation: 'list',
+            path,
+          })
+          setError(contextualError)
+          setData(null)
+          setIsLoading(false)
+          errorEmitter.emit('permission-error', contextualError)
+        } else if (TRANSIENT_ERROR_CODES.has(error.code)) {
+          setError(null)
+          setIsLoading(false)
+        } else {
+          const contextualError = new FirestorePermissionError({
+            operation: 'list',
+            path,
+          })
+          setError(contextualError)
+          setData(null)
+          setIsLoading(false)
+          errorEmitter.emit('permission-error', contextualError)
+        }
       }
     );
 

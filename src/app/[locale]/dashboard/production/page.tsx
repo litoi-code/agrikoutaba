@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from 'react';
-import { collection, deleteDoc, doc } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
@@ -43,6 +43,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { Plot, CropCycle, Harvest, Expense, Income, Worker, CycleWorker, Task } from "@/lib/types";
+import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddPlotDialog } from './add-plot-dialog';
 import { AddCycleDialog } from './add-cycle-dialog';
@@ -66,19 +67,19 @@ export default function ProductionPage() {
   const [editPlot, setEditPlot] = useState<WithId<Plot> | null>(null);
   const [editHarvest, setEditHarvest] = useState<WithId<Harvest> | null>(null);
 
-  const handleDeleteCycle = async (cycleId: string) => {
+  const handleDeleteCycle = (cycleId: string) => {
     if (!firestore) return;
-    await deleteDoc(doc(firestore, "cropCycles", cycleId));
+    deleteDocumentNonBlocking(doc(firestore, "cropCycles", cycleId));
   };
 
-  const handleDeletePlot = async (plotId: string) => {
+  const handleDeletePlot = (plotId: string) => {
     if (!firestore) return;
-    await deleteDoc(doc(firestore, "plots", plotId));
+    deleteDocumentNonBlocking(doc(firestore, "plots", plotId));
   };
 
-  const handleDeleteHarvest = async (harvestId: string) => {
+  const handleDeleteHarvest = (harvestId: string) => {
     if (!firestore) return;
-    await deleteDoc(doc(firestore, "harvests", harvestId));
+    deleteDocumentNonBlocking(doc(firestore, "harvests", harvestId));
   };
 
   const plotsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'plots') : null, [firestore]);

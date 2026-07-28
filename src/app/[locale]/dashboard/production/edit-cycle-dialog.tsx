@@ -5,8 +5,9 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { useFirestore, type WithId } from "@/firebase";
+import { updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -84,10 +85,10 @@ export function EditCycleDialog({
     }
   }, [cycle, form]);
 
-  const onSubmit = async (values: z.infer<typeof cycleSchema>) => {
+  const onSubmit = (values: z.infer<typeof cycleSchema>) => {
     if (!firestore || !cycle) return;
     const cycleRef = doc(firestore, "cropCycles", cycle.id);
-    await updateDoc(cycleRef, {
+    updateDocumentNonBlocking(cycleRef, {
       ...values,
       startDate: values.startDate.toISOString(),
       estimatedEndDate: values.estimatedEndDate?.toISOString() || null,
