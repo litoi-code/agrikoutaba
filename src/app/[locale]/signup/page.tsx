@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { useAuth, useFirestore } from '@/firebase';
+import { createUserWithEmailAndPassword, doc, setDoc } from "@/firebase";
+import { useAuth, useFirestore } from "@/firebase";
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf, Eye, EyeOff } from 'lucide-react';
@@ -60,7 +59,7 @@ export default function SignupPage() {
   async function onSubmit(values: z.infer<typeof signupSchema>) {
     setError(null);
     if (!auth || !firestore) {
-        setError("Firebase services are not available.");
+        setError("Authentication service is not available.");
         return;
     }
     try {

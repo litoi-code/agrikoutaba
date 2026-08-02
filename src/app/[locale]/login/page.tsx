@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import {signInWithEmailAndPassword} from "@/firebase";
+import { useAuth } from "@/firebase";
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Leaf, Eye, EyeOff } from 'lucide-react';
@@ -62,6 +63,33 @@ export default function LoginPage() {
     }
   }
 
+  const [resetEmail, setResetEmail] = useState<string | null>(null);
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function onForgotPassword() {
+    const email = form.getValues('email');
+    if (!email) {
+      setError(t('resetEmailRequired'));
+      return;
+    }
+    setError(null);
+    setResetSending(true);
+    setResetSent(false);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/${locale}/auth/recovery`,
+      });
+      if (error) throw error;
+      setResetEmail(email);
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setResetSending(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-8">
@@ -81,6 +109,12 @@ export default function LoginPage() {
                   <Alert variant="destructive">
                     <AlertTitle>{t('errorTitle')}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                {resetSent && (
+                  <Alert>
+                    <AlertTitle>{t('resetSentTitle')}</AlertTitle>
+                    <AlertDescription>{t('resetSentMessage', { email: resetEmail ?? '' })}</AlertDescription>
                   </Alert>
                 )}
                 <FormField
@@ -130,6 +164,15 @@ export default function LoginPage() {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? t('submitting') : t('submitButton')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full"
+                  disabled={resetSending}
+                  onClick={onForgotPassword}
+                >
+                  {resetSending ? t('resetSending') : t('forgotPassword')}
                 </Button>
               </form>
             </Form>

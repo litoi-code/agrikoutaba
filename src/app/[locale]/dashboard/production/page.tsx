@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from 'react';
-import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import {useFirestore, useCollection, useMemoFirebase, type WithId, collection, doc} from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
 import {

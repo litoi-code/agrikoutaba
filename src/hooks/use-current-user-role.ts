@@ -1,7 +1,6 @@
 'use client';
 
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import {useUser, useFirestore, useMemoFirebase, useDoc, doc} from '@/firebase';
 import type { Worker } from '@/lib/types';
 
 /**

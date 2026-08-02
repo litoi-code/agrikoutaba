@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import { collection } from "firebase/firestore";
+import {collection} from "@/firebase";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import {
   AreaChart,
@@ -39,8 +39,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { useCurrentUserRole } from "@/hooks/use-current-user-role";
 import { cn, isNew } from "@/lib/utils";
 import type { Item, Customer, Supplier, Task, Worker, Income, Expense, Investment } from "@/lib/types";
-import { useAuth } from "@/firebase";
-import { signOut } from "firebase/auth";
+import { useAuth, signOut } from "@/firebase";
 
 export default function DashboardLayout({
   children,

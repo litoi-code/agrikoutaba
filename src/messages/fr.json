@@ -127,7 +127,28 @@
     "submitting": "Connexion...",
     "noAccount": "Vous n'avez pas de compte?",
     "signUpLink": "S'inscrire",
-    "errorTitle": "Échec de la Connexion"
+    "errorTitle": "Échec de la Connexion",
+    "forgotPassword": "Mot de passe oublié?",
+    "resetSending": "Envoi du lien...",
+    "resetEmailRequired": "Veuillez d'abord saisir votre adresse email.",
+    "resetSentTitle": "Lien de Réinitialisation Envoyé",
+    "resetSentMessage": "Si un compte existe pour {email}, un lien de réinitialisation a été envoyé. Vérifiez également votre dossier spam."
+  },
+  "RecoveryPage": {
+    "title": "Définir un Nouveau Mot de Passe",
+    "description": "Choisissez un nouveau mot de passe pour votre compte.",
+    "newPasswordLabel": "Nouveau Mot de Passe",
+    "confirmPasswordLabel": "Confirmer le Mot de Passe",
+    "submitButton": "Mettre à Jour le Mot de Passe",
+    "submitting": "Mise à jour...",
+    "checking": "Vérification de votre lien...",
+    "invalidLinkTitle": "Lien Invalide ou Expiré",
+    "invalidLink": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
+    "errorTitle": "Échec de la Réinitialisation",
+    "errorMessage": "Une erreur est survenue lors de la réinitialisation de votre mot de passe.",
+    "successTitle": "Mot de Passe Mis à Jour",
+    "successMessage": "Votre mot de passe a été mis à jour. Vous serez redirigé vers la page de connexion.",
+    "backToLogin": "Retour à la connexion"
   },
   "SignupPage": {
     "title": "Créer un Compte",

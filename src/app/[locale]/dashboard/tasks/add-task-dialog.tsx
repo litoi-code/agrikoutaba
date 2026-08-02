@@ -5,13 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection, doc } from "firebase/firestore";
-import {
-  useFirestore,
-  addDocumentNonBlocking,
-  updateDocumentNonBlocking,
-  type WithId,
-} from "@/firebase";
+import {useFirestore, addDocumentNonBlocking, updateDocumentNonBlocking, type WithId, collection, doc} from "@/firebase";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";

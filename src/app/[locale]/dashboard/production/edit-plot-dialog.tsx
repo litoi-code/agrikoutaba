@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { doc, updateDoc } from "firebase/firestore";
-import { useFirestore, type WithId } from "@/firebase";
+import {useFirestore, type WithId, doc, updateDoc} from "@/firebase";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";

@@ -127,7 +127,28 @@
     "submitting": "Logging in...",
     "noAccount": "Don't have an account?",
     "signUpLink": "Sign up",
-    "errorTitle": "Login Failed"
+    "errorTitle": "Login Failed",
+    "forgotPassword": "Forgot password?",
+    "resetSending": "Sending reset link...",
+    "resetEmailRequired": "Please enter your email address first.",
+    "resetSentTitle": "Reset Link Sent",
+    "resetSentMessage": "If an account exists for {email}, a password reset link has been sent. Please also check your spam folder."
+  },
+  "RecoveryPage": {
+    "title": "Set a New Password",
+    "description": "Choose a new password for your account.",
+    "newPasswordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "submitButton": "Update Password",
+    "submitting": "Updating...",
+    "checking": "Checking your link...",
+    "invalidLinkTitle": "Invalid or Expired Link",
+    "invalidLink": "This recovery link is invalid or has expired. Please request a new one.",
+    "errorTitle": "Reset Failed",
+    "errorMessage": "Something went wrong while resetting your password.",
+    "successTitle": "Password Updated",
+    "successMessage": "Your password has been updated. You will be redirected to the login page.",
+    "backToLogin": "Back to login"
   },
   "SignupPage": {
     "title": "Create an Account",

@@ -3,8 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import {useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking, getDocs, setDoc, collection, doc} from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -109,10 +108,10 @@ export default function SettingsPage() {
       const backup: Record<string, any[]> = {};
 
       for (const collectionName of COLLECTIONS) {
-        const querySnapshot = await getDocs(collection(firestore, collectionName));
-        backup[collectionName] = querySnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id
+        const { data: querySnapshot } = await getDocs(collection(firestore, collectionName));
+        backup[collectionName] = querySnapshot.map(item => ({
+          ...item,
+          id: item.id
         }));
       }
 
@@ -179,7 +178,7 @@ export default function SettingsPage() {
         for (const entry of dataList) {
           const { id, ...data } = entry;
           if (id) {
-            await setDoc(doc(firestore, collectionName, id), data, { merge: true });
+            await setDoc(doc(firestore, collectionName, id), data);
           }
         }
       }

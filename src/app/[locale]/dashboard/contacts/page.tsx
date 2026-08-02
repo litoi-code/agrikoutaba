@@ -1,7 +1,6 @@
 "use client";
 import { useMemo, useState } from 'react';
-import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
+import {useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking, collection, doc} from '@/firebase';
 import { useTranslations } from 'next-intl';
 import {
   Card,

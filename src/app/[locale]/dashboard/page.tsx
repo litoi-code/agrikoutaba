@@ -1,8 +1,7 @@
 
 "use client"
 import { useMemo, useState, useEffect } from 'react';
-import { collection } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId } from '@/firebase';
+import {useFirestore, useCollection, useMemoFirebase, type WithId, collection} from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format, startOfDay, endOfDay, startOfYear, endOfYear } from 'date-fns';
 import { DateRange } from 'react-day-picker';

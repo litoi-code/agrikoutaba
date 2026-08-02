@@ -1,7 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect } from 'react';
-import { collection, doc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking } from '@/firebase';
+import {useFirestore, useCollection, useMemoFirebase, type WithId, deleteDocumentNonBlocking, collection, doc} from '@/firebase';
 import { useTranslations } from 'next-intl';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -154,7 +153,6 @@ const InvestmentRow = ({
     </>
   );
 };
-
 
 export default function InvestmentsPage() {
   const firestore = useFirestore();

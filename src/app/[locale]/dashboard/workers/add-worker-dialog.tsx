@@ -4,13 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { doc, collection } from "firebase/firestore";
-import {
-  useFirestore,
-  updateDocumentNonBlocking,
-  addDocumentNonBlocking,
-  type WithId,
-} from "@/firebase";
+import {useFirestore, updateDocumentNonBlocking, addDocumentNonBlocking, type WithId, collection, doc} from "@/firebase";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";

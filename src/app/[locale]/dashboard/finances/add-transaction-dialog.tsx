@@ -5,13 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { collection, doc } from "firebase/firestore";
-import {
-  useFirestore,
-  addDocumentNonBlocking,
-  updateDocumentNonBlocking,
-  type WithId,
-} from "@/firebase";
+import {useFirestore, addDocumentNonBlocking, updateDocumentNonBlocking, type WithId, collection, doc} from "@/firebase";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
@@ -128,7 +122,6 @@ export function TransactionFormDialog({
         }
     }
   }, [open, income, expense, incomeForm, expenseForm]);
-
 
   const onIncomeSubmit = (values: z.infer<typeof incomeSchema>) => {
     if (!firestore) return;
